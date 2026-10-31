@@ -47,7 +47,7 @@ nav .links a:hover{color:var(--accent)}
 .stage{--star:#B8A7FF;background:radial-gradient(circle at 50% 45%,rgba(108,77,255,.5),transparent 62%),#171321;display:grid;place-items:center;overflow:hidden}
 .stage svg{width:min(70%,380px);height:auto;aspect-ratio:480/530}
 
-.tape{background:var(--purple);color:#fff;overflow:hidden;white-space:nowrap;transform:rotate(-1.5deg);margin:3.5rem -2rem 0;padding:.9rem 0}
+.tape{background:var(--purple);color:#fff;overflow:hidden;white-space:nowrap;transform:rotate(-1.5deg);margin:0 -3rem;padding:.9rem 0}
 .tape div{display:inline-block;font-weight:800;font-size:1.4rem;animation:slide 30s linear infinite}
 .tape span{margin:0 1.2rem}
 @keyframes slide{to{transform:translateX(-50%)}}
@@ -103,7 +103,7 @@ footer svg{width:28px;height:28px}
   .hero-copy{padding:3rem 1.5rem}
   .stage{min-height:340px}
   section{padding-top:4rem}
-  .tape{margin-top:4rem}
+  .tape-wrap{margin-top:3rem}
 }
 
 /* ---- Blog + account pages ---- */
@@ -210,3 +210,9 @@ a.acct img.avatar{width:120px;height:120px}
   .social-stage *,.social-stage *::before,.social-stage *::after{animation:none!important;transition:none!important}
   .acard:not(.in){opacity:1}
 }
+
+/* ---- Stop the page scrolling sideways ---- */
+html,body{overflow-x:clip}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}
+
+.tape-wrap{overflow:hidden;margin-top:3.5rem;padding:1.6rem 0}
