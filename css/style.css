@@ -159,3 +159,8 @@ footer svg{width:28px;height:28px}
 .pager a{padding:.5rem 1rem;border:1px solid var(--line);border-radius:999px;text-decoration:none}
 .pager a.on{background:var(--purple);border-color:var(--purple);color:#fff}
 @media (max-width:900px){.blog-layout{grid-template-columns:1fr}.page-banner{padding:3rem 1.5rem}}
+
+/* account logos: rounded squares so wide logos are not cropped */
+img.avatar{border-radius:22%}
+a.acct img.avatar{width:120px;height:120px}
+.detail img.avatar{width:140px;height:140px}

@@ -4,8 +4,9 @@
 //   logo     put the image file in assets/logos/ and write its path, e.g. 'assets/logos/my-account.png'
 //            leave '' to show the first letter of the name instead
 //   link     the account's profile address; leave '' to hide the "Visit account" button
+//   platform, handle, desc: leave '' to hide them on the account page
 var ACCOUNTS = [
-  { id: 'account-one',   name: 'Account One',   logo: '', platform: 'Instagram', handle: '@handle', desc: 'One short line about this account and what we do for it.', link: '' },
-  { id: 'account-two',   name: 'Account Two',   logo: '', platform: 'TikTok',    handle: '@handle', desc: 'One short line about this account and what we do for it.', link: '' },
-  { id: 'account-three', name: 'Account Three', logo: '', platform: 'YouTube',   handle: '@handle', desc: 'One short line about this account and what we do for it.', link: '' }
+  { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', platform: '', handle: '', desc: '', link: '' },
+  { id: 'ketahui-id',  name: 'Ketahui.id',  logo: 'assets/logos/ketahui-id.png',  platform: '', handle: '', desc: '', link: '' },
+  { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  platform: '', handle: '', desc: '', link: '' }
 ];

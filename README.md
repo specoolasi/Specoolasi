@@ -36,7 +36,7 @@ You need Node.js installed on one computer for this part (nodejs.org).
 1. **Create the writing screen.** In a terminal, inside this project folder, run:
    `npm create sanity@latest`
    Log in or create a Sanity account when asked. Choose: create a new project (name it "Specoolasi Blog"), dataset **production** with the default public access, output folder `studio`, template **Clean project with no predefined schema types**, and **JavaScript** (not TypeScript).
-2. **Add the blog post type.** Copy `sanity-schema/post.js` and `sanity-schema/index.js` into `studio/schemaTypes/`, replacing the existing `index.js`.
+2. **Add the blog post type.** Copy the two files from `sanity-schema/` into your Studio's `schemaTypes` folder, replacing the existing `index` file. Use `post.ts` and `index.ts` if you chose TypeScript, or `post.js` and `index.js` if you chose JavaScript.
 3. **Publish the writing screen.** In a terminal, go into the `studio` folder and run `npx sanity deploy`. Pick a name. Sanity gives you an address like `yourname.sanity.studio`. Your team writes posts there.
 4. **Copy your Project ID.** Find it on your project page at sanity.io/manage. Paste it into `js/config.js` in place of `YOUR_PROJECT_ID`, then commit the change on GitHub.
 5. **Allow your website to read the posts.** In sanity.io/manage, open your project, go to the API settings, and add your website address (for example `https://your-site.vercel.app`, and your own domain later) as a **CORS origin**. Without this step the Blog page stays empty.
@@ -63,6 +63,5 @@ A "Blog" banner, big post cards (cover image, author, date, category, summary, R
 
 ## Still to change
 
-- The contact email in `index.html` is a placeholder (`hello@specoolasi.com`).
 - The Projects section says "coming soon".
 - The logo on the site is a vector redraw. Your original files are in `assets/brand/`.
