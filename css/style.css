@@ -191,7 +191,9 @@ a.acct img.avatar{width:120px;height:120px}
 .acard::before{content:"";position:absolute;inset:0;background:radial-gradient(280px circle at var(--mx) var(--my),rgba(184,167,255,.38),transparent 60%);opacity:0;transition:opacity .3s}
 .acard::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;opacity:0;transition:opacity .3s;
   background:conic-gradient(from var(--ang),#6C4DFF,#B8A7FF,transparent 40%,#6C4DFF);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3s linear infinite}
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3s linear infinite}
 @keyframes spin{to{--ang:360deg}}
 .acard:hover::before,.acard:hover::after,.acard:focus-visible::before,.acard:focus-visible::after{opacity:1}
 .alogo-wrap{position:relative;z-index:1;display:grid;place-items:center;flex:1}
