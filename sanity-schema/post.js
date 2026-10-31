@@ -15,6 +15,22 @@ export default defineType({
     }),
     defineField({name: 'author', title: 'Author', type: 'string'}),
     defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      options: {
+        list: ['Social Media', 'Content', 'Design', 'Music', 'Copywriting', 'News', 'Behind the scenes'],
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags (type a word and press Enter)',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+    }),
+    defineField({
       name: 'publishedAt',
       title: 'Publish date',
       type: 'datetime',

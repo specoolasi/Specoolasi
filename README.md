@@ -48,8 +48,12 @@ Do not upload the `studio/node_modules` folder to GitHub. The included `.gitigno
 
 1. Open your `yourname.sanity.studio` address and log in.
 2. Click **Blog post**, then the new-document button.
-3. Fill in the title, click **Generate** for the web address, add the author, a cover image, a short summary, and the text.
+3. Fill in the title, click **Generate** for the web address, add the author, pick a category, add tags (type a word and press Enter), add a cover image, a short summary, and the text.
 4. Click **Publish**. The post appears on the Blog page within a short time. No code or GitHub needed.
+
+## What the Blog page has
+
+A "Blog" banner, big post cards (cover image, author, date, category, summary, Read more button), and a sidebar with search, recent posts, archives by month, categories and tags. Clicking any of those filters the list. Six posts show per page, then page numbers appear. There are no comments. The category list can be changed in `sanity-schema/post.js`.
 
 ## If something looks wrong
 
