@@ -164,3 +164,49 @@ footer svg{width:28px;height:28px}
 img.avatar{border-radius:22%}
 a.acct img.avatar{width:120px;height:120px}
 .detail img.avatar{width:140px;height:140px}
+
+/* ---- Accounts we manage: animated stage ---- */
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.social-stage{--pad:clamp(1.8rem,5vw,4rem);position:relative;isolation:isolate;overflow:hidden;border-radius:40px;padding:var(--pad);color:#F3F0FF;
+  background:radial-gradient(60% 80% at 12% 0%,rgba(108,77,255,.6),transparent 62%),radial-gradient(50% 70% at 100% 100%,rgba(184,167,255,.3),transparent 60%),#171321}
+.social-stage .eyebrow{color:#B8A7FF}
+.social-stage h2{color:#fff;margin-bottom:1rem}
+.social-stage h2 em{font-style:normal;background:linear-gradient(90deg,#B8A7FF,#6C4DFF,#B8A7FF);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+@keyframes shine{to{background-position:-200% 0}}
+.social-stage .lead{color:#C9C3E8;margin:0}
+.spark{position:absolute;z-index:-1;width:var(--s);height:var(--s);background:#B8A7FF;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:twinkle 4s ease-in-out infinite}
+.spark.a{--s:36px;top:8%;right:9%}
+.spark.b{--s:18px;top:42%;right:3%;animation-delay:-1.5s}
+.spark.c{--s:26px;bottom:14%;left:5%;animation-delay:-3s}
+.spark.d{--s:14px;top:22%;left:55%;animation-delay:-2s}
+@keyframes twinkle{0%,100%{transform:scale(.7) rotate(0);opacity:.3}50%{transform:scale(1.15) rotate(45deg);opacity:.95}}
+
+.social-stage .accts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1.2rem;margin-top:2.5rem}
+.acard{--mx:50%;--my:50%;position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:1.5rem;min-height:330px;padding:1.5rem;border-radius:30px;text-decoration:none;color:#fff;overflow:hidden;
+  background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid rgba(184,167,255,.22);
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out,border-color .3s}
+.acard:not(.in){opacity:0}
+.acard.in{animation:rise .9s cubic-bezier(.2,.8,.2,1) var(--d) backwards}
+@keyframes rise{from{opacity:0;transform:translateY(50px) scale(.95)}}
+.acard::before{content:"";position:absolute;inset:0;background:radial-gradient(280px circle at var(--mx) var(--my),rgba(184,167,255,.38),transparent 60%);opacity:0;transition:opacity .3s}
+.acard::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:conic-gradient(from var(--ang),#6C4DFF,#B8A7FF,transparent 40%,#6C4DFF);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3s linear infinite}
+@keyframes spin{to{--ang:360deg}}
+.acard:hover::before,.acard:hover::after,.acard:focus-visible::before,.acard:focus-visible::after{opacity:1}
+.alogo-wrap{position:relative;z-index:1;display:grid;place-items:center;flex:1}
+.alogo{width:100%;max-width:190px;aspect-ratio:1;border-radius:26px;object-fit:cover;box-shadow:0 22px 50px rgba(0,0,0,.5);transition:scale .35s,rotate .35s;animation:bob 6s ease-in-out infinite;animation-delay:calc(var(--d) * -8)}
+.alogo.letter{display:grid;place-items:center;background:linear-gradient(135deg,#B8A7FF,#6C4DFF);font-size:4rem;font-weight:800}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.acard:hover .alogo{scale:1.08;rotate:-3deg}
+.acard .foot{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.acard h3{font-size:1.3rem;margin:0;color:#fff}
+.acard .go{flex:none;width:42px;height:42px;border-radius:50%;border:1px solid rgba(184,167,255,.5);display:grid;place-items:center;font-size:1.1rem;transition:background .3s,transform .3s}
+.acard:hover .go{background:#6C4DFF;border-color:#6C4DFF;transform:rotate(45deg)}
+.social-stage .names{margin:3rem calc(-1 * var(--pad)) -.5rem;overflow:hidden;white-space:nowrap}
+.names>div{display:inline-block;animation:slide 45s linear infinite}
+.names span{font-weight:800;font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.1;color:transparent;-webkit-text-stroke:1px rgba(184,167,255,.65);margin:0 1.2rem}
+@media (prefers-reduced-motion:reduce){
+  .social-stage *,.social-stage *::before,.social-stage *::after{animation:none!important;transition:none!important}
+  .acard:not(.in){opacity:1}
+}
