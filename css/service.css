@@ -178,3 +178,22 @@
   .rs-copy .rs-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){.rs-story i,.rs-fr .rs-ph::after,.rs-sl:hover .vn,.rs-sl:hover .bars i,.rs-post:hover .hr svg{animation:none}.rs-line{background-size:100% .55em}}
+
+/* ---- Social results: logo buttons + hint; copywriting blog button ---- */
+button.rs-story{background:none;border:0;padding:0;cursor:pointer;font:700 .68rem var(--mono);color:var(--ink)}
+.rs-story i{position:relative;transition:scale .3s var(--ease)}
+.rs-story:hover i,.rs-story.on i{scale:1.12}
+.rs-story i b{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:var(--lilac);font:800 1.6rem "Plus Jakarta Sans",sans-serif;border:3px solid var(--paper)}
+.rs-story span{padding:.15rem .5rem;border:2px solid transparent;transition:background .25s,color .25s}
+.rs-story.on span{background:var(--ink);color:#fff}
+.rs-pick:not(.done) .rs-story:not(.on) i::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--sc);animation:rsping 1.8s ease-out infinite}
+@keyframes rsping{from{opacity:.9;scale:1}to{opacity:0;scale:1.5}}
+.rs-hint{display:flex;align-items:flex-end;gap:.4rem;margin:1.4rem 0 0;font:700 clamp(1.4rem,3vw,2rem)/1 var(--hand);color:var(--sc);rotate:-2deg;transition:opacity .4s}
+.rs-hint em{font-style:normal}
+.rs-hint svg{width:54px;height:36px;fill:none;stroke:var(--sc);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;animation:rsbounce 1.4s ease-in-out infinite}
+@keyframes rsbounce{50%{translate:6px 8px}}
+.rs-pick.done .rs-hint{opacity:0;pointer-events:none}
+.rs-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.8rem}
+.rs-more{display:flex;flex-wrap:wrap;align-items:center;gap:1.4rem;margin-top:2.6rem}
+.rs-more em{font:700 1.7rem var(--hand);font-style:normal;color:var(--sc);rotate:-3deg}
+@media (prefers-reduced-motion:reduce){.rs-pick:not(.done) .rs-story:not(.on) i::after,.rs-hint svg{animation:none}}

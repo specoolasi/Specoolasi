@@ -13,6 +13,8 @@
 //   samples  content samples. Put the images in assets/accounts/<id>/ and list them. Each one needs:
 //              img     the image path, e.g. 'assets/accounts/popthusiast/1.jpg'
 //              link    optional: the post address to open when someone clicks the image
+//              title   optional: a short caption shown under the image
+//            These samples also appear on the Social media service page, when someone taps this account's logo.
 //            Leave [] to hide the section.
 //
 // Example (copy the shape, not the words):

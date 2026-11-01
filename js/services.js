@@ -89,17 +89,29 @@
     send: '<svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
   };
   var tapeBars = ''; for (var b = 0; b < 14; b++) tapeBars += '<i style="--k:' + b + '"></i>';
+  function postCell(r, i) {
+    return cell('<div class="hd"><i></i>' + esc(r.client) + '</div>' + pic(r) + '<div class="ic"><span class="hr">' + ic.heart + '</span>' + ic.chat + ic.send + '</div>' + (r.title ? '<p>' + esc(r.title) + '</p>' : ''), r, 'rs-post', i);
+  }
+  // Results of ONE account (used when a logo is tapped). Uses that account's "samples" from js/accounts.js.
+  function acctResults(a) {
+    var has = a.samples && a.samples.length;
+    var list = has ? a.samples.map(function (x) { return { img: x.img, title: x.title || '', client: a.name, link: x.link || '' }; }) : ph('', a.name);
+    return '<div class="rs-grid">' + list.map(function (r, i) { return postCell(r, i); }).join('') + '</div>' +
+      '<div class="rs-foot"><span class="mono">' + (has ? '' : 'More samples coming soon') + '</span><a class="bt sm" href="account.html?id=' + encodeURIComponent(a.id) + '">Open ' + esc(a.name) + ' ↗</a></div>';
+  }
   function resultsHtml(th) {
     var R = RESULTS[th] || []; if (!R.length) return '';
     var body = '';
     if (th === 'social') {
-      var accts = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []).map(function (a) {
-        return '<a class="rs-story" href="account.html?id=' + encodeURIComponent(a.id) + '"><i>' + (a.logo ? '<img src="' + esc(a.logo) + '" alt="">' : '') + '</i><span>' + esc(a.name) + '</span></a>';
-      }).join('');
-      body = (accts ? '<p class="mono" style="margin:1.6rem 0 0">Accounts we run</p><div class="rs-stories">' + accts + '</div>' : '') +
-        '<div class="rs-grid">' + R.map(function (r, i) {
-          return cell('<div class="hd"><i></i>' + esc(r.client) + '</div>' + pic(r) + '<div class="ic"><span class="hr">' + ic.heart + '</span>' + ic.chat + ic.send + '</div><p>' + esc(r.title) + '</p>', r, 'rs-post', i);
-        }).join('') + '</div>';
+      var A = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []);
+      if (A.length) {
+        body = '<div class="rs-pick"><p class="rs-hint"><em>Tap a logo to see its results</em><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M4 6C20 2 38 8 48 30M48 30l-14-3M48 30l3-14"/></svg></p>' +
+          '<div class="rs-stories">' + A.map(function (a, i) {
+            return '<button type="button" class="rs-story' + (i === 0 ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><i>' + (a.logo ? '<img src="' + esc(a.logo) + '" alt="">' : '<b>' + esc(a.name.charAt(0)) + '</b>') + '</i><span>' + esc(a.name) + '</span></button>';
+          }).join('') + '</div></div><div id="rs-out" aria-live="polite">' + acctResults(A[0]) + '</div>';
+      } else {
+        body = '<div class="rs-grid">' + R.map(function (r, i) { return postCell(r, i); }).join('') + '</div>';
+      }
     } else if (th === 'content') {
       body = '<div class="rs-film"><div class="rs-grid">' + R.map(function (r, i) {
         return cell('<span class="no">A' + (i + 1) + '</span>' + pic(r) + '<span class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></span><div class="cap"><span>' + esc(r.title) + '</span><span>' + esc(r.client) + '</span></div>', r, 'rs-fr', i);
@@ -115,7 +127,7 @@
     } else {
       body = '<div class="rs-grid">' + R.map(function (r, i) {
         return cell('<p class="ln"><span class="rs-line">' + esc(r.title) + '</span></p><div class="by"><span>' + esc(r.client) + '</span><em>nice one!</em></div>', r, 'rs-slip', i);
-      }).join('') + '</div>';
+      }).join('') + '</div><div class="rs-more"><a class="bt" href="blog.html?category=Copywriting">See more copywriting results on the blog →</a><em>More of our writing lives there.</em></div>';
     }
     return '<section class="svp-sec rs rs-' + th + '"><p class="mono"><b>(B)</b> Results</p><h2 data-split>' + RTITLE[th] + '</h2>' + body + '</section>';
   }
@@ -153,5 +165,18 @@
         if (i < p[1].length) setTimeout(type, 55); else setTimeout(function () { run(k + 1); }, 2600);
       })(); }, 1400);
     })(0);
+  }
+
+  // ---- social results: tap a logo to see that account's results
+  var rsOut = document.getElementById('rs-out');
+  if (rsOut && typeof ACCOUNTS !== 'undefined') {
+    var rsBtns = document.querySelectorAll('.rs-story'), rsPick = document.querySelector('.rs-pick');
+    rsBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        rsBtns.forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        rsOut.innerHTML = acctResults(ACCOUNTS[+b.dataset.i]);
+        if (rsPick) rsPick.classList.add('done');
+      });
+    });
   }
 })();
