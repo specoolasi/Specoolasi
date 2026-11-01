@@ -24,12 +24,7 @@
 //     samples: [ { img: 'assets/accounts/my-account/1.jpg', link: 'https://www.instagram.com/p/XXXX/' } ] }
 
 var ACCOUNTS = [
-  { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', desc: '', socials: [],
-  samples: [
-    { embed: 'https://www.tiktok.com/@popthusiast_official/video/7703007059343691015?lang=en' },
-    { embed: 'https://www.tiktok.com/@popthusiast_official/video/7702637122917780754?lang=en' },
-    { embed: 'https://www.tiktok.com/@popthusiast_official/video/7702367596536089874?lang=en' }
-  ] },
+  { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', desc: '', socials: [], samples: [] },
   { id: 'ketahui-id',  name: 'Ketahui.id',  logo: 'assets/logos/ketahui-id.png',  desc: '', socials: [], samples: [] },
   { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  desc: '', socials: [], samples: [] }
 ];
