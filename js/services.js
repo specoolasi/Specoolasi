@@ -78,7 +78,11 @@
   };
   var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Spin it.', copy: 'Lines that landed.' };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function pic(r) { return '<div class="rs-ph">' + (r.img ? '<img src="' + esc(r.img) + '" alt="' + esc(r.title) + '" loading="lazy">' : '<span>✦</span>') + '</div>'; }
+  function pic(r) {
+    var m = r.video ? '<video src="' + esc(r.video) + '" autoplay muted loop playsinline preload="metadata"' + (r.img ? ' poster="' + esc(r.img) + '"' : '') + '></video>'
+      : r.img ? '<img src="' + esc(r.img) + '" alt="' + esc(r.title) + '" loading="lazy">' : '<span>✦</span>';
+    return '<div class="rs-ph">' + m + '</div>';
+  }
   function cell(inner, r, cls, i) {
     var tag = r.link ? 'a' : 'div', at = r.link ? ' href="' + esc(r.link) + '" target="_blank" rel="noopener"' : '';
     return '<div class="rs-cell" style="--k:' + i + '" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><' + tag + ' class="' + cls + '"' + at + '>' + inner + '</' + tag + '></div>';
@@ -89,34 +93,14 @@
     send: '<svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
   };
   var tapeBars = ''; for (var b = 0; b < 14; b++) tapeBars += '<i style="--k:' + b + '"></i>';
-  // ---- Embeds: paste a public post address in accounts.js (samples: [{ embed: 'https://...' }])
-  function embedOf(url) {
-    var u = String(url || '').trim(), m;
-    if ((m = u.match(/instagram\.com\/(p|reel|tv)\/([\w-]+)/i))) return { name: 'Instagram', src: 'https://www.instagram.com/' + m[1].toLowerCase() + '/' + m[2] + '/embed/', h: 640 };
-    if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/))([\w-]{11})/i))) return { name: 'YouTube', src: 'https://www.youtube.com/embed/' + m[1], ar: /shorts\//i.test(u) ? '9/16' : '16/9' };
-    if ((m = u.match(/tiktok\.com\/@[^\/]+\/video\/(\d+)/i))) return { name: 'TikTok', src: 'https://www.tiktok.com/embed/v2/' + m[1], h: 740 };
-    if ((m = u.match(/(?:twitter|x)\.com\/\w+\/status\/(\d+)/i))) return { name: 'X', src: 'https://platform.twitter.com/embed/Tweet.html?id=' + m[1], h: 560 };
-    return null;
-  }
-  function embedCell(r, i) {
-    var e = embedOf(r.embed), inner;
-    if (e) {
-      inner = '<div class="emb-bar"><span>' + e.name + '</span><a href="' + esc(r.embed) + '" target="_blank" rel="noopener">Open original ↗</a></div>' +
-        '<iframe src="' + esc(e.src) + '" title="' + e.name + ' post" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="' + (e.ar ? 'aspect-ratio:' + e.ar : 'height:' + e.h + 'px') + '"></iframe>';
-    } else {
-      inner = '<div class="emb-bar"><span>Post</span>' + (/^https?:\/\//.test(r.embed) ? '<a href="' + esc(r.embed) + '" target="_blank" rel="noopener">Open post ↗</a>' : '') + '</div><div class="rs-ph"><span>✦</span></div>';
-    }
-    return cell(inner, {}, 'rs-emb', i);
-  }
   function postCell(r, i) {
     return cell('<div class="hd"><i></i>' + esc(r.client) + '</div>' + pic(r) + '<div class="ic"><span class="hr">' + ic.heart + '</span>' + ic.chat + ic.send + '</div>' + (r.title ? '<p>' + esc(r.title) + '</p>' : ''), r, 'rs-post', i);
   }
   // Results of ONE account (used when a logo is tapped). Uses that account's "samples" from js/accounts.js.
   function acctResults(a) {
     var has = a.samples && a.samples.length;
-    var list = has ? a.samples.map(function (x) { return { img: x.img, title: x.title || '', client: a.name, link: x.link || '', embed: x.embed || '' }; }) : ph('', a.name);
-    var anyEmb = list.some(function (r) { return r.embed; });
-    return '<div class="rs-grid' + (anyEmb ? ' has-emb' : '') + '">' + list.map(function (r, i) { return r.embed ? embedCell(r, i) : postCell(r, i); }).join('') + '</div>' +
+    var list = has ? a.samples.map(function (x) { return { img: x.img, title: x.title || '', client: a.name, link: x.link || '', video: x.video || '' }; }) : ph('', a.name);
+        return '<div class="rs-grid">' + list.map(function (r, i) { return postCell(r, i); }).join('') + '</div>' +
       '<div class="rs-foot"><span class="mono">' + (has ? '' : 'More samples coming soon') + '</span><a class="bt sm" href="account.html?id=' + encodeURIComponent(a.id) + '">Open ' + esc(a.name) + ' ↗</a></div>';
   }
   function resultsHtml(th) {
@@ -186,8 +170,9 @@
   }
 
   // ---- social results: tap a logo to see that account's results
-  var rsOut = document.getElementById('rs-out');
-  if (rsOut && typeof ACCOUNTS !== 'undefined') {
+  function bindSocial() {
+    var rsOut = document.getElementById('rs-out');
+    if (!rsOut || typeof ACCOUNTS === 'undefined') return;
     var rsBtns = document.querySelectorAll('.rs-story'), rsPick = document.querySelector('.rs-pick');
     rsBtns.forEach(function (b) {
       b.addEventListener('click', function () {
@@ -196,5 +181,49 @@
         if (rsPick) rsPick.classList.add('done');
       });
     });
+  }
+  bindSocial();
+
+  // ---- videos: play only while on screen, always muted and looping
+  var vio = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) { var v = e.target; if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else v.pause(); });
+  }, { threshold: 0.25 }) : null;
+  function wireVideos() {
+    document.querySelectorAll('.rs-ph video:not([data-w])').forEach(function (v) {
+      v.dataset.w = '1'; v.muted = true; v.loop = true; v.playsInline = true;
+      if (calm) { v.removeAttribute('autoplay'); v.controls = true; return; }
+      if (vio) vio.observe(v); else { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    });
+  }
+  wireVideos();
+  new MutationObserver(wireVideos).observe(root, { childList: true, subtree: true });
+
+  // ---- your work from Sanity (Studio > "Work sample"): fills the results on this page
+  var cfg = window.SPECOOLASI && window.SPECOOLASI.sanity;
+  if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
+    var Q = '*[_type=="work" && defined(service)] | order(coalesce(order,9999) asc, _createdAt desc){title, service, account, client, link, "img": image.asset->url, "video": video.asset->url}';
+    fetch('https://' + cfg.projectId + '.apicdn.sanity.io/v' + cfg.apiVersion + '/data/query/' + cfg.dataset + '?query=' + encodeURIComponent(Q))
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        var W = (j.result || []).map(function (w) {
+          return { service: w.service, account: w.account || '', title: w.title || '', client: w.client || '', link: /^https?:\/\//.test(w.link || '') ? w.link : '',
+            img: w.img ? w.img + '?w=900&auto=format' : '', video: w.video || '' };
+        }).filter(function (w) { return w.img || w.video; });
+        if (!W.length) return;
+        var mine = W.filter(function (w) { return w.service === s.th; });
+        if (s.th === 'social' && typeof ACCOUNTS !== 'undefined') {
+          ACCOUNTS.forEach(function (a) {
+            var add = mine.filter(function (w) { return w.account === a.id; });
+            if (add.length) a.samples = (a.samples || []).concat(add);
+          });
+        } else if (mine.length) RESULTS[s.th] = mine;
+        else return;
+        var sec = document.querySelector('section.rs');
+        if (!sec) return;
+        var fresh = document.createElement('div'); fresh.innerHTML = resultsHtml(s.th);
+        sec.replaceWith(fresh.firstChild);
+        bindSocial(); wireVideos();
+      })
+      .catch(function () {});
   }
 })();
