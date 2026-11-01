@@ -81,7 +81,7 @@
   function pic(r) {
     var m = r.video ? '<video src="' + esc(r.video) + '" autoplay muted loop playsinline preload="metadata"' + (r.img ? ' poster="' + esc(r.img) + '"' : '') + '></video>'
       : r.img ? '<img src="' + esc(r.img) + '" alt="' + esc(r.title) + '" loading="lazy">' : '<span>✦</span>';
-    return '<div class="rs-ph">' + m + '</div>';
+    return '<div class="rs-ph' + (r.img || r.video ? ' rs-real' : '') + '">' + m + '</div>';
   }
   function cell(inner, r, cls, i) {
     var tag = r.link ? 'a' : 'div', at = r.link ? ' href="' + esc(r.link) + '" target="_blank" rel="noopener"' : '';
