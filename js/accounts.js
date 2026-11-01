@@ -26,5 +26,8 @@
 var ACCOUNTS = [
   { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', desc: '', socials: [], samples: [] },
   { id: 'ketahui-id',  name: 'Ketahui.id',  logo: 'assets/logos/ketahui-id.png',  desc: '', socials: [], samples: [] },
-  { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  desc: '', socials: [], samples: [] }
+  { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  desc: '', socials: [], samples: [] },
+  { id: 'popnewsiast', name: 'Popnewsiast', logo: 'assets/logos/popnewsiast.png', desc: '', socials: [], samples: [] },
+  { id: 'dramories',   name: 'Dramories',   logo: 'assets/logos/dramories.png',   desc: '', socials: [], samples: [] },
+  { id: 'listenation', name: 'Listenation', logo: 'assets/logos/listenation.png', desc: '', socials: [], samples: [] }
 ];
