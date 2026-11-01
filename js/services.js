@@ -83,9 +83,10 @@
       : r.img ? '<img src="' + esc(r.img) + '" alt="' + esc(r.title) + '" loading="lazy">' : '<span>✦</span>';
     return '<div class="rs-ph' + (r.img || r.video ? ' rs-real' : '') + '">' + m + '</div>';
   }
-  function cell(inner, r, cls, i) {
+  var designR = [];
+  function cell(inner, r, cls, i, extra) {
     var tag = r.link ? 'a' : 'div', at = r.link ? ' href="' + esc(r.link) + '" target="_blank" rel="noopener"' : '';
-    return '<div class="rs-cell" style="--k:' + i + '" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><' + tag + ' class="' + cls + '"' + at + '>' + inner + '</' + tag + '></div>';
+    return '<div class="rs-cell" style="--k:' + i + '" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><' + tag + ' class="' + cls + '"' + at + (extra || '') + '>' + inner + '</' + tag + '></div>';
   }
   var ic = {
     heart: '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>',
@@ -121,8 +122,10 @@
         return cell('<span class="no">A' + (i + 1) + '</span>' + pic(r) + '<span class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></span><div class="cap"><span>' + esc(r.title) + '</span><span>' + esc(r.client) + '</span></div>', r, 'rs-fr', i);
       }).join('') + '</div></div>';
     } else if (th === 'design') {
+      designR = R;
       body = '<div class="rs-board"><div class="rs-grid">' + R.map(function (r, i) {
-        return cell(pic(r) + '<div class="sw"><i style="background:#6C4DFF"></i><i style="background:#B8A7FF"></i><i style="background:#171321"></i></div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>', r, 'rs-pin', i);
+        var lc = (r.img || r.video) ? '<button type="button" class="lc" data-i="' + i + '">Look closely <span aria-hidden="true">⌕</span></button>' : '';
+        return cell(pic(r) + '<div class="sw"><i style="background:#6C4DFF"></i><i style="background:#B8A7FF"></i><i style="background:#171321"></i></div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>' + lc, {}, 'rs-pin', i, lc ? ' tabindex="0"' : '');
       }).join('') + '</div></div>';
     } else if (th === 'music') {
       body = '<div class="rs-grid">' + R.map(function (r, i) {
@@ -198,6 +201,55 @@
   wireVideos();
   new MutationObserver(wireVideos).observe(root, { childList: true, subtree: true });
 
+  // ---- graphic design: tap a design -> "Look closely" -> bottom sheet (like an iPhone popup)
+  var sheet = document.createElement('div');
+  sheet.className = 'sheet'; sheet.setAttribute('aria-hidden', 'true');
+  sheet.innerHTML = '<div class="sheet-bg"></div><div class="sheet-card" role="dialog" aria-modal="true" aria-label="Design preview">' +
+    '<div class="sheet-grab" aria-hidden="true"><i></i></div><button type="button" class="sheet-x" aria-label="Close">×</button>' +
+    '<div class="sheet-body"></div><div class="sheet-cap"></div></div>';
+  document.body.appendChild(sheet);
+  var sCard = sheet.querySelector('.sheet-card'), sBody = sheet.querySelector('.sheet-body'), sCap = sheet.querySelector('.sheet-cap'), sBack = null;
+  function openSheet(i, from) {
+    var r = designR[i]; if (!r) return;
+    sBack = from;
+    sBody.innerHTML = r.video ? '<video src="' + esc(r.video) + '" autoplay muted loop playsinline controls></video>' : '<img src="' + esc(r.big || r.img) + '" alt="' + esc(r.title) + '">';
+    var v = sBody.querySelector('video'); if (v) { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    sCap.innerHTML = '<b>' + esc(r.title) + '</b>' + (r.client ? '<small>' + esc(r.client) + '</small>' : '') + (r.link ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener">Open original ↗</a>' : '');
+    sBody.scrollTop = 0;
+    sheet.setAttribute('aria-hidden', 'false'); sheet.classList.add('on');
+    document.documentElement.classList.add('sheet-lock');
+    sheet.querySelector('.sheet-x').focus();
+  }
+  function closeSheet() {
+    if (!sheet.classList.contains('on')) return;
+    sheet.classList.remove('on'); sheet.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('sheet-lock');
+    setTimeout(function () { sBody.innerHTML = ''; }, 450);
+    if (sBack && sBack.focus) sBack.focus();
+  }
+  sheet.querySelector('.sheet-bg').addEventListener('click', closeSheet);
+  sheet.querySelector('.sheet-x').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeSheet(); return; }
+    var pin = e.target.closest && e.target.closest('.rs-design .rs-pin');
+    if (pin && e.target === pin && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pin.click(); }
+  });
+  // drag the handle down to close
+  var gy = 0, gd = 0, gOn = false, grab = sheet.querySelector('.sheet-grab');
+  grab.addEventListener('pointerdown', function (e) { gOn = true; gy = e.clientY; gd = 0; sCard.style.transition = 'none'; grab.setPointerCapture(e.pointerId); });
+  grab.addEventListener('pointermove', function (e) { if (!gOn) return; gd = Math.max(0, e.clientY - gy); sCard.style.transform = 'translateY(' + gd + 'px)'; });
+  function gEnd() { if (!gOn) return; gOn = false; sCard.style.transition = ''; sCard.style.transform = ''; if (gd > 110) closeSheet(); }
+  grab.addEventListener('pointerup', gEnd); grab.addEventListener('pointercancel', gEnd);
+  // tap a design to reveal its button; tap the button to open the sheet
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!t.closest) return;
+    var lc = t.closest('.lc');
+    if (lc) { e.preventDefault(); openSheet(+lc.dataset.i, lc); return; }
+    var pin = t.closest('.rs-design .rs-pin');
+    document.querySelectorAll('.rs-pin.open').forEach(function (x) { if (x !== pin) x.classList.remove('open'); });
+    if (pin && pin.querySelector('.lc')) pin.classList.toggle('open');
+  });
+
   // ---- your work from Sanity (Studio > "Work sample"): fills the results on this page
   var cfg = window.SPECOOLASI && window.SPECOOLASI.sanity;
   if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
@@ -207,7 +259,7 @@
       .then(function (j) {
         var W = (j.result || []).map(function (w) {
           return { service: w.service, account: w.account || '', title: w.title || '', client: w.client || '', link: /^https?:\/\//.test(w.link || '') ? w.link : '',
-            img: w.img ? w.img + '?w=900&auto=format' : '', video: w.video || '' };
+            img: w.img ? w.img + '?w=900&auto=format' : '', big: w.img ? w.img + '?w=2000&auto=format' : '', video: w.video || '' };
         }).filter(function (w) { return w.img || w.video; });
         if (!W.length) return;
         var mine = W.filter(function (w) { return w.service === s.th; });
