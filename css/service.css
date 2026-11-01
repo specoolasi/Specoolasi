@@ -211,5 +211,8 @@ button.rs-story{background:none;border:0;padding:0;cursor:pointer;font:700 .68re
 @keyframes rsping{from{opacity:.8;scale:1}to{opacity:0;scale:1.25}}
 @media (prefers-reduced-motion:reduce){.rs-hint::after{animation:none}}
 
-/* ---- Uploaded videos fill the box ---- */
-.rs-ph video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+/* ---- Your uploads show in full: the box follows the image or video shape, nothing is cropped ---- */
+.rs-ph.rs-real{display:block;aspect-ratio:auto!important;background:#000}
+.rs-ph.rs-real img,.rs-ph.rs-real video{display:block;width:100%;height:auto;object-fit:contain}
+.rs-ph.rs-real video{background:#000}
+.rs-social .rs-grid,.rs-content .rs-film .rs-grid{align-items:start}
