@@ -4,6 +4,7 @@
 //   id       lowercase letters, numbers and hyphens only (used in the page address)
 //   name     the account name
 //   logo     put the image in assets/logos/ and write its path. Leave '' to show the first letter.
+//   theme    the look of the account page: pop, football, news, magazine, cinema or club. Leave it out for the standard look.
 //   desc     one or two sentences about the account. Leave '' to hide.
 //   socials  the social media the account is on. Each one needs:
 //              type    instagram, tiktok, youtube, x, facebook, threads, telegram, or whatsapp
@@ -24,10 +25,10 @@
 //     samples: [ { img: 'assets/accounts/my-account/1.jpg', link: 'https://www.instagram.com/p/XXXX/' } ] }
 
 var ACCOUNTS = [
-  { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', desc: '', socials: [], samples: [] },
-  { id: 'ketahui-id',  name: 'Ketahui.id',  logo: 'assets/logos/ketahui-id.png',  desc: '', socials: [], samples: [] },
-  { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  desc: '', socials: [], samples: [] },
-  { id: 'popnewsiast', name: 'Popnewsiast', logo: 'assets/logos/popnewsiast.png', desc: '', socials: [], samples: [] },
-  { id: 'dramories',   name: 'Dramories',   logo: 'assets/logos/dramories.png',   desc: '', socials: [], samples: [] },
-  { id: 'listenation', name: 'Listenation', logo: 'assets/logos/listenation.png', desc: '', socials: [], samples: [] }
+  { id: 'popthusiast', name: 'Popthusiast', logo: 'assets/logos/popthusiast.jpg', theme: 'pop', desc: 'Edits of your favorite K-pop girl idols.', socials: [], samples: [] },
+  { id: 'ketahui-id',  name: 'Ketahui.id',  logo: 'assets/logos/ketahui-id.png',  theme: 'news', desc: 'Indonesian news updates.', socials: [], samples: [] },
+  { id: 'globall-id',  name: 'Globall_id',  logo: 'assets/logos/globall-id.png',  theme: 'football', desc: 'Football news from all around the world.', socials: [], samples: [] },
+  { id: 'popnewsiast', name: 'Popnewsiast', logo: 'assets/logos/popnewsiast.png', theme: 'magazine', desc: 'Music news from all around the world.', socials: [], samples: [] },
+  { id: 'dramories',   name: 'Dramories',   logo: 'assets/logos/dramories.png',   theme: 'cinema', desc: 'Clips and edits from Korean movies and series, with films and series from around the world to come.', socials: [], samples: [] },
+  { id: 'listenation', name: 'Listenation', logo: 'assets/logos/listenation.png', theme: 'club', desc: 'EDM and music recommendations.', socials: [], samples: [] }
 ];

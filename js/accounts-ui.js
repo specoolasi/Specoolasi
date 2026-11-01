@@ -77,6 +77,8 @@
       return;
     }
     document.title = a.name + ' – Specoolasi';
+    var T = (window.ACCOUNT_THEMES || {})[a.theme] || null;
+    if (T) { document.body.setAttribute('data-theme', a.theme); detail.setAttribute('data-theme', a.theme); }
 
     var socials = (a.socials || []).filter(function (s) { return SOCIAL[s.type] && (s.handle || s.url); }).map(function (s) {
       var d = SOCIAL[s.type], h = String(s.handle || '').replace(/^@/, '');
@@ -87,24 +89,16 @@
 
     var img = a.logo ? '<img class="ap-logo" src="' + esc(a.logo) + '" alt="' + esc(a.name) + ' logo">'
                      : '<div class="ap-logo letter">' + esc(a.name.charAt(0)) + '</div>';
-    var html = '<a class="back" href="index.html#social">← All accounts</a>' +
-      '<div class="ap-hero">' + img + '<div>' +
-      '<h1>' + esc(a.name) + '</h1>' +
+    var html = (T ? '<div class="ap-stage" aria-hidden="true">' + T.stage + '</div>' : '') + '<a class="back" href="index.html#social">← All accounts</a>' +
+      '<div class="ap-hero">' + img + '<div>' + (T ? '<span class="ap-tag">' + T.tag + '</span>' + (T.pre ? T.pre() : '') : '') +
+      '<h1>' + (T && T.title ? T.title(esc(a.name)) : esc(a.name)) + '</h1>' +
       (a.desc ? '<p class="ap-desc">' + esc(a.desc) + '</p>' : '') +
       (socials.length ? '<div class="ap-icons">' + socials.map(function (s) {
         return '<a class="ap-icon" href="' + esc(s.profile) + '" target="_blank" rel="noopener" aria-label="' + esc(a.name) + ' on ' + esc(s.label) + '">' + svg(s.key) + '</a>';
       }).join('') + '</div>' : '') +
-      '</div></div>';
+      '</div>' + (T ? '<div class="ap-art" aria-hidden="true">' + T.art + '</div>' : '') + '</div>' + (T ? T.ticker : '');
 
-    var samples = (a.samples || []).filter(function (x) { return x && x.img; });
-    if (samples.length) {
-      html += '<div class="ap-block"><span class="eyebrow">Content samples</span><h2>Our work on this account.</h2><div class="ap-samples">' +
-        samples.map(function (x) {
-          var im = '<img src="' + esc(x.img) + '" alt="Content sample from ' + esc(a.name) + '" loading="lazy">';
-          var to = safe(x.link) || x.img;
-          return '<a class="ap-sample" href="' + esc(to) + '" target="_blank" rel="noopener">' + im + '</a>';
-        }).join('') + '</div></div>';
-    }
+    html += '<div id="ap-work"></div>';
 
     if (socials.length) {
       html += '<div class="contact ap-contact"><h2>Contact</h2><p>Send ' + esc(a.name) + ' a direct message.</p><div class="btns">' +
@@ -113,5 +107,37 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
+
+    function mediaOf(x) {
+      return x.video ? '<video src="' + esc(x.video) + '" autoplay muted loop playsinline preload="metadata"' + (x.img ? ' poster="' + esc(x.img) + '"' : '') + '></video>'
+        : '<img src="' + esc(x.img) + '" alt="' + esc(x.title || ('Sample from ' + a.name)) + '" loading="lazy">';
+    }
+    function paintWork(list) {
+      var box = document.getElementById('ap-work'); if (!box) return;
+      var items = list.filter(function (x) { return x && (x.img || x.video); });
+      var head = '<span class="eyebrow">' + esc(T ? T.eyebrow : 'Content samples') + '</span><h2>' + esc(T ? T.sampleTitle : 'Our work on this account.') + '</h2>';
+      if (!items.length) { box.innerHTML = T ? '<div class="ap-block">' + head + '<p class="ap-empty">' + esc(T.empty) + '</p></div>' : ''; return; }
+      box.innerHTML = '<div class="ap-block">' + head + '<div class="ap-samples">' + items.map(function (x, i) {
+        var to = safe(x.link) || (!x.video ? (x.big || x.img) : ''), tag = to ? 'a' : 'div';
+        return '<' + tag + ' class="ap-sample"' + (to ? ' href="' + esc(to) + '" target="_blank" rel="noopener"' : '') + '><i class="n">' + (i < 9 ? '0' : '') + (i + 1) + '</i><div class="m">' + mediaOf(x) + '</div>' + (x.title ? '<span class="cap">' + esc(x.title) + '</span>' : '') + '</' + tag + '>';
+      }).join('') + '</div></div>';
+      box.querySelectorAll('video').forEach(function (v) { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); });
+    }
+    var own = a.samples || [];
+    paintWork(own);
+
+    // your work from Sanity (Studio > Work sample > Social media > this account)
+    var cfg = window.SPECOOLASI && window.SPECOOLASI.sanity;
+    if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
+      var Q = '*[_type=="work" && service=="social" && account==$a] | order(coalesce(order,9999) asc, _createdAt desc){title, link, "img": image.asset->url, "video": video.asset->url}';
+      fetch('https://' + cfg.projectId + '.apicdn.sanity.io/v' + cfg.apiVersion + '/data/query/' + cfg.dataset + '?query=' + encodeURIComponent(Q) + '&%24a=' + encodeURIComponent(JSON.stringify(a.id)))
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (j) {
+          var more = (j.result || []).map(function (w) {
+            return { title: w.title || '', link: safe(w.link), video: w.video || '', img: w.img ? w.img + '?w=900&auto=format' : '', big: w.img ? w.img + '?w=2000&auto=format' : '' };
+          });
+          if (more.length) paintWork(own.concat(more));
+        }).catch(function () {});
+    }
   }
 })();
