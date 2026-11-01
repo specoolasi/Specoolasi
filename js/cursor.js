@@ -48,7 +48,7 @@
   })();
 
   var HOT = '.sv,a,button,[role="button"],summary,label,.acard,.ap-sample,.post-card';
-  var TEXT = 'input,textarea,select,[contenteditable="true"]';
+  var TEXT = 'input,textarea,select,iframe,[contenteditable="true"]';
   document.addEventListener('mouseover', function (e) {
     var t = e.target;
     var text = t.closest && t.closest(TEXT);

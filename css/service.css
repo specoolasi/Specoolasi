@@ -210,3 +210,13 @@ button.rs-story{background:none;border:0;padding:0;cursor:pointer;font:700 .68re
 .rs-stories{display:flex;flex-wrap:wrap;justify-content:center;gap:1.6rem 2.4rem;overflow:visible;padding:.8rem .5rem 1rem;margin:0}
 @keyframes rsping{from{opacity:.8;scale:1}to{opacity:0;scale:1.25}}
 @media (prefers-reduced-motion:reduce){.rs-hint::after{animation:none}}
+
+/* ---- Embedded social posts ---- */
+.rs-emb{border:2px solid var(--ink);background:#fff;box-shadow:6px 6px 0 var(--ink);overflow:hidden}
+.rs-emb .emb-bar{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem .7rem;border-bottom:2px solid var(--ink);background:var(--lilac);font:700 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.rs-emb .emb-bar a{color:var(--ink);text-decoration:none}.rs-emb .emb-bar a:hover{text-decoration:underline}
+.rs-emb iframe{display:block;width:100%;border:0;background:#fff}
+.rs-emb .rs-ph{aspect-ratio:1}
+.rs-social .rs-grid.has-emb{align-items:start}
+@media (max-width:760px){.rs-social .rs-grid.has-emb{grid-template-columns:1fr}}
+html.has-cursor iframe{cursor:auto!important}

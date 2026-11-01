@@ -89,14 +89,34 @@
     send: '<svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
   };
   var tapeBars = ''; for (var b = 0; b < 14; b++) tapeBars += '<i style="--k:' + b + '"></i>';
+  // ---- Embeds: paste a public post address in accounts.js (samples: [{ embed: 'https://...' }])
+  function embedOf(url) {
+    var u = String(url || '').trim(), m;
+    if ((m = u.match(/instagram\.com\/(p|reel|tv)\/([\w-]+)/i))) return { name: 'Instagram', src: 'https://www.instagram.com/' + m[1].toLowerCase() + '/' + m[2] + '/embed/', h: 640 };
+    if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/))([\w-]{11})/i))) return { name: 'YouTube', src: 'https://www.youtube.com/embed/' + m[1], ar: /shorts\//i.test(u) ? '9/16' : '16/9' };
+    if ((m = u.match(/tiktok\.com\/@[^\/]+\/video\/(\d+)/i))) return { name: 'TikTok', src: 'https://www.tiktok.com/embed/v2/' + m[1], h: 740 };
+    if ((m = u.match(/(?:twitter|x)\.com\/\w+\/status\/(\d+)/i))) return { name: 'X', src: 'https://platform.twitter.com/embed/Tweet.html?id=' + m[1], h: 560 };
+    return null;
+  }
+  function embedCell(r, i) {
+    var e = embedOf(r.embed), inner;
+    if (e) {
+      inner = '<div class="emb-bar"><span>' + e.name + '</span><a href="' + esc(r.embed) + '" target="_blank" rel="noopener">Open original ↗</a></div>' +
+        '<iframe src="' + esc(e.src) + '" title="' + e.name + ' post" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="' + (e.ar ? 'aspect-ratio:' + e.ar : 'height:' + e.h + 'px') + '"></iframe>';
+    } else {
+      inner = '<div class="emb-bar"><span>Post</span>' + (/^https?:\/\//.test(r.embed) ? '<a href="' + esc(r.embed) + '" target="_blank" rel="noopener">Open post ↗</a>' : '') + '</div><div class="rs-ph"><span>✦</span></div>';
+    }
+    return cell(inner, {}, 'rs-emb', i);
+  }
   function postCell(r, i) {
     return cell('<div class="hd"><i></i>' + esc(r.client) + '</div>' + pic(r) + '<div class="ic"><span class="hr">' + ic.heart + '</span>' + ic.chat + ic.send + '</div>' + (r.title ? '<p>' + esc(r.title) + '</p>' : ''), r, 'rs-post', i);
   }
   // Results of ONE account (used when a logo is tapped). Uses that account's "samples" from js/accounts.js.
   function acctResults(a) {
     var has = a.samples && a.samples.length;
-    var list = has ? a.samples.map(function (x) { return { img: x.img, title: x.title || '', client: a.name, link: x.link || '' }; }) : ph('', a.name);
-    return '<div class="rs-grid">' + list.map(function (r, i) { return postCell(r, i); }).join('') + '</div>' +
+    var list = has ? a.samples.map(function (x) { return { img: x.img, title: x.title || '', client: a.name, link: x.link || '', embed: x.embed || '' }; }) : ph('', a.name);
+    var anyEmb = list.some(function (r) { return r.embed; });
+    return '<div class="rs-grid' + (anyEmb ? ' has-emb' : '') + '">' + list.map(function (r, i) { return r.embed ? embedCell(r, i) : postCell(r, i); }).join('') + '</div>' +
       '<div class="rs-foot"><span class="mono">' + (has ? '' : 'More samples coming soon') + '</span><a class="bt sm" href="account.html?id=' + encodeURIComponent(a.id) + '">Open ' + esc(a.name) + ' ↗</a></div>';
   }
   function resultsHtml(th) {
