@@ -61,6 +61,65 @@
     }
   };
 
+
+  // ---- RESULTS: your finished work, shown on each service page.
+  // Each item:  img    image path (put files in assets/results/<service>/). Leave '' to show a placeholder tile.
+  //             title  project name (for Copywriting: the line you wrote)
+  //             client who it was for
+  //             link   optional address to open when someone clicks it
+  // Copy a line, change the words, and add a comma between lines. Delete lines you don't need.
+  function ph(t, c) { var a = []; for (var i = 0; i < 6; i++) a.push({ img: '', title: t, client: c, link: '' }); return a; }
+  var RESULTS = {
+    social: ph('Project name', 'Client name'),
+    content: ph('Project name', 'Client name'),
+    design: ph('Project name', 'Client name').slice(0, 5),
+    music: ph('Track name', 'Artist or client').slice(0, 4),
+    copy: ph('Your best line goes here.', 'Client name').slice(0, 4)
+  };
+  var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Spin it.', copy: 'Lines that landed.' };
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function pic(r) { return '<div class="rs-ph">' + (r.img ? '<img src="' + esc(r.img) + '" alt="' + esc(r.title) + '" loading="lazy">' : '<span>✦</span>') + '</div>'; }
+  function cell(inner, r, cls, i) {
+    var tag = r.link ? 'a' : 'div', at = r.link ? ' href="' + esc(r.link) + '" target="_blank" rel="noopener"' : '';
+    return '<div class="rs-cell" style="--k:' + i + '" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><' + tag + ' class="' + cls + '"' + at + '>' + inner + '</' + tag + '></div>';
+  }
+  var ic = {
+    heart: '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>',
+    chat: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.2A8 8 0 1 1 21 12z"/></svg>',
+    send: '<svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
+  };
+  var tapeBars = ''; for (var b = 0; b < 14; b++) tapeBars += '<i style="--k:' + b + '"></i>';
+  function resultsHtml(th) {
+    var R = RESULTS[th] || []; if (!R.length) return '';
+    var body = '';
+    if (th === 'social') {
+      var accts = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []).map(function (a) {
+        return '<a class="rs-story" href="account.html?id=' + encodeURIComponent(a.id) + '"><i>' + (a.logo ? '<img src="' + esc(a.logo) + '" alt="">' : '') + '</i><span>' + esc(a.name) + '</span></a>';
+      }).join('');
+      body = (accts ? '<p class="mono" style="margin:1.6rem 0 0">Accounts we run</p><div class="rs-stories">' + accts + '</div>' : '') +
+        '<div class="rs-grid">' + R.map(function (r, i) {
+          return cell('<div class="hd"><i></i>' + esc(r.client) + '</div>' + pic(r) + '<div class="ic"><span class="hr">' + ic.heart + '</span>' + ic.chat + ic.send + '</div><p>' + esc(r.title) + '</p>', r, 'rs-post', i);
+        }).join('') + '</div>';
+    } else if (th === 'content') {
+      body = '<div class="rs-film"><div class="rs-grid">' + R.map(function (r, i) {
+        return cell('<span class="no">A' + (i + 1) + '</span>' + pic(r) + '<span class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></span><div class="cap"><span>' + esc(r.title) + '</span><span>' + esc(r.client) + '</span></div>', r, 'rs-fr', i);
+      }).join('') + '</div></div>';
+    } else if (th === 'design') {
+      body = '<div class="rs-board"><div class="rs-grid">' + R.map(function (r, i) {
+        return cell(pic(r) + '<div class="sw"><i style="background:#6C4DFF"></i><i style="background:#B8A7FF"></i><i style="background:#171321"></i></div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>', r, 'rs-pin', i);
+      }).join('') + '</div></div>';
+    } else if (th === 'music') {
+      body = '<div class="rs-grid">' + R.map(function (r, i) {
+        return cell('<i class="vn"></i>' + pic(r) + '<div class="bars">' + tapeBars + '</div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>', r, 'rs-sl', i);
+      }).join('') + '</div>';
+    } else {
+      body = '<div class="rs-grid">' + R.map(function (r, i) {
+        return cell('<p class="ln"><span class="rs-line">' + esc(r.title) + '</span></p><div class="by"><span>' + esc(r.client) + '</span><em>nice one!</em></div>', r, 'rs-slip', i);
+      }).join('') + '</div>';
+    }
+    return '<section class="svp-sec rs rs-' + th + '"><p class="mono"><b>(B)</b> Results</p><h2 data-split>' + RTITLE[th] + '</h2>' + body + '</section>';
+  }
+
   var steps = [['Brief', 'You tell us about your brand and what you want to achieve.'], ['Plan', 'We map out the idea, the look, and the timing.'], ['Make', s.make], ['Launch', s.launch]];
   var tape = new Array(5).join('<span>' + s.title + '</span><span class="o">' + s.title + '</span><span>✦</span>');
   root.innerHTML =
@@ -70,7 +129,7 @@
     '<div class="wrap" style="--sc:' + ({ social: '#6C4DFF', content: '#6C4DFF', design: '#6C4DFF', music: '#6C4DFF', copy: '#6C4DFF' })[s.th] + '">' +
     '<section class="svp-sec"><p class="mono"><b>(A)</b> What we do</p><h2 data-split>' + s.title + ', the Specoolasi way.</h2><div class="its">' +
     s.items.map(function (x, i) { return '<article class="it" data-r="up" data-d="' + (i * 0.1) + '"><b>0' + (i + 1) + '</b><h3>' + x[0] + '</h3><p>' + x[1] + '</p></article>'; }).join('') + '</div></section>' +
-    '<section class="svp-sec"><p class="mono"><b>(B)</b> How it works</p><h2 data-split>Four steps. No mystery.</h2><div class="stp">' +
+    resultsHtml(s.th) + '<section class="svp-sec"><p class="mono"><b>(C)</b> How it works</p><h2 data-split>Four steps. No mystery.</h2><div class="stp">' +
     steps.map(function (x, i) { return '<div data-r="up" data-d="' + (i * 0.12) + '"><i>0' + (i + 1) + '</i><h3>' + x[0] + '</h3><p>' + x[1] + '</p></div>'; }).join('') + '</div></section>' +
     '<div class="mq" aria-hidden="true"><div>' + tape + tape + '</div></div>' +
     '<div class="svp-cta" data-r="up"><p class="mono">Ready?</p><h2 data-split>Let’s talk about your ' + s.title.toLowerCase() + '.</h2><p style="max-width:30rem;margin:0">Send us a short note about your brand and what you need. We reply within two working days.</p><div class="acts"><a class="bt" href="' + mail + '">specoolasi@gmail.com ↗</a><a class="bt" style="background:transparent;color:#fff;border-color:#fff;box-shadow:none" href="index.html#services">All services</a></div></div>' +
