@@ -6,8 +6,10 @@
 <title>Blog – Specoolasi</title>
 <meta name="description" content="News and notes from the Specoolasi team.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Mono:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/creative.css">
+<script>(function(){var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('sp'))d.classList.add('seen');sessionStorage.setItem('sp','1')}catch(e){}})()</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -23,10 +25,11 @@
   </defs>
 </svg>
 
-<nav class="top">
+<i class="prog" id="prog"></i>
+<nav class="top" id="top">
   <div class="wrap bar">
-    <a class="brand" href="index.html">SPECOOLASI</a>
-    <div class="links"><a href="index.html">Home</a><a href="index.html#services">Services</a><a href="index.html#projects">Projects</a><a href="blog.html">Blog</a><a href="index.html#about">About us</a><a href="index.html#contact">Contact</a></div>
+    <a class="brand" href="index.html"><svg aria-hidden="true"><use href="#logo"/></svg>SPECOOLASI</a>
+    <div class="links"><a href="index.html"><span data-t="Home">Home</span></a><a href="index.html#services"><span data-t="Services">Services</span></a><a href="index.html#projects"><span data-t="Projects">Projects</span></a><a href="blog.html"><span data-t="Blog">Blog</span></a><a href="index.html#about"><span data-t="About us">About us</span></a><a href="index.html#contact"><span data-t="Contact">Contact</span></a><a class="bt sm" href="index.html#contact">Let’s talk ↗</a></div>
   </div>
 </nav>
 
@@ -40,11 +43,15 @@
   <aside id="blog-side" aria-label="Blog sidebar"></aside>
 </main>
 
-<div class="wrap">
-  <footer><svg aria-hidden="true"><use href="#logo"/></svg>© 2026 Specoolasi. All rights reserved.</footer>
-</div>
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft-word" aria-hidden="true"><span>S</span><span>P</span><span>E</span><span>C</span><span>O</span><span>O</span><span>L</span><span>A</span><span>S</span><span>I</span></div>
+    <div class="ft-row"><span class="ft-b"><svg aria-hidden="true"><use href="#logo"/></svg>© 2026 Specoolasi. All rights reserved.</span><a class="bt pur sm" href="#top">Back to top ↑</a></div>
+  </div>
+</footer>
 <script src="js/config.js"></script>
 <script src="js/blog.js"></script>
 <script src="js/cursor.js"></script>
+<script src="js/fx.js"></script>
 </body>
 </html>
