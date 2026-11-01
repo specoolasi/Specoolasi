@@ -1,5 +1,14 @@
 // Animations: reveal on scroll, word splitting, scroll progress, parallax, magnetic buttons.
 (function () {
+  var mb = document.querySelector('.menu-btn');
+  if (mb) {
+    var de = document.documentElement;
+    function setMenu(o) { de.classList.toggle('menu-open', o); mb.setAttribute('aria-expanded', o); mb.lastChild.textContent = o ? 'Close' : 'Menu'; }
+    mb.addEventListener('click', function () { setMenu(!de.classList.contains('menu-open')); });
+    document.querySelectorAll('#menu-links a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+    matchMedia('(min-width:761px)').addEventListener('change', function () { setMenu(false); });
+  }
   try {
     var root = document.documentElement, calm = matchMedia('(prefers-reduced-motion:reduce)').matches, fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
     var AUTO = '.post-card,.widget,.ap-hero,.ap-block,.ap-sample,.ap-contact';
