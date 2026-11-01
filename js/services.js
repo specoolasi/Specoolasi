@@ -73,8 +73,8 @@
     social: ph('Project name', 'Client name'),
     content: ph('Project name', 'Client name'),
     design: ph('Project name', 'Client name').slice(0, 5),
-    music: ph('Track name', 'Artist or client').slice(0, 4),
-    copy: ph('Your best line goes here.', 'Client name').slice(0, 4)
+    music: ph('Track name', 'Artist or client').slice(0, 4)
+    // Copywriting shows only a button to the blog, so it needs no list here.
   };
   var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Spin it.', copy: 'Lines that landed.' };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -100,7 +100,7 @@
       '<div class="rs-foot"><span class="mono">' + (has ? '' : 'More samples coming soon') + '</span><a class="bt sm" href="account.html?id=' + encodeURIComponent(a.id) + '">Open ' + esc(a.name) + ' ↗</a></div>';
   }
   function resultsHtml(th) {
-    var R = RESULTS[th] || []; if (!R.length) return '';
+    var R = RESULTS[th] || []; if (!R.length && th !== 'copy') return '';
     var body = '';
     if (th === 'social') {
       var A = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []);
@@ -125,9 +125,7 @@
         return cell('<i class="vn"></i>' + pic(r) + '<div class="bars">' + tapeBars + '</div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>', r, 'rs-sl', i);
       }).join('') + '</div>';
     } else {
-      body = '<div class="rs-grid">' + R.map(function (r, i) {
-        return cell('<p class="ln"><span class="rs-line">' + esc(r.title) + '</span></p><div class="by"><span>' + esc(r.client) + '</span><em>nice one!</em></div>', r, 'rs-slip', i);
-      }).join('') + '</div><div class="rs-more"><a class="bt" href="blog.html?category=Copywriting">See more copywriting results on the blog →</a><em>More of our writing lives there.</em></div>';
+      body = '<div class="rs-more"><a class="bt big" href="blog.html?category=Copywriting">See copywriting results on the blog →</a></div>';
     }
     return '<section class="svp-sec rs rs-' + th + '"><p class="mono"><b>(B)</b> Results</p><h2 data-split>' + RTITLE[th] + '</h2>' + body + '</section>';
   }

@@ -192,8 +192,11 @@ button.rs-story{background:none;border:0;padding:0;cursor:pointer;font:700 .68re
 .rs-hint em{font-style:normal}
 .rs-hint svg{width:54px;height:36px;fill:none;stroke:var(--sc);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;animation:rsbounce 1.4s ease-in-out infinite}
 @keyframes rsbounce{50%{translate:6px 8px}}
-.rs-pick.done .rs-hint{opacity:0;pointer-events:none}
 .rs-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.8rem}
 .rs-more{display:flex;flex-wrap:wrap;align-items:center;gap:1.4rem;margin-top:2.6rem}
 .rs-more em{font:700 1.7rem var(--hand);font-style:normal;color:var(--sc);rotate:-3deg}
 @media (prefers-reduced-motion:reduce){.rs-pick:not(.done) .rs-story:not(.on) i::after,.rs-hint svg{animation:none}}
+
+.bt.big{font-size:clamp(.85rem,2.4vw,1.15rem);padding:1.3rem 2rem;box-shadow:7px 7px 0 var(--sc)}
+.bt.big:hover{box-shadow:11px 11px 0 var(--sc)}
+.rs-copy .rs-more{margin-top:2rem}
