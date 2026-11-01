@@ -115,7 +115,8 @@ html.js .w>i{transform:translateY(112%);transition:transform .85s var(--ease) ca
 .ct-mail:hover{background-size:100% .12em;color:#fff}
 .ct-star{position:absolute;right:-40px;top:-40px;width:clamp(160px,26vw,340px);fill:var(--lilac);opacity:.55;animation:twirl 24s linear infinite}
 .ft{display:block;padding:0;gap:0;margin-top:clamp(5rem,10vw,8rem);background:var(--ink);color:var(--lilac);overflow:clip;--star:var(--lilac)}
-.ft-word{font-weight:800;font-size:12.4vw;line-height:.85;letter-spacing:-.05em;text-transform:uppercase;white-space:nowrap;text-align:center;color:transparent;-webkit-text-stroke:2px var(--lilac);padding-top:2rem;margin-bottom:-.1em;overflow:clip}
+.ft-word{font-weight:800;font-size:min(12.4vw,14.9cqw);line-height:.95;letter-spacing:-.05em;text-transform:uppercase;white-space:nowrap;text-align:center;color:transparent;-webkit-text-stroke:2px var(--lilac);padding-top:2rem;padding-bottom:.1em;margin-bottom:0;overflow:visible}
+.ft .wrap{container-type:inline-size}
 .ft-word span{display:inline-block;transition:transform .4s var(--ease),color .3s}.ft-word span:hover{transform:translateY(-.08em) rotate(-4deg);color:var(--purple);-webkit-text-stroke-color:var(--purple)}
 .ft-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;padding:1.5rem 0 2rem;font:400 .75rem var(--mono);letter-spacing:.08em;text-transform:uppercase;border-top:2px solid rgba(184,167,255,.3);position:relative;background:var(--ink)}
 .ft-b{display:flex;align-items:center;gap:.7rem}.ft svg{width:28px;height:28px}
