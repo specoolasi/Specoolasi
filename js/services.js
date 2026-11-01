@@ -1,0 +1,98 @@
+// Service pages: edit the words here. Each service has its own concept visual.
+(function () {
+  var SERVICES = [
+    { id: 'social', n: '01', title: 'Social media', th: 'social', next: 'content',
+      intro: 'We build a clear voice for your brand and keep it active every week. From content calendars to replying to comments, we help you grow an audience that actually engages.',
+      items: [['Strategy', 'A clear plan for what to post, when, and why, built around your goals.'], ['Posting', 'Content calendars and weekly posts that keep your feed active.'], ['Community', 'We reply to comments and messages so your audience feels heard.']],
+      make: 'We plan the calendar, write the captions, and design the posts.', launch: 'We publish, reply, and report what is working.' },
+    { id: 'content', n: '02', title: 'Content creation', th: 'content', next: 'design',
+      intro: 'Photos and short videos made to stop the scroll. We shoot and edit everything, so your feed always has something worth watching.',
+      items: [['Photo', 'Product shots, portraits, and lifestyle photos that look like you.'], ['Video', 'Short videos made to stop the scroll.'], ['Editing', 'Cuts, color, captions, and sound, polished and ready to post.']],
+      make: 'We shoot and edit, and show you drafts to review.', launch: 'We deliver files that are ready to post.' },
+    { id: 'design', n: '03', title: 'Graphic design', th: 'design', next: 'music',
+      intro: 'A strong look makes people remember you. We design logos, brand guidelines, posters, and social graphics that feel like you and no one else.',
+      items: [['Logos', 'A mark that is simple, memorable, and works at any size.'], ['Brand identity', 'Colors, type, and guidelines so everything looks like one brand.'], ['Posters', 'Posters and social graphics that feel like you and no one else.']],
+      make: 'We design a few options and refine the one you pick.', launch: 'We hand over the final files and a guide to use them.' },
+    { id: 'music', n: '04', title: 'Music production', th: 'music', next: 'copy',
+      intro: 'Sound is what makes a brand feel alive. We compose and produce original tracks, jingles, and sound design for your videos, ads, and releases.',
+      items: [['Original tracks', 'Music composed and produced just for your project.'], ['Jingles', 'Short, catchy tunes that stick in people’s heads.'], ['Sound design', 'Sound effects and atmosphere for videos, ads, and releases.']],
+      make: 'We compose, record, and mix, and share demos with you.', launch: 'We deliver the final mix in the formats you need.' },
+    { id: 'copy', n: '05', title: 'Copywriting', th: 'copy', next: 'social',
+      intro: 'Words that sell without sounding like selling. We write captions, slogans, scripts, website text, and ads in your brand’s own voice, so people hear you clearly and remember what you said.',
+      items: [['Captions', 'Short lines that fit your voice and get read.'], ['Slogans', 'A few words people remember.'], ['Scripts', 'Words for videos, reels, and ads.'], ['Website copy', 'Clear text that explains what you do and makes people act.']],
+      make: 'We write, edit, and polish in your brand’s voice.', launch: 'We deliver the final text, ready to use.' }
+  ];
+  var root = document.getElementById('svp');
+  if (!root) return;
+  var calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var id = new URLSearchParams(location.search).get('id');
+  var s = SERVICES.filter(function (x) { return x.id === id; })[0];
+  if (!s) { root.innerHTML = '<div class="wrap" style="padding:5rem 1.5rem"><a class="back" href="index.html#services">← All services</a><h2>Service not found</h2></div>'; return; }
+  var nx = SERVICES.filter(function (x) { return x.id === s.next; })[0];
+  document.title = s.title + ' – Specoolasi';
+  var mail = 'mailto:specoolasi@gmail.com?subject=' + encodeURIComponent(s.title + ' project');
+  var heart = '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>';
+
+  var vis = {
+    social: function () {
+      var card = '<div class="pc"><div class="h"><i class="av"></i>specoolasi</div><div class="im"></div><div class="l"></div><div class="l"></div></div>';
+      return '<div class="ph"><div class="ph-scr"><div class="ph-feed">' + new Array(9).join(card) + '</div></div>' +
+        '<span class="bub" style="--d:0s">' + heart + ' 2.4k</span><span class="bub l" style="--d:1.7s">+ new follower</span><span class="bub" style="--d:3.2s">' + heart + ' 12k</span></div>';
+    },
+    content: function () {
+      var f = new Array(21).join('<i></i>');
+      return '<div class="vf"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><div class="vf-rec"><b></b>REC <span id="tc">00:00:00:00</span></div><div class="vf-bat">4K · 25FPS</div><div class="vf-sub"></div><div class="vf-focus"></div></div><div class="film"><div class="film-in">' + f + f + '</div></div>';
+    },
+    design: function () {
+      return '<div class="cv" id="cv"><div class="tag">ARTBOARD 01</div><div class="aa">Aa</div>' +
+        '<svg class="art" viewBox="0 0 400 400"><path pathLength="1" class="blob" d="M70 250C60 110 220 50 300 125S390 300 245 345S75 385 70 250Z"/>' +
+        '<g class="hd"><line x1="70" y1="250" x2="60" y2="110"/><line x1="300" y1="125" x2="340" y2="190"/><line x1="245" y1="345" x2="150" y2="365"/></g>' +
+        '<rect class="an" x="64" y="244" width="12" height="12"/><rect class="an" x="294" y="119" width="12" height="12"/><rect class="an" x="239" y="339" width="12" height="12"/></svg>' +
+        '<div class="sws"><i style="--k:0;background:#6C4DFF"></i><i style="--k:1;background:#B8A7FF"></i><i style="--k:2;background:#171321"></i><i style="--k:3;background:#fff"></i></div><i class="gx"></i><i class="gy"></i></div>';
+    },
+    music: function () {
+      var lanes = [[5, 30], [40, 45], [10, 22], [48, 40]].map(function (a, i) {
+        return '<div class="lane"><i style="left:' + a[0] + '%;width:' + a[1] + '%"></i><i style="left:' + (a[0] + a[1] + 3) + '%;width:' + (14 + i * 3) + '%;opacity:.6"></i></div>';
+      }).join('');
+      return '<div class="mu"><div class="mu-bars" id="bars"></div><div class="lanes">' + lanes + '<i class="head"></i></div></div><div class="vinyl"></div>';
+    },
+    copy: function () {
+      return '<div class="cp"><div class="cp-q">“</div><div class="cp-paper"><small>Before</small><p class="cp-old" id="old"></p><small style="margin-top:1.2rem">After</small><p class="cp-new"><span id="tw"></span><i class="caret"></i></p></div></div>';
+    }
+  };
+
+  var steps = [['Brief', 'You tell us about your brand and what you want to achieve.'], ['Plan', 'We map out the idea, the look, and the timing.'], ['Make', s.make], ['Launch', s.launch]];
+  var tape = new Array(5).join('<span>' + s.title + '</span><span class="o">' + s.title + '</span><span>✦</span>');
+  root.innerHTML =
+    '<div class="band t-' + s.th + '"><div class="wrap"><div class="svh"><div><a class="back" href="index.html#services" style="color:inherit">← All services</a>' +
+    '<p class="mono" style="margin-top:1.5rem"><b>(' + s.n + ' / 05)</b> Service</p><h1 data-split>' + s.title + '</h1><p class="in" data-r="up">' + s.intro + '</p>' +
+    '<div class="acts" data-r="up" data-d=".2"><a class="bt" href="' + mail + '">Start a project →</a></div></div><div class="svp-vis" data-r="scale">' + vis[s.th]() + '</div></div></div></div>' +
+    '<div class="wrap" style="--sc:' + ({ social: '#6C4DFF', content: '#6C4DFF', design: '#6C4DFF', music: '#6C4DFF', copy: '#6C4DFF' })[s.th] + '">' +
+    '<section class="svp-sec"><p class="mono"><b>(A)</b> What we do</p><h2 data-split>' + s.title + ', the Specoolasi way.</h2><div class="its">' +
+    s.items.map(function (x, i) { return '<article class="it" data-r="up" data-d="' + (i * 0.1) + '"><b>0' + (i + 1) + '</b><h3>' + x[0] + '</h3><p>' + x[1] + '</p></article>'; }).join('') + '</div></section>' +
+    '<section class="svp-sec"><p class="mono"><b>(B)</b> How it works</p><h2 data-split>Four steps. No mystery.</h2><div class="stp">' +
+    steps.map(function (x, i) { return '<div data-r="up" data-d="' + (i * 0.12) + '"><i>0' + (i + 1) + '</i><h3>' + x[0] + '</h3><p>' + x[1] + '</p></div>'; }).join('') + '</div></section>' +
+    '<div class="mq" aria-hidden="true"><div>' + tape + tape + '</div></div>' +
+    '<div class="svp-cta" data-r="up"><p class="mono">Ready?</p><h2 data-split>Let’s talk about your ' + s.title.toLowerCase() + '.</h2><p style="max-width:30rem;margin:0">Send us a short note about your brand and what you need. We reply within two working days.</p><div class="acts"><a class="bt" href="' + mail + '">specoolasi@gmail.com ↗</a><a class="bt" style="background:transparent;color:#fff;border-color:#fff;box-shadow:none" href="index.html#services">All services</a></div></div>' +
+    '<a class="next" href="service.html?id=' + nx.id + '"><span><small>Next service</small>' + nx.title + '</span><span>→</span></a></div>';
+
+  // ---- concept animations
+  var bars = document.getElementById('bars');
+  if (bars) { var h = ''; for (var i = 0; i < 44; i++) h += '<i style="--h:' + (0.25 + Math.abs(Math.sin(i * 0.7) * 0.6) + Math.random() * 0.15).toFixed(2) + ';--t:' + (0.4 + Math.random() * 0.7).toFixed(2) + 's"></i>'; bars.innerHTML = h; }
+  var tc = document.getElementById('tc');
+  if (tc && !calm) { var f = 0; setInterval(function () { f += 3; var fr = f % 25, sec = Math.floor(f / 25) % 60, mn = Math.floor(f / 1500) % 60; tc.textContent = '00:' + ('0' + mn).slice(-2) + ':' + ('0' + sec).slice(-2) + ':' + ('0' + fr).slice(-2); }, 120); }
+  var cv = document.getElementById('cv');
+  if (cv && !calm) cv.addEventListener('pointermove', function (e) { var r = cv.getBoundingClientRect(); cv.querySelector('.gx').style.left = (e.clientX - r.left) + 'px'; cv.querySelector('.gy').style.top = (e.clientY - r.top) + 'px'; });
+  var tw = document.getElementById('tw'), old = document.getElementById('old');
+  if (tw) {
+    var P = [['Buy our shoes. They are good.', 'Walk like you own the street.'], ['We make coffee.', 'Your morning, done right.'], ['Cheap and fast delivery.', 'At your door before you miss it.']];
+    if (calm) { old.textContent = P[0][0]; old.classList.add('x'); tw.textContent = P[0][1]; }
+    else (function run(k) {
+      var p = P[k % P.length]; old.className = 'cp-old'; old.textContent = p[0]; tw.textContent = '';
+      setTimeout(function () { old.classList.add('x'); var i = 0; (function type() {
+        tw.textContent = p[1].slice(0, ++i);
+        if (i < p[1].length) setTimeout(type, 55); else setTimeout(function () { run(k + 1); }, 2600);
+      })(); }, 1400);
+    })(0);
+  }
+})();
