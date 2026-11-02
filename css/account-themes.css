@@ -17,6 +17,8 @@
 .ap-sample img,.ap-sample video{display:block;width:100%;height:auto;object-fit:contain}
 .ap-sample .n,.ap-sample .cap{display:none}
 .ap[data-theme] .ap-block h2{color:var(--tx)}
+.ap[data-theme]{color:var(--tx)}
+.ap[data-theme] .ap-empty{color:var(--tx);opacity:.85}
 .ap[data-theme] .back{color:var(--tx)}
 .ap[data-theme] .ap-block .eyebrow{display:block;width:fit-content;padding:.38rem .8rem;margin-bottom:.8rem}
 .ap[data-theme] .ap-contact{color:var(--cx)}.ap[data-theme] .ap-contact h2,.ap[data-theme] .ap-contact p{color:inherit}
