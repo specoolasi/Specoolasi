@@ -65,6 +65,29 @@
         return '<i class="laser" style="left:' + l[1] + '%;--c:' + l[0] + ';--t:' + l[2] + 's;--a:' + l[3] + 'deg;animation-delay:' + l[4] + 's"></i>';
       }).join('') + '<div class="eq">' + rep(64, function (i) { return '<i style="--s:' + (0.5 + (i * 37 % 10) / 9).toFixed(2) + 's;animation-delay:-' + (i * 53 % 17 / 10).toFixed(1) + 's"></i>'; }) + '</div>',
       art: '<i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i><svg class="hp" viewBox="0 0 160 150"><defs><linearGradient id="hpg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22E4FF"/><stop offset="1" stop-color="#8A4DFF"/></linearGradient></defs><path d="M22 92V76C22 40 46 18 80 18s58 22 58 58v16" fill="none" stroke="url(#hpg)" stroke-width="10" stroke-linecap="round"/><rect x="10" y="80" width="30" height="52" rx="12" fill="#0B0920" stroke="url(#hpg)" stroke-width="6"/><rect x="120" y="80" width="30" height="52" rx="12" fill="#0B0920" stroke="url(#hpg)" stroke-width="6"/><circle cx="25" cy="106" r="5" fill="#22E4FF"/><circle cx="135" cy="106" r="5" fill="#22E4FF"/></svg>'
+    },
+    // ---- Gloome: relatable quotes -> moody dark, lime highlight, quote marks, speech bubble
+    quotes: {
+      tag: 'Relatable quotes', eyebrow: 'Quote of the day', sampleTitle: 'Words that hit home.', empty: 'The next quote is on its way.',
+      ticker: ticker('RELATABLE QUOTES'),
+      title: function (n) { return n.replace(/^(gloo)(.*)$/i, '<span class="lm">$1</span>$2'); },
+      stage: '<i class="qfog a"></i><i class="qfog b"></i><i class="qgrain"></i><i class="qmark a">“</i><i class="qmark b">”</i>' +
+        '<svg class="qmoon" viewBox="0 0 100 100"><path d="M70 10A42 42 0 1 0 90 70 34 34 0 0 1 70 10z" fill="#EDEBD8"/></svg>' +
+        sp(10, 14, 20, '#C0FF00', 0) + sp(30, 8, 14, '#fff', .8) + sp(78, 12, 18, '#fff', 1.5) + sp(92, 40, 14, '#C0FF00', .4) + sp(6, 62, 16, '#fff', 1.1) + sp(60, 90, 18, '#C0FF00', .6) + rise(8, 'qrise', ['“', '”', '✦']),
+      art: '<svg class="qbub" viewBox="0 0 150 160"><path d="M18 12h98a14 14 0 0 1 14 14v62a14 14 0 0 1-14 14H66l-28 24v-24H18A14 14 0 0 1 4 88V26A14 14 0 0 1 18 12z" fill="#C0FF00"/><text x="24" y="104" font-family="Abril Fatface,Georgia,serif" font-size="110" fill="#121212">“</text><g class="tdots" fill="#121212"><circle cx="84" cy="58" r="5.5"/><circle cx="100" cy="58" r="5.5"/><circle cx="116" cy="58" r="5.5"/></g></svg>'
+    },
+    // ---- Clippods.id: Indonesian creator podcast clips -> studio, ON AIR light, waveform, player frames
+    podcast: {
+      tag: 'REC · Podcast clips', eyebrow: 'Fresh clips', sampleTitle: 'Clips worth replaying.', empty: 'The next clip is on its way.',
+      ticker: ticker('INDONESIAN CONTENT CREATOR PODCAST CLIPS'),
+      title: function (n) { return n.replace(/(\.id)$/i, '<span class="red">$1</span>'); },
+      stage: '<i class="orb r"></i><i class="orb b"></i><i class="scan"></i>' +
+        (function () {
+          var d = 'M0 60'; for (var x = 0; x <= 1200; x += 12) d += ' L' + x + ' ' + (60 + Math.sin(x / 38) * 22 * Math.sin(x / 190 + 1) + Math.sin(x / 11) * 6).toFixed(1);
+          var d2 = 'M0 60'; for (var y = 0; y <= 1200; y += 12) d2 += ' L' + y + ' ' + (60 + Math.cos(y / 30) * 18 * Math.cos(y / 150) + Math.sin(y / 9) * 5).toFixed(1);
+          return '<div class="wave"><svg viewBox="0 0 2400 120" preserveAspectRatio="none"><g fill="none" stroke-width="3" stroke-linecap="round"><path stroke="#E02B2B" d="' + d + ' ' + d.replace(/M0 60/, '').replace(/L(\d+)/g, function (m, a) { return 'L' + (+a + 1200); }) + '"/><path stroke="#2B6BFF" d="' + d2 + ' ' + d2.replace(/M0 60/, '').replace(/L(\d+)/g, function (m, a) { return 'L' + (+a + 1200); }) + '"/></g></svg></div>';
+        })() + rise(8, 'pplay', ['▶', '●', '▶']),
+      art: '<svg class="mic2" viewBox="0 0 140 200"><g class="onair"><rect x="10" y="4" width="120" height="42" rx="9" fill="#2a0707" stroke="#E02B2B" stroke-width="3"/><text x="70" y="33" text-anchor="middle" font-size="24" font-weight="800" font-style="italic" fill="#ff5a5a">ON AIR</text></g><circle cx="70" cy="112" r="40" fill="none" stroke="#fff" stroke-width="2.5" opacity=".75"/><g stroke="#fff" stroke-width="1" opacity=".3"><path d="M40 98h60M34 112h72M40 126h60"/></g><rect x="54" y="84" width="32" height="58" rx="16" fill="#15151b" stroke="#fff" stroke-width="3"/><path d="M60 100h20M60 112h20M60 124h20" stroke="#E02B2B" stroke-width="3" stroke-linecap="round"/><path d="M70 152v28M46 184h48" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>'
     }
   };
 })();
