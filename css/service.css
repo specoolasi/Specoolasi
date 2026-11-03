@@ -241,3 +241,8 @@ html.sheet-lock{overflow:hidden}
 .sheet-cap small{opacity:.7}
 .sheet-cap a{color:var(--ink);font-weight:700}
 @media (prefers-reduced-motion:reduce){.sheet-card,.sheet-bg,.rs-pin .lc{transition:none}}
+
+/* ---- Social results: the pixel-art HQ ---- */
+.rs-hqwrap{margin-top:2rem;padding:clamp(1rem,3vw,2rem);background:#171321;border:3px solid var(--ink);box-shadow:8px 8px 0 var(--sc)}
+.rs-hqwrap .hq-hint{margin-top:0}
+.rs-hqwrap .state{color:#fff;margin:0}.rs-hqwrap .state a{color:#B8A7FF}
