@@ -16,7 +16,7 @@ const ACC=[
 const sync=a=>{if(!window.ACCOUNTS)return;const m=ACCOUNTS.find(x=>x.id===a.id);if(!m)return;
  a.n=m.name||a.n;if(m.desc)a.d=m.desc;a.page='account.html?id='+encodeURIComponent(m.id);a.posts=(m.samples||[]).slice(0,6)};
 ACC.forEach(sync);
-const PIX=2; /* pixel size: 1 = smooth, 2 = chunky, 3 = very chunky */
+let PIX=2; /* pixel size: 1 = smooth, 2 = chunky, 3 = very chunky */
 
 /* ---------- three.js basics ---------- */
 const mount=document.getElementById('hq');if(!mount||!window.THREE)return;
@@ -26,9 +26,10 @@ const stage=$('hq-stage'),canvas=$('hq-c');
 /* One-room mode: <div id="hq" data-room="account-id"> shows only that account's room (used on account pages) */
 const SOLO=mount.dataset.room||'',SI=SOLO?ACC.findIndex(a=>a.id===SOLO):-1;
 if(SOLO&&SI<0){mount.innerHTML='';return}
-if(SI>=0){mount.classList.add('hq-solo');$('hq-hm').style.display='none'}
-const renderer=new THREE.WebGLRenderer({canvas,antialias:false});
-const scene=new THREE.Scene();scene.background=new THREE.Color('#cdbfff');
+const BGM=SI>=0&&!!mount.dataset.bg; /* data-bg: use the room as a page background (account pages) */
+if(SI>=0){mount.classList.add(BGM?'hq-bgm':'hq-solo');$('hq-hm').style.display='none';if(BGM)PIX=3}
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:SI>=0});
+const scene=new THREE.Scene();scene.background=SI>=0?null:new THREE.Color('#cdbfff');
 scene.add(new THREE.HemisphereLight(0xffffff,0x9a8fc0,.8));
 const sun=new THREE.DirectionalLight(0xffffff,.7);sun.position.set(20,40,10);scene.add(sun);
 const HF=46,camera=new THREE.OrthographicCamera(-1,1,1,-1,-300,500);
@@ -197,7 +198,6 @@ const signA=anc(scene,24.5,2.4,27.2),sign=document.createElement('div');sign.cla
 ACC.forEach((a,i)=>{
  if(SI>=0&&i!==SI)return;
  const g=new THREE.Group();g.position.set((i%4)*PITCH,.2,((i/4)|0)*PITCH);g.userData.room=i;scene.add(g);roomG.push(g);ROOMS[i](g);
- if(SI>=0)B(scene,g.position.x-1.5,g.position.z-1.5,13,13,.5,'#9be3a8',-.8);
  if(SI<0){const el=document.createElement('button');el.className='hq-lab';el.textContent=a.e+' '+a.n;el.onclick=()=>openRoom(i);stage.appendChild(el);
  labs.push({el,a:anc(g,5,3.3,0)})}
 });
@@ -207,9 +207,12 @@ if(SI<0)[[[11.5,-1],[11.5,24]],[[24.5,-1],[24.5,24]],[[37.5,24],[37.5,-1]],[[-1,
 const dir=new THREE.Vector3(1,1.25,1).normalize(),SIN=dir.y;
 const RV=new THREE.Vector3(1,0,-1).normalize(),FV=new THREE.Vector3(-1,0,-1).normalize();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),asp=()=>stage.clientWidth/stage.clientHeight;
-const homeCam=()=>{if(SI>=0){const wide=asp()>1;return{x:(SI%4)*PITCH+5,z:((SI/4)|0)*PITCH+5,zoom:wide?HF/17:HF*asp()/17}}return{x:24.5,z:11.5,zoom:Math.min(HF/40,HF*asp()/60)}};
+const homeCam=()=>{if(SI>=0){const wide=asp()>1,d=BGM?15:17,z=wide?HF/d:HF*asp()/d,vw=HF/z*asp(),k=BGM&&wide?.22:0,cx=(SI%4)*PITCH+5,cz=((SI/4)|0)*PITCH+5;return{x:cx-RV.x*vw*k,z:cz-RV.z*vw*k,zoom:z}}return{x:24.5,z:11.5,zoom:Math.min(HF/40,HF*asp()/60)}};
 let cam=homeCam(),raf,sel=-1;
-function placeCam(){camera.zoom=cam.zoom;camera.position.set(cam.x+dir.x*120,dir.y*120,cam.z+dir.z*120);camera.lookAt(cam.x,0,cam.z);camera.updateProjectionMatrix()}
+let ox=0,oz=0,tx=0,tz=0; /* gentle mouse parallax for the background */
+if(BGM)addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5)*1.8;tz=(e.clientY/innerHeight-.5)*1.4},{passive:true});
+function placeCam(){ox+=(tx-ox)*.04;oz+=(tz-oz)*.04;const px=cam.x+RV.x*ox+FV.x*oz,pz=cam.z+RV.z*ox+FV.z*oz;
+ camera.zoom=cam.zoom;camera.position.set(px+dir.x*120,dir.y*120,pz+dir.z*120);camera.lookAt(px,0,pz);camera.updateProjectionMatrix()}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight,a=w/h;renderer.setSize(Math.floor(w/PIX),Math.floor(h/PIX),false);
  camera.left=-HF*a/2;camera.right=HF*a/2;camera.top=HF/2;camera.bottom=-HF/2}
 function go(t,ms=900){cancelAnimationFrame(raf);const s={...cam},t0=performance.now();
@@ -265,7 +268,7 @@ const V=new THREE.Vector3();let last=0;
 function put(el,o,dy,pre){o.getWorldPosition(V);V.y+=dy;V.project(camera);
  el.style.transform=`translate(${(V.x*.5+.5)*stage.clientWidth}px,${(-V.y*.5+.5)*stage.clientHeight}px) translate(-50%,-100%)${pre||''}`}
 let vis=true;if(window.IntersectionObserver)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(stage);
-function frame(ms){const t=ms/1000,dt=Math.min(.05,t-last);last=t;if(!vis){requestAnimationFrame(frame);return}
+function frame(ms){const t=ms/1000,dt=Math.min(.05,t-last);last=t;if(!vis||document.hidden){requestAnimationFrame(frame);return}
  NPCS.forEach(o=>upd(o,t,dt));ticks.forEach(f=>f(t));placeCam();renderer.render(scene,camera);
  labs.forEach(l=>put(l.el,l.a,0));put(sign,signA,0);bubs.forEach(b=>put(b.el,b.target,b.dy));
  requestAnimationFrame(frame)}

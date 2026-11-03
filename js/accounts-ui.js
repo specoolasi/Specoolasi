@@ -98,9 +98,6 @@
       }).join('') + '</div>' : '') +
       '</div>' + (T ? '<div class="ap-art" aria-hidden="true">' + T.art + '</div>' : '') + '</div>' + (T ? T.ticker : '');
 
-    // Pixel-art room for this account (the room is drawn in js/world.js). Accounts without a room here show no scene.
-    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
-    if (ROOM_IDS.indexOf(a.id) >= 0) html += '<div class="ap-block ap-room"><span class="eyebrow">Inside the room</span><h2>Step inside ' + esc(a.name) + '.</h2><p class="ap-roomhint">Tap the people and watch them react.</p><div id="hq" data-room="' + esc(a.id) + '"></div></div>';
     html += '<div id="ap-work"></div>';
 
     if (socials.length) {
@@ -110,9 +107,19 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    var hqBox = document.getElementById('hq');
-    if (hqBox) {
-      var hqFail = function () { hqBox.innerHTML = ''; };
+    // Pixel-art room of this account as the page background (drawn in js/world.js).
+    // Accounts without a room listed here keep their normal background.
+    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
+    var calmRoom = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var saveData = navigator.connection && navigator.connection.saveData;
+    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom && !saveData) {
+      var bg = document.createElement('div');
+      bg.className = 'hq-bg'; bg.setAttribute('aria-hidden', 'true');
+      bg.style.setProperty('--bgc', getComputedStyle(document.body).backgroundColor);
+      bg.innerHTML = '<div id="hq" data-room="' + esc(a.id) + '" data-bg="1"></div>';
+      document.body.appendChild(bg);
+      document.body.classList.add('has-room');
+      var hqFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
       var hqLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = hqFail; document.body.appendChild(t); };
       hqLoad('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { hqLoad('js/world.js', function () {}); });
     }
