@@ -34,3 +34,13 @@
 
 .hq-post video{width:100%;height:100%;object-fit:cover;display:block}
 .hq-info .hq-go + .hq-go{margin-left:8px}
+
+/* one-room mode (account pages) */
+.hq-solo{padding:clamp(.8rem,2.5vw,1.4rem);background:#171321;border:3px solid #17131f;box-shadow:8px 8px 0 #6c4cff}
+.hq-solo .hq-hint{display:none}
+.hq-solo .hq-stage{height:min(62vh,520px);min-height:340px;box-shadow:none}
+.hq-pop{position:absolute;left:0;top:0;pointer-events:none;will-change:transform}
+.hq-pop span{display:block;font-size:24px;animation:hqPop 1.1s ease-out forwards}
+@keyframes hqPop{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-38px) scale(1.4)}}
+.ap-roomhint{font:700 1.7rem/1.1 'Caveat',cursive;color:#6c4cff;margin:.2rem 0 .8rem}
+@media (prefers-reduced-motion:reduce){.hq-pop span{animation:none;opacity:0}}

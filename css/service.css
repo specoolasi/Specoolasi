@@ -246,3 +246,6 @@ html.sheet-lock{overflow:hidden}
 .rs-hqwrap{margin-top:2rem;padding:clamp(1rem,3vw,2rem);background:#171321;border:3px solid var(--ink);box-shadow:8px 8px 0 var(--sc)}
 .rs-hqwrap .hq-hint{margin-top:0}
 .rs-hqwrap .state{color:#fff;margin:0}.rs-hqwrap .state a{color:#B8A7FF}
+
+.rs-lead{max-width:40rem;margin:.8rem 0 0;color:var(--muted)}
+.rs-social .rs-hint{margin:1.2rem 0 .6rem}
