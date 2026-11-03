@@ -3,24 +3,62 @@
 (function () {
 'use strict';
 const cv = document.getElementById('tr-c'); if (!cv) return;
-const SC = cv.dataset.scene, X = cv.getContext('2d'), bgc = document.createElement('canvas'), BX = bgc.getContext('2d');
+const SC = cv.dataset.scene, X = cv.getContext('2d'), bgc = document.createElement('canvas'), BX = bgc.getContext('2d'), skc = document.createElement('canvas'), SX = skc.getContext('2d'), vgc = document.createElement('canvas'), VX = vgc.getContext('2d');
 let c = BX, W, H, s, gy, bx, T = 0, seed = 7, Y0, Y1, chars = [], dyn = [], fg = [], pops = [];
-const BW = 140;
+const BW = 140; let back = [], night = false;
+const hsh = (a, b) => { let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
 const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
 const R = (x, y, w, h, k) => { c.fillStyle = k; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
-const hx = k => [1, 3, 5].map(i => parseInt(k.slice(i, i + 2), 16));
+const hx = k => { if (k[0] === 'r') return k.match(/\d+/g).slice(0, 3).map(Number); if (k.length === 4) k = '#' + k[1] + k[1] + k[2] + k[2] + k[3] + k[3]; return [1, 3, 5].map(i => parseInt(k.slice(i, i + 2), 16)); };
 const mix = (a, b, t) => { const p = hx(a), q = hx(b); return 'rgb(' + p.map((v, i) => Math.round(v + (q[i] - v) * t)).join(',') + ')'; };
 const tex = (x, y, w, h, a, b, d = .12) => { R(x, y, w, h, a); for (let i = w * h * d; i > 0; i--) R(x + (rnd() * w | 0), y + (rnd() * h | 0), 1, 1, b); };
-const sky = (a, b, cl) => { for (let y = 0; y < H; y++) R(0, y, W, 1, mix(a, b, Math.min(1, y / gy))); if (cl) for (let i = 0; i < Math.ceil(W / 22); i++) { const x = rnd() * W, y = 6 + rnd() * gy * .4; R(x, y, 22, 4, cl); R(x + 4, y - 3, 14, 3, cl); R(x + 8, y + 4, 12, 2, cl); } };
-const stars = n => { for (let i = 0; i < (n || 50); i++) R(rnd() * W | 0, rnd() * gy * .7 | 0, 1, 1, '#fff'); dyn.push(t => { for (let i = 0; i < 9; i++) R((i * 71 + 13) % W, (i * 37 + 9) % (gy * .6 | 0), 1, 1, Math.sin(t * 3 + i) > 0 ? '#fff' : '#8a8fd0'); }); };
-const hills = (k, base, amp, f, ph) => { for (let x = 0; x < W; x++) { const h = base + amp * Math.sin(x * f + ph) + amp * .5 * Math.sin(x * f * 2.3 + ph * 2); R(x, gy - h, 1, h, k); } };
-const ground = (t, m, l) => { tex(0, gy, W, H - gy, m, l, .2); R(0, gy, W, 3, t); };
-const tree = (x, h, k, tk) => { R(x - 1, gy - h, 3, h, tk || '#5a3a1e'); [[-7, -6, 15, 8], [-5, -10, 11, 6], [-9, -2, 19, 5]].forEach(q => tex(x + q[0], gy - h + q[1], q[2], q[3], k, mix(k, '#ffffff', .25), .2)); };
-const forest = (k, tk) => { let x = 8; while (x < W) { if (x < bx - 14 || x > bx + BW + 14) tree(x | 0, 18 + (rnd() * 14 | 0), k, tk); x += 24 + (rnd() * 20 | 0); } };
+const cloud = (x, y, w, k) => { R(x + 3, y + 3, w - 6, 3, mix(k, '#7f8fb5', .35)); R(x, y + 1, w, 3, k); R(x + 4, y - 1, w * .5, 3, k); R(x + w * .45, y - 3, w * .35, 4, k); R(x + 6, y - 2, w * .3, 1, mix(k, '#ffffff', .6)); };
+const sky = (a, b, cl) => {
+  const pc = c; c = SX; night = hx(a).reduce((p, v) => p + v, 0) / 3 < 120;
+  for (let y = 0; y < H; y++) { const t = Math.min(1, y / gy); R(0, y, W, 1, mix(a, b, t * .65 + t * t * .35)); }
+  if (!night) { const sx = W * .8, sy = gy * .22; SX.globalAlpha = .12; SX.fillStyle = '#fff6c0'; [34, 24, 16].forEach(r => { SX.beginPath(); SX.arc(sx, sy, r, 0, 7); SX.fill(); }); SX.globalAlpha = 1; R(sx - 6, sy - 5, 12, 10, '#fff3a0'); R(sx - 5, sy - 6, 10, 12, '#fff3a0'); R(sx - 4, sy - 4, 8, 8, '#fffbe0'); }
+  c = pc;
+  if (cl) for (let i = 0, n = Math.ceil(W / 60); i < n; i++) { const cx = rnd() * W, cy = 6 + rnd() * gy * .35, cw = 14 + rnd() * 20, sp = 1.5 + rnd() * 3; back.push(t => cloud(((cx + t * sp) % (W + 60)) - 30, cy, cw, cl)); }
+};
+const stars = n => { for (let i = 0; i < (n || 50); i++) R(rnd() * W | 0, rnd() * gy * .7 | 0, 1, 1, '#fff'); back.push(t => { for (let i = 0; i < 9; i++) R((i * 71 + 13) % W, (i * 37 + 9) % (gy * .6 | 0), 1, 1, Math.sin(t * 3 + i) > 0 ? '#fff' : '#8a8fd0'); }); };
+const hills = (k, base, amp, f, ph) => { for (let x = 0; x < W; x++) { const h = base + amp * Math.sin(x * f + ph) + amp * .5 * Math.sin(x * f * 2.3 + ph * 2); R(x, gy - h, 1, h, k); R(x, gy - h, 1, 1, mix(k, '#ffffff', night ? .12 : .28)); if (hsh(x, base) > .93) { R(x, gy - h - 3, 1, 3, mix(k, '#000000', .18)); R(x - 1, gy - h - 1, 3, 1, mix(k, '#000000', .18)); } } };
+const ground = (t, m, l) => {
+  const d = H - gy; if (m === t) { tex(0, gy, W, d, m, l, .2); R(0, gy, W, 3, t); return; }
+  for (let y = 0; y < d; y++) R(0, gy + y, W, 1, mix(m, '#120d0a', Math.pow(y / d, 1.2) * .6));
+  for (let i = W * d * .22; i > 0; i--) { const x = rnd() * W | 0, y = rnd() * d | 0; R(x, gy + y, 1, 1, rnd() > .5 ? mix(l, '#000000', y / d * .6) : mix(m, '#ffffff', .12 * (1 - y / d))); }
+  for (let i = 0; i < W / 16; i++) { const x = rnd() * W | 0, y = 7 + rnd() * (d - 9) | 0, w = 3 + rnd() * 7 | 0, h = 2 + rnd() * 3 | 0, s0 = mix('#8d8d99', '#2c2c36', y / d); R(x, gy + y, w, h, s0); R(x, gy + y, w, 1, mix(s0, '#ffffff', .25)); R(x, gy + y + h - 1, w, 1, mix(s0, '#000000', .35)); }
+  for (let i = 0; i < W / 60; i++) { const x = rnd() * W | 0, y = d * .4 + rnd() * d * .5 | 0, ok = ['#d98b3a', '#c9ced6', '#ffd24a'][rnd() * 3 | 0]; [[0, 0], [1, 0], [0, 1], [2, 1], [1, 2]].forEach(q => R(x + q[0], gy + y + q[1], 1, 1, ok)); R(x, gy + y, 1, 1, '#ffffff'); }
+  R(0, gy, W, 3, t); R(0, gy, W, 1, mix(t, '#ffffff', .25)); R(0, gy + 2, W, 1, mix(t, '#000000', .25));
+  for (let x = 0; x < W; x++) { const r = hsh(x, 3); if (r > .45) R(x, gy - 1 - (r > .8 ? 1 : 0), 1, 1 + (r > .8 ? 1 : 0), mix(t, '#ffffff', .12)); if (r < .5) R(x, gy + 3, 1, 1 + (r * 8 | 0) % 3, mix(t, '#000000', .12)); }
+  for (let i = 0; i < W / 22; i++) { const x = rnd() * W | 0; R(x, gy - 3, 1, 3, t); R(x + 1, gy - 2, 1, 2, mix(t, '#ffffff', .2)); if (rnd() > .6) { const fk = ['#ff5a7a', '#ffd84d', '#ffffff', '#ff9ccb'][rnd() * 4 | 0]; R(x - 1, gy - 5, 3, 1, fk); R(x, gy - 6, 1, 3, fk); R(x, gy - 5, 1, 1, '#ffd84d'); } }
+};
+const tree = (x, h, k, tk) => {
+  tk = tk || '#5a3a1e'; const dk = mix(tk, '#000000', .35);
+  for (let y = 0; y < h; y++) { R(x - 1, gy - y, 3, 1, y % 4 === 0 ? dk : tk); R(x + 1, gy - y, 1, 1, dk); }
+  R(x - 3, gy - 2, 2, 2, tk); R(x + 2, gy - 2, 2, 2, tk); R(x - 4, gy - h * .55 | 0, 3, 1, tk); R(x + 2, gy - h * .7 | 0, 4, 1, tk);
+  const cy = gy - h - 2;
+  [[0, 0, 10, 8], [-7, 3, 7, 6], [7, 3, 7, 6], [0, -5, 7, 5]].forEach(q => { for (let yy = -q[3]; yy <= q[3]; yy++) { const w = Math.round(q[2] * Math.sqrt(1 - yy * yy / (q[3] * q[3]))), sh = yy / q[3]; for (let xx = -w; xx <= w; xx++) if (hsh(x + xx + q[0], cy + yy + q[1]) > .12) R(x + xx + q[0], cy + yy + q[1], 1, 1, sh < -.3 ? mix(k, '#ffffff', .28) : sh > .35 ? mix(k, '#000000', .3) : k); } });
+};
+const forest = (k, tk) => { let x = 3; while (x < W) { if (x < bx - 14 || x > bx + BW + 14) tree(x | 0, 12 + (rnd() * 10 | 0), mix(k, '#9db4d8', night ? .05 : .35), mix(tk || '#5a3a1e', '#9db4d8', .3)); x += 30 + (rnd() * 26 | 0); } x = 18; while (x < W) { if (x < bx - 16 || x > bx + BW + 16) tree(x | 0, 24 + (rnd() * 18 | 0), k, tk); x += 34 + (rnd() * 30 | 0); } };
+const torch = (x, y) => { R(x, y, 1, 4, '#6b4a24'); R(x - 1, y + 3, 3, 1, '#4a3016'); dyn.push(t => { const f = Math.sin(t * 13 + x * 3) * .5 + Math.sin(t * 7.3 + y) * .5, g = c.createRadialGradient(x, y - 2, 1, x, y - 2, 30 + f * 3); g.addColorStop(0, 'rgba(255,190,90,.38)'); g.addColorStop(1, 'rgba(255,150,40,0)'); c.fillStyle = g; c.fillRect(x - 34, y - 36, 68, 68); R(x - 1, y - 2, 3, 2, '#ff7a1a'); R(x, y - 3 - (f > 0 ? 1 : 0), 1, 2, '#ffd84d'); }); };
 function house(x, y, w, h, o) {
-  tex(x, y, w, h, o.w, o.w2, .14); R(x, y, 2, h, o.b); R(x + w - 2, y, 2, h, o.b);
-  (o.f || []).forEach(f => R(x, y + f, w, 2, o.b)); R(x, y + h - 2, w, 2, o.b);
-  const rh = o.rh || 26; for (let i = 0; i < rh; i++) { const ww = (w + 10) * (1 - i / rh); R(x + w / 2 - ww / 2, y - 1 - i, ww, 1, i % 5 === 4 ? o.r2 : o.r); }
+  R(x, y, w, h, o.w);
+  for (let j = 0; j < h; j += 5) { R(x, y + j, w, 1, o.w2); for (let i = ((j / 5 | 0) % 2) * 6; i < w; i += 12) R(x + i, y + j, 1, 5, o.w2); }
+  for (let i = w * h * .05; i > 0; i--) R(x + 2 + (rnd() * (w - 4) | 0), y + (rnd() * h | 0), 1, 1, mix(o.w, '#000000', .12));
+  R(x, y, w, 3, mix(o.w, '#000000', .3)); R(x, y + 3, w, 2, mix(o.w, '#000000', .14));
+  R(x, y, 3, h, o.b); R(x + w - 3, y, 3, h, o.b); R(x, y, 1, h, mix(o.b, '#ffffff', .22)); R(x + w - 3, y, 1, h, mix(o.b, '#ffffff', .22));
+  (o.f || []).forEach(f => { R(x, y + f, w, 4, o.b); R(x, y + f, w, 1, mix(o.b, '#ffffff', .25)); R(x, y + f + 3, w, 1, mix(o.b, '#000000', .35)); });
+  R(x, y + h - 3, w, 3, o.b); R(x, y + h - 3, w, 1, mix(o.b, '#ffffff', .25));
+  const rh = o.rh || 26;
+  for (let i = 0; i < rh; i++) { const ww = Math.round((w + 14) * (1 - i / rh)), x0 = x + w / 2 - ww / 2, row = i % 5; R(x0, y - 1 - i, ww, 1, row === 4 ? o.r2 : row === 0 ? mix(o.r, '#000000', .22) : o.r); for (let q = (i % 2) * 5; q < ww; q += 10) R(x0 + q, y - 1 - i, 1, 1, mix(o.r, '#000000', .3)); R(x0, y - 1 - i, 1, 1, mix(o.r, '#ffffff', .3)); }
+  R(x - 7, y, w + 14, 3, mix(o.r, '#000000', .35)); R(x - 7, y, w + 14, 1, mix(o.r, '#ffffff', .2));
+  torch(x + 9, y + 24); torch(x + w - 9, y + 24); torch(x + 9, y + 62); torch(x + w - 9, y + 62);
+}
+function ambient() {
+  if (!night) for (let i = 0; i < 3; i++) { const y0 = 12 + i * 11, sp = 6 + i * 2.5, o = i * 40; back.push(t => { const x = ((t * sp + o) % (W + 40)) - 20, y = y0 + Math.sin(t * 1.3 + i) * 3 | 0, up = Math.sin(t * 9 + i) > 0 ? 0 : 1; R(x - 2, y + up, 2, 1, '#2a2a38'); R(x + 1, y + up, 2, 1, '#2a2a38'); R(x, y + 1, 1, 1, '#2a2a38'); }); }
+  else for (let i = 0; i < 14; i++) { const fx = hsh(i, 9) * W, fy = gy - 4 - hsh(i, 5) * 36; dyn.push(t => { const a = Math.sin(t * 1.7 + i * 2); if (a > .2) { c.globalAlpha = a; R(fx + Math.sin(t * .6 + i) * 6, fy + Math.cos(t * .5 + i * 2) * 4, 1, 1, '#d8ff7a'); c.globalAlpha = 1; } }); }
+  vgc.width = W; vgc.height = H; const g = VX.createRadialGradient(W / 2, H * .55, H * .35, W / 2, H * .55, Math.max(W, H) * .75);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, night ? 'rgba(0,0,20,.5)' : 'rgba(10,10,30,.28)'); VX.fillStyle = g; VX.fillRect(0, 0, W, H);
 }
 const IC = { heart: ['01010', '11111', '11111', '01110', '00100'], star: ['00100', '01110', '11111', '01110', '01010'], note: ['00110', '00101', '00100', '11100', '11100'], bang: ['00100', '00100', '00100', '00000', '00100'], ball: ['01110', '11111', '11111', '11111', '01110'] };
 const IK = { heart: '#ff4f9a', star: '#ffb300', note: '#6c4dff', bang: '#e63946', ball: '#17131f' };
@@ -38,8 +76,8 @@ function drawCh(p) {
   else if (a === 'talk') { up = sn > .85 ? 1 : 0; ra = Math.sin(t / 2) > .2 ? 1 : 0; }
   const y = p.y - up, d = p.dir; p.cx = x; p.cy = y;
   if (p.sit) { R(d > 0 ? x - 1 : x - 4, y - 5, 5, 2, p.bot); R(d > 0 ? x + 2 : x - 3, y - 3, 2, 3, p.bot); }
-  else { R(x - 2 + (lg > 0 ? 1 : 0), y - 5, 2, 5, p.bot); R(x + (lg < 0 ? -1 : 0), y - 5, 2, 5, p.bot); }
-  R(x - 2, y - 10, 4, 5, p.top); R(x - 2, y - 15, 4, 5, p.skin); R(x - 2, y - 15, 4, 2, p.hair); R(d > 0 ? x - 2 : x + 1, y - 15, 1, 4, p.hair); R(x + (d > 0 ? 1 : -2), y - 12, 1, 1, '#111');
+  else { R(x - 2 + (lg > 0 ? 1 : 0), y - 5, 2, 5, p.bot); R(x + (lg < 0 ? -1 : 0), y - 5, 2, 5, p.bot); R(x - 2 + (lg > 0 ? 1 : 0), y - 1, 2, 1, '#2a1a10'); R(x + (lg < 0 ? -1 : 0), y - 1, 2, 1, '#2a1a10'); }
+  R(x - 2, y - 10, 4, 5, p.top); R(x - 2, y - 10, 4, 1, mix(p.top, '#ffffff', .3)); R(x - 2, y - 6, 4, 1, mix(p.top, '#000000', .35)); R(x - 2, y - 15, 4, 5, p.skin); R(x - 2, y - 15, 4, 2, p.hair); R(d > 0 ? x - 2 : x + 1, y - 15, 1, 4, p.hair); R(x + (d > 0 ? 1 : -2), y - 12, 1, 1, '#111');
   if (p.acc === 'hp') { R(x - 3, y - 14, 1, 3, '#17131f'); R(x + 2, y - 14, 1, 3, '#17131f'); R(x - 2, y - 16, 4, 1, '#17131f'); }
   [[x - 3, la], [x + 2, ra]].forEach(q => {
     const k = q[1], sx = q[0];
@@ -169,7 +207,7 @@ SCN.gloome = () => {
 };
 
 SCN.clippods = () => {
-  sky('#ffd89b', '#fff3d6', '#ffffff'); R(W - 36, 14, 12, 12, '#fff6c8'); hills('#f0b97a', 26, 8, .04, 2); hills('#e89b6a', 14, 6, .07, 4); ground('#8bd36b', '#c58a5a', '#9a6a40'); forest('#4cae5a');
+  sky('#ffd89b', '#fff3d6', '#ffffff'); hills('#f0b97a', 26, 8, .04, 2); hills('#e89b6a', 14, 6, .07, 4); ground('#8bd36b', '#c58a5a', '#9a6a40'); forest('#4cae5a');
   house(bx, gy - 80, BW, 80, { w: '#f3ead6', w2: '#e2d3b0', b: '#7a1f1f', f: [38], r: '#e02b2b', r2: '#ffffff', rh: 22 });
   [14, 34, 54].forEach(x => scr(bx + x, gy - 72, 16, 10, ['#e02b2b', '#4fa3ff', '#ffd84d', '#4cc38a'], 1.2)); R(bx + 104, gy - 74, 22, 9, '#e02b2b'); dyn.push(t => text('REC', bx + 108, gy - 73, Math.floor(t) % 2 ? '#fff' : '#ffb3b3'));
   R(bx + 40, Y1 - 8, 50, 3, '#7a4a24'); R(bx + 44, Y1 - 5, 2, 5, '#5a3416'); R(bx + 84, Y1 - 5, 2, 5, '#5a3416'); R(bx + 60, Y1 - 14, 1, 6, '#333'); R(bx + 58, Y1 - 15, 5, 2, '#222'); R(bx + 70, Y1 - 14, 1, 6, '#333'); R(bx + 68, Y1 - 15, 5, 2, '#222');
@@ -182,16 +220,16 @@ SCN['globall-id'] = SCN.globall; SCN['ketahui-id'] = SCN.ketahui; SCN['clippods-
 
 function build() {
   const vw = innerWidth, vh = innerHeight;
-  s = Math.max(2, Math.min(Math.round(vh / 140), Math.floor(vw / BW))); W = Math.ceil(vw / s); H = Math.ceil(vh / s);
-  cv.width = bgc.width = W; cv.height = bgc.height = H; cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
-  gy = H - 26; Y1 = gy - 42; Y0 = gy - 2; bx = Math.round((W - BW) / 2);
-  chars = []; dyn = []; fg = []; pops = []; seed = 7; c = BX; X.imageSmoothingEnabled = BX.imageSmoothingEnabled = false;
-  (SCN[SC] || SCN.popthusiast)();
+  s = Math.max(2, Math.min(Math.floor(vh / 170), Math.floor(vw / BW))); W = Math.ceil(vw / s); H = Math.ceil(vh / s);
+  cv.width = bgc.width = skc.width = W; cv.height = bgc.height = skc.height = H; cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
+  gy = H - 32; Y1 = gy - 42; Y0 = gy - 2; bx = Math.round((W - BW) / 2);
+  chars = []; dyn = []; fg = []; pops = []; back = []; seed = 7; c = BX; X.imageSmoothingEnabled = BX.imageSmoothingEnabled = SX.imageSmoothingEnabled = false;
+  (SCN[SC] || SCN.popthusiast)(); c = BX; ambient();
 }
 function frame(ms) {
   requestAnimationFrame(frame); if (document.hidden) return;
-  T = ms / 1000; X.drawImage(bgc, 0, 0); c = X;
-  dyn.forEach(f => f(T)); chars.forEach(drawCh); fg.forEach(f => f(T));
+  T = ms / 1000; X.drawImage(skc, 0, 0); c = X; back.forEach(f => f(T)); X.drawImage(bgc, 0, 0);
+  dyn.forEach(f => f(T)); chars.forEach(drawCh); fg.forEach(f => f(T)); X.drawImage(vgc, 0, 0);
   pops = pops.filter(q => (q.t += .03) < 1); pops.forEach(q => ico(q.e, q.x - 2, q.y - q.t * 14, IK[q.e]));
 }
 addEventListener('click', e => {

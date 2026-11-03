@@ -62,3 +62,20 @@ body.has-room .ap-stage{background:none!important}
 .tr-bg canvas{position:absolute;left:50%;bottom:0;transform:translateX(-50%);image-rendering:pixelated;display:block}
 .tr-bg::after{content:"";position:absolute;inset:0;background:var(--bgc,#fff);opacity:.12}
 @media (prefers-reduced-motion:reduce){.tr-bg{display:none}}
+
+/* Reading plates: text sits on a solid panel in each account's own colours, so the scene never fights the words */
+body.has-room .ap{--pl:#fff;--pb:#171321;--ps:#171321}
+body.has-room .ap[data-theme=pop]{--pl:#E8FBCB;--pb:#171321;--ps:#FF4FA3}
+body.has-room .ap[data-theme=football]{--pl:#0E0D3A;--pb:#3DFF8A;--ps:#3DFF8A}
+body.has-room .ap[data-theme=news]{--pl:#F6F3EC;--pb:#16161A;--ps:#E11D2E}
+body.has-room .ap[data-theme=magazine]{--pl:#F4F1EA;--pb:#0D0D0D;--ps:#FF2E63}
+body.has-room .ap[data-theme=cinema]{--pl:#070B24;--pb:#F4C542;--ps:#F4C542}
+body.has-room .ap[data-theme=club]{--pl:#06050F;--pb:#22E4FF;--ps:#8A4DFF}
+body.has-room .ap[data-theme=quotes]{--pl:#121212;--pb:#C0FF00;--ps:#C0FF00}
+body.has-room .ap[data-theme=podcast]{--pl:#07070A;--pb:#E02B2B;--ps:#2B6BFF}
+body.has-room .ap .back{padding:.55rem 1rem;background:var(--pl);border:2px solid var(--pb);box-shadow:3px 3px 0 var(--ps);color:var(--tx)}
+body.has-room .ap-block{margin-top:3rem;padding:clamp(1.1rem,3.5vw,2.4rem);background:var(--pl);border:3px solid var(--pb);border-radius:14px;box-shadow:8px 8px 0 var(--ps);color:var(--tx)}
+body.has-room .ap-hero{-webkit-backdrop-filter:none;backdrop-filter:none}
+body.has-room .ap[data-theme=cinema] .ap-hero{background:linear-gradient(160deg,#0F1850,#080A22)}
+body.has-room .ap[data-theme=podcast] .ap-hero{background:linear-gradient(#0A0A0E,#0A0A0E) padding-box,linear-gradient(110deg,#E02B2B,#2B6BFF) border-box}
+.tr-bg::after{opacity:.04}
