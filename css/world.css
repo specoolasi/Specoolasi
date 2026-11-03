@@ -44,3 +44,14 @@
 @keyframes hqPop{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-38px) scale(1.4)}}
 .ap-roomhint{font:700 1.7rem/1.1 'Caveat',cursive;color:#6c4cff;margin:.2rem 0 .8rem}
 @media (prefers-reduced-motion:reduce){.hq-pop span{animation:none;opacity:0}}
+
+/* room as a page background (account pages) */
+.hq-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.hq-bg #hq{position:absolute;inset:0}
+.hq-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0,transparent 25%,var(--bgc,#fff) 100%);opacity:.82}
+.hq-bgm,.hq-bgm *{pointer-events:none!important}
+.hq-bgm .hq-stage{position:absolute;inset:0;height:auto;min-height:0;border:0;box-shadow:none;background:transparent;cursor:auto}
+.hq-bgm canvas{opacity:.6}
+.hq-bgm .hq-tools,.hq-bgm .hq-hint,.hq-bgm .hq-info,.hq-bgm .hq-sign{display:none}
+body.has-room .ap-stage > *{display:none!important}
+@media (prefers-reduced-motion:reduce){.hq-bg{display:none}}
