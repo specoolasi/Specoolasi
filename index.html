@@ -7,8 +7,10 @@
 <meta name="description" content="Specoolasi is a creative agency for social media, content creation, graphic design, copywriting, and music production.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Mono:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/creative.css">
+<link rel="stylesheet" href="css/world.css">
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('sp'))d.classList.add('seen');sessionStorage.setItem('sp','1')}catch(e){}})()</script>
 </head>
 <body>
@@ -91,8 +93,9 @@
       <i class="spark a"></i><i class="spark b"></i><i class="spark c"></i><i class="spark d"></i>
       <p class="mono" style="color:#B8A7FF"><b style="color:#fff">(02)</b> Social media</p>
       <h2 data-split>Accounts we <em>manage.</em></h2>
-      <p class="lead">These accounts are run by the Specoolasi social media team. We handle the strategy, the content, and the community behind each one. Tap an account to see more.</p>
-      <div class="accts" id="acct-list"></div>
+      <p class="lead">These accounts are run by the Specoolasi social media team. We handle the strategy, the content, and the community behind each one. Tap a room to see the account inside.</p>
+      <div id="hq"></div>
+      <div class="accts" id="acct-list" style="display:none"></div>
     </div>
   </section>
 
@@ -132,5 +135,7 @@
 <script src="js/accounts-ui.js"></script>
 <script src="js/cursor.js"></script>
 <script src="js/fx.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/world.js"></script>
 </body>
 </html>
