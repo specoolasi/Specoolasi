@@ -3,15 +3,18 @@
 /* ===== EDIT YOUR ACCOUNTS HERE (texts are placeholders) =====
    posts: [{img:'https://...', link:'https://...'}]   link: the account URL */
 const ACC=[
-{n:'Popthusiast',e:'🎤',vibe:'Fan energy, 24/7',tags:['K-pop','Idols','Fan culture'],link:'',posts:[],d:'Where K-pop lives loud. Idol moments, comeback hype and fan-favorite visuals, posted for people who never skip a stage.'},
-{n:'Ketahui.id',e:'📚',vibe:'Learn something new',tags:['Facts','Explainers','Knowledge'],link:'',posts:[],d:'Bite-sized facts and clear explainers. If you ever wondered "wait, why?", this room has the answer.'},
-{n:'Global_id',e:'🌍',vibe:'The world, right now',tags:['World news','Updates','Global'],link:'',posts:[],d:'A control room for what is happening around the world, kept fast, clear and easy to follow.'},
-{n:'Popnewsiast',e:'📰',vibe:'Pop culture, on air',tags:['Pop news','Entertainment','Trending'],link:'',posts:[],d:'The newsroom for pop culture: celebrity updates, releases and trending talk, delivered like a live broadcast.'},
-{n:'Dramories',e:'🎬',vibe:'Feel every scene',tags:['Drama','Film','Nostalgia'],link:'',posts:[],d:'A cozy cinema for drama lovers. Scenes, plot twists and the stories that made us cry and cheer.'},
-{n:'Listenation',e:'🎧',vibe:'Turn it up',tags:['Music','Playlists','Releases'],link:'',posts:[],d:'Music news, fresh releases and playlist-worthy moments, all with the volume up.'},
-{n:'Gloome',e:'🌙',vibe:'Quiet, moody, aesthetic',tags:['Aesthetic','Late night','Mood'],link:'',posts:[],d:'A late-night corner for moody visuals, soft glow and thoughts that hit different after midnight.'},
-{n:'Clippods.id',e:'🎙️',vibe:'Press record',tags:['Podcast','Clips','Video'],link:'',posts:[],d:'The studio for podcasts and short clips. The best moments from the conversation, cut and ready to share.'}
+{id:'popthusiast',n:'Popthusiast',e:'🎤',vibe:'Fan energy, 24/7',tags:['K-pop','Idols','Fan culture'],link:'',posts:[],d:'Where K-pop lives loud. Idol moments, comeback hype and fan-favorite visuals, posted for people who never skip a stage.'},
+{id:'ketahui-id',n:'Ketahui.id',e:'📚',vibe:'Learn something new',tags:['Facts','Explainers','Knowledge'],link:'',posts:[],d:'Bite-sized facts and clear explainers. If you ever wondered "wait, why?", this room has the answer.'},
+{id:'globall-id',n:'Globall_id',e:'🌍',vibe:'The world, right now',tags:['World news','Updates','Global'],link:'',posts:[],d:'A control room for what is happening around the world, kept fast, clear and easy to follow.'},
+{id:'popnewsiast',n:'Popnewsiast',e:'📰',vibe:'Pop culture, on air',tags:['Pop news','Entertainment','Trending'],link:'',posts:[],d:'The newsroom for pop culture: celebrity updates, releases and trending talk, delivered like a live broadcast.'},
+{id:'dramories',n:'Dramories',e:'🎬',vibe:'Feel every scene',tags:['Drama','Film','Nostalgia'],link:'',posts:[],d:'A cozy cinema for drama lovers. Scenes, plot twists and the stories that made us cry and cheer.'},
+{id:'listenation',n:'Listenation',e:'🎧',vibe:'Turn it up',tags:['Music','Playlists','Releases'],link:'',posts:[],d:'Music news, fresh releases and playlist-worthy moments, all with the volume up.'},
+{id:'gloome',n:'Gloome',e:'🌙',vibe:'Quiet, moody, aesthetic',tags:['Aesthetic','Late night','Mood'],link:'',posts:[],d:'A late-night corner for moody visuals, soft glow and thoughts that hit different after midnight.'},
+{id:'clippods-id',n:'Clippods.id',e:'🎙️',vibe:'Press record',tags:['Podcast','Clips','Video'],link:'',posts:[],d:'The studio for podcasts and short clips. The best moments from the conversation, cut and ready to share.'}
 ];
+/* Real data from js/accounts.js: name, description, posts and the account page button */
+if(window.ACCOUNTS)ACC.forEach(a=>{const m=ACCOUNTS.find(x=>x.id===a.id);if(!m)return;
+ a.n=m.name||a.n;if(m.desc)a.d=m.desc;a.page='account.html?id='+encodeURIComponent(m.id);a.posts=(m.samples||[]).slice(0,6)});
 const PIX=2; /* pixel size: 1 = smooth, 2 = chunky, 3 = very chunky */
 
 /* ---------- three.js basics ---------- */
@@ -228,10 +231,14 @@ function openRoom(i){
  const t=wide?{x:cx+RV.x*visW*.2,z:cz+RV.z*visW*.2,zoom:z}:{x:cx-FV.x*visH*.2/SIN,z:cz-FV.z*visH*.2/SIN,zoom:z};
  go(t);
  const list=a.posts.length?a.posts:Array.from({length:3},()=>({}));
+ const tile=p=>p.video?`<div class="hq-post"><video src="${p.video}"${p.poster?` poster="${p.poster}"`:''} muted loop autoplay playsinline></video></div>`
+  :p.img?`<a class="hq-post" href="${p.link||p.img}" target="_blank" rel="noopener" style="background-image:url('${p.img}')"></a>`
+  :p.embed?`<a class="hq-post" href="${p.embed}" target="_blank" rel="noopener">&#9654; VIEW POST</a>`
+  :`<div class="hq-post">COMING SOON</div>`;
  info.innerHTML=`<button class="hq-back" id="hq-bk">← Back to HQ</button><h2>${a.e} ${a.n}</h2><p class="hq-vibe">${a.vibe}</p>
  <div class="hq-chips">${a.tags.map(t=>`<span>${t}</span>`).join('')}</div><p>${a.d}</p>
- ${a.link?`<a class="hq-go" href="${a.link}" target="_blank" rel="noopener">Visit ${a.n} ↗</a>`:''}
- <div class="hq-posts">${list.map(p=>p.link||p.img?`<a class="hq-post" href="${p.link||'#'}" target="_blank" rel="noopener" style="background-image:url('${p.img||''}')"></a>`:`<div class="hq-post">COMING SOON</div>`).join('')}</div>`;
+ ${a.link?`<a class="hq-go" href="${a.link}" target="_blank" rel="noopener">Visit ${a.n} ↗</a>`:''}${a.page?`<a class="hq-go" href="${a.page}">Open page →</a>`:''}
+ <div class="hq-posts">${list.map(tile).join('')}</div>`;
  info.classList.add('on');$('hq-bk').onclick=closeRoom;
 }
 function closeRoom(){sel=-1;stage.classList.remove('focus');info.classList.remove('on');go(homeCam(),800)}
