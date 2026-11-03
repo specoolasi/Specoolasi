@@ -108,15 +108,7 @@
     var R = RESULTS[th] || []; if (!R.length && th !== 'copy') return '';
     var body = '';
     if (th === 'social') {
-      var A = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []);
-      if (A.length) {
-        body = '<div class="rs-pick"><p class="rs-hint"><em>Tap a logo to see its results</em><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M4 6C20 2 38 8 48 30M48 30l-14-3M48 30l3-14"/></svg></p>' +
-          '<div class="rs-stories">' + A.map(function (a, i) {
-            return '<button type="button" class="rs-story' + (i === 0 ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><i>' + (a.logo ? '<img src="' + esc(a.logo) + '" alt="">' : '<b>' + esc(a.name.charAt(0)) + '</b>') + '</i><span>' + esc(a.name) + '</span></button>';
-          }).join('') + '</div></div><div id="rs-out" aria-live="polite">' + acctResults(A[0]) + '</div>';
-      } else {
-        body = '<div class="rs-grid">' + R.map(function (r, i) { return postCell(r, i); }).join('') + '</div>';
-      }
+      body = '<div class="rs-hqwrap"><div id="hq"></div></div>';
     } else if (th === 'content') {
       body = '<div class="rs-film"><div class="rs-grid">' + R.map(function (r, i) {
         return cell('<span class="no">A' + (i + 1) + '</span>' + pic(r) + '<span class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></span><div class="cap"><span>' + esc(r.title) + '</span><span>' + esc(r.client) + '</span></div>', r, 'rs-fr', i);
@@ -252,6 +244,14 @@
 
   // ---- your work from Sanity (Studio > "Work sample"): fills the results on this page
   var cfg = window.SPECOOLASI && window.SPECOOLASI.sanity;
+  // Social page only: load the pixel-art HQ (three.js + js/world.js).
+  var hqBox = document.getElementById('hq');
+  if (hqBox) {
+    var hqFail = function () { hqBox.innerHTML = '<p class="state">The HQ could not load. You can still open each account from the <a href="index.html#social">home page</a>.</p>'; };
+    var hqLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = hqFail; document.body.appendChild(t); };
+    hqLoad('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { hqLoad('js/world.js', function () {}); });
+  }
+
   if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
     var Q = '*[_type=="work" && defined(service)] | order(coalesce(order,9999) asc, _createdAt desc){title, service, account, client, link, "img": image.asset->url, "video": video.asset->url}';
     fetch('https://' + cfg.projectId + '.apicdn.sanity.io/v' + cfg.apiVersion + '/data/query/' + cfg.dataset + '?query=' + encodeURIComponent(Q))
@@ -268,6 +268,7 @@
             var add = mine.filter(function (w) { return w.account === a.id; });
             if (add.length) a.samples = (a.samples || []).concat(add);
           });
+          return; // the HQ reads ACCOUNTS again whenever a room opens
         } else if (mine.length) RESULTS[s.th] = mine;
         else return;
         var sec = document.querySelector('section.rs');

@@ -12,9 +12,10 @@ const ACC=[
 {id:'gloome',n:'Gloome',e:'🌙',vibe:'Quiet, moody, aesthetic',tags:['Aesthetic','Late night','Mood'],link:'',posts:[],d:'A late-night corner for moody visuals, soft glow and thoughts that hit different after midnight.'},
 {id:'clippods-id',n:'Clippods.id',e:'🎙️',vibe:'Press record',tags:['Podcast','Clips','Video'],link:'',posts:[],d:'The studio for podcasts and short clips. The best moments from the conversation, cut and ready to share.'}
 ];
-/* Real data from js/accounts.js: name, description, posts and the account page button */
-if(window.ACCOUNTS)ACC.forEach(a=>{const m=ACCOUNTS.find(x=>x.id===a.id);if(!m)return;
- a.n=m.name||a.n;if(m.desc)a.d=m.desc;a.page='account.html?id='+encodeURIComponent(m.id);a.posts=(m.samples||[]).slice(0,6)});
+/* Real data from js/accounts.js (read again every time a room opens, so posts added later show up) */
+const sync=a=>{if(!window.ACCOUNTS)return;const m=ACCOUNTS.find(x=>x.id===a.id);if(!m)return;
+ a.n=m.name||a.n;if(m.desc)a.d=m.desc;a.page='account.html?id='+encodeURIComponent(m.id);a.posts=(m.samples||[]).slice(0,6)};
+ACC.forEach(sync);
 const PIX=2; /* pixel size: 1 = smooth, 2 = chunky, 3 = very chunky */
 
 /* ---------- three.js basics ---------- */
@@ -230,6 +231,7 @@ function openRoom(i){
  const cx=(i%4)*PITCH+5,cz=((i/4)|0)*PITCH+5,z=wide?HF/17:HF*asp()/17,visW=HF/z*asp(),visH=HF/z;
  const t=wide?{x:cx+RV.x*visW*.2,z:cz+RV.z*visW*.2,zoom:z}:{x:cx-FV.x*visH*.2/SIN,z:cz-FV.z*visH*.2/SIN,zoom:z};
  go(t);
+ sync(a);
  const list=a.posts.length?a.posts:Array.from({length:3},()=>({}));
  const tile=p=>p.video?`<div class="hq-post"><video src="${p.video}"${p.poster?` poster="${p.poster}"`:''} muted loop autoplay playsinline></video></div>`
   :p.img?`<a class="hq-post" href="${p.link||p.img}" target="_blank" rel="noopener" style="background-image:url('${p.img}')"></a>`
