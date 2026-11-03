@@ -108,7 +108,9 @@
     var R = RESULTS[th] || []; if (!R.length && th !== 'copy') return '';
     var body = '';
     if (th === 'social') {
-      body = '<div class="rs-hqwrap"><div id="hq"></div></div>';
+      body = '<p class="rs-lead">Welcome to Specoolasi HQ. Every room belongs to an account we run, and the people inside are busy doing what that account is all about.</p>' +
+        '<p class="rs-hint"><em>Tap a room to zoom in and see its results</em></p>' +
+        '<div class="rs-hqwrap"><div id="hq"></div></div>';
     } else if (th === 'content') {
       body = '<div class="rs-film"><div class="rs-grid">' + R.map(function (r, i) {
         return cell('<span class="no">A' + (i + 1) + '</span>' + pic(r) + '<span class="play"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></span><div class="cap"><span>' + esc(r.title) + '</span><span>' + esc(r.client) + '</span></div>', r, 'rs-fr', i);

@@ -23,6 +23,10 @@ const mount=document.getElementById('hq');if(!mount||!window.THREE)return;
 const $=id=>document.getElementById(id);
 mount.innerHTML='<p class="hq-hint">Drag to explore &middot; tap a room &middot; +/&minus; or Ctrl + scroll to zoom</p><div class="hq-stage" id="hq-stage"><canvas id="hq-c"></canvas><div class="hq-tools"><button id="hq-zi" aria-label="Zoom in">+</button><button id="hq-zo" aria-label="Zoom out">&minus;</button><button id="hq-hm">HQ</button></div><aside class="hq-info" id="hq-info"></aside></div>';
 const stage=$('hq-stage'),canvas=$('hq-c');
+/* One-room mode: <div id="hq" data-room="account-id"> shows only that account's room (used on account pages) */
+const SOLO=mount.dataset.room||'',SI=SOLO?ACC.findIndex(a=>a.id===SOLO):-1;
+if(SOLO&&SI<0){mount.innerHTML='';return}
+if(SI>=0){mount.classList.add('hq-solo');$('hq-hm').style.display='none'}
 const renderer=new THREE.WebGLRenderer({canvas,antialias:false});
 const scene=new THREE.Scene();scene.background=new THREE.Color('#cdbfff');
 scene.add(new THREE.HemisphereLight(0xffffff,0x9a8fc0,.8));
@@ -61,6 +65,7 @@ function npc(g,x,z,shirt,act,o={}){
  const ob={n,armL,armR,legL,legR,head,act,ph:o.ph??Math.random()*6,by:n.position.y,path:o.path,pi:0,wait:0};NPCS.push(ob);return ob;
 }
 function upd(o,t,dt){const a=o.act,p=o.ph,s=Math.sin(t*6+p);
+ if(o.hop>0){o.hop-=dt*1.6;if(o.hop>0){o.n.position.y=o.by+Math.abs(Math.sin(o.hop*Math.PI*2))*.9;o.armL.rotation.z=-2.6;o.armR.rotation.z=2.6;return}o.n.position.y=o.by;o.armL.rotation.z=o.armR.rotation.z=0}
  if(a==='dance'||a==='cheer'){if(a==='dance')o.n.position.y=o.by+Math.abs(s)*.3;o.armL.rotation.z=-(2.5+.4*s);o.armR.rotation.z=2.5+.4*Math.sin(t*6+p+1.5);o.legL.rotation.x=s*.3;o.legR.rotation.x=-s*.3}
  else if(a==='type'){o.armL.rotation.x=-1.4+.15*Math.sin(t*14+p);o.armR.rotation.x=-1.4+.15*Math.sin(t*14+p+2)}
  else if(a==='read'){o.armL.rotation.x=o.armR.rotation.x=-1.2;o.head.rotation.x=.25+.1*Math.sin(t*1.5+p)}
@@ -185,22 +190,24 @@ g=>{shell(g,'#333','#222','#c0392b');
 
 /* ---------- build the universe ---------- */
 const PITCH=13,roomG=[],labs=[];
-B(scene,-14,-12,77,50,.5,'#9be3a8',-.8);B(scene,-2,-2,53,27,.3,'#c9c3dd',-.3);
-[[-10,-8],[55,-8],[-10,30],[55,30],[18,29],[36,30],[-8,10],[57,12]].forEach(p=>{B(scene,p[0],p[1],.6,.6,1.5,'#8a5a2b',-.3);B(scene,p[0]-.7,p[1]-.7,2,2,1.6,'#4cc38a',1.2);B(scene,p[0]-.4,p[1]-.4,1.4,1.4,1,'#5fd69c',2.8)});
-B(scene,20,27,9,.4,2.2,'#6c4cff',-.3);
-const signA=anc(scene,24.5,2.4,27.2),sign=document.createElement('div');sign.className='hq-sign';sign.textContent='SPECOOLASI HQ';stage.appendChild(sign);
+if(SI<0){B(scene,-14,-12,77,50,.5,'#9be3a8',-.8);B(scene,-2,-2,53,27,.3,'#c9c3dd',-.3)}
+if(SI<0)[[-10,-8],[55,-8],[-10,30],[55,30],[18,29],[36,30],[-8,10],[57,12]].forEach(p=>{B(scene,p[0],p[1],.6,.6,1.5,'#8a5a2b',-.3);B(scene,p[0]-.7,p[1]-.7,2,2,1.6,'#4cc38a',1.2);B(scene,p[0]-.4,p[1]-.4,1.4,1.4,1,'#5fd69c',2.8)});
+if(SI<0)B(scene,20,27,9,.4,2.2,'#6c4cff',-.3);
+const signA=anc(scene,24.5,2.4,27.2),sign=document.createElement('div');sign.className='hq-sign';sign.textContent='SPECOOLASI HQ';stage.appendChild(sign);if(SI>=0)sign.style.display='none';
 ACC.forEach((a,i)=>{
+ if(SI>=0&&i!==SI)return;
  const g=new THREE.Group();g.position.set((i%4)*PITCH,.2,((i/4)|0)*PITCH);g.userData.room=i;scene.add(g);roomG.push(g);ROOMS[i](g);
- const el=document.createElement('button');el.className='hq-lab';el.textContent=a.e+' '+a.n;el.onclick=()=>openRoom(i);stage.appendChild(el);
- labs.push({el,a:anc(g,5,3.3,0)});
+ if(SI>=0)B(scene,g.position.x-1.5,g.position.z-1.5,13,13,.5,'#9be3a8',-.8);
+ if(SI<0){const el=document.createElement('button');el.className='hq-lab';el.textContent=a.e+' '+a.n;el.onclick=()=>openRoom(i);stage.appendChild(el);
+ labs.push({el,a:anc(g,5,3.3,0)})}
 });
-[[[11.5,-1],[11.5,24]],[[24.5,-1],[24.5,24]],[[37.5,24],[37.5,-1]],[[-1,11.5],[50,11.5]]].forEach((p,i)=>npc(scene,p[0][0],p[0][1],['#ff7ab8','#ffd84d','#4fa3ff','#4cc38a'][i],'walk',{path:p}));
+if(SI<0)[[[11.5,-1],[11.5,24]],[[24.5,-1],[24.5,24]],[[37.5,24],[37.5,-1]],[[-1,11.5],[50,11.5]]].forEach((p,i)=>npc(scene,p[0][0],p[0][1],['#ff7ab8','#ffd84d','#4fa3ff','#4cc38a'][i],'walk',{path:p}));
 
 /* ---------- camera ---------- */
 const dir=new THREE.Vector3(1,1.25,1).normalize(),SIN=dir.y;
 const RV=new THREE.Vector3(1,0,-1).normalize(),FV=new THREE.Vector3(-1,0,-1).normalize();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),asp=()=>stage.clientWidth/stage.clientHeight;
-const homeCam=()=>({x:24.5,z:11.5,zoom:Math.min(HF/40,HF*asp()/60)});
+const homeCam=()=>{if(SI>=0){const wide=asp()>1;return{x:(SI%4)*PITCH+5,z:((SI/4)|0)*PITCH+5,zoom:wide?HF/17:HF*asp()/17}}return{x:24.5,z:11.5,zoom:Math.min(HF/40,HF*asp()/60)}};
 let cam=homeCam(),raf,sel=-1;
 function placeCam(){camera.zoom=cam.zoom;camera.position.set(cam.x+dir.x*120,dir.y*120,cam.z+dir.z*120);camera.lookAt(cam.x,0,cam.z);camera.updateProjectionMatrix()}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight,a=w/h;renderer.setSize(Math.floor(w/PIX),Math.floor(h/PIX),false);
@@ -209,7 +216,7 @@ function go(t,ms=900){cancelAnimationFrame(raf);const s={...cam},t0=performance.
  (function f(n){let k=Math.min(1,(n-t0)/ms);k=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
  cam={x:s.x+(t.x-s.x)*k,z:s.z+(t.z-s.z)*k,zoom:s.zoom+(t.zoom-s.zoom)*k};if(k<1)raf=requestAnimationFrame(f)})(t0)}
 let pd=null,moved=false;
-stage.addEventListener('pointerdown',e=>{if(e.target.closest('button,.hq-info'))return;pd={x:e.clientX,y:e.clientY};moved=false;cancelAnimationFrame(raf)});
+stage.addEventListener('pointerdown',e=>{if(SI>=0||e.target.closest('button,.hq-info'))return;pd={x:e.clientX,y:e.clientY};moved=false;cancelAnimationFrame(raf)});
 addEventListener('pointermove',e=>{
  if(!pd)return;
  const dx=e.clientX-pd.x,dy=e.clientY-pd.y;if(!moved&&Math.hypot(dx,dy)<6)return;
@@ -222,7 +229,13 @@ const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
 function pick(e){if(e.target.closest&&e.target.closest('button,.hq-info'))return-1;const b=canvas.getBoundingClientRect();
  mv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height*2-1));ray.setFromCamera(mv,camera);
  const h=ray.intersectObjects(roomG,true)[0];if(!h)return-1;let o=h.object;while(o&&o.userData.room===undefined)o=o.parent;return o?o.userData.room:-1}
-stage.addEventListener('click',e=>{if(moved)return;const i=pick(e);if(i>=0)openRoom(i)});
+function npcAt(e){if(e.target.closest&&e.target.closest('button'))return null;const b=canvas.getBoundingClientRect();
+ mv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height*2-1));ray.setFromCamera(mv,camera);
+ const h=ray.intersectObjects(NPCS.map(o=>o.n),true)[0];if(!h)return null;let o=h.object;while(o&&!NPCS.some(p=>p.n===o))o=o.parent;return o?NPCS.find(p=>p.n===o):null}
+function react(e){const o=npcAt(e);if(!o)return;o.hop=1;const em=[ACC[SI].e,'✨','💜','🔥','😄'][Math.floor(Math.random()*5)];
+ const el=document.createElement('div');el.className='hq-pop';el.innerHTML='<span>'+em+'</span>';stage.appendChild(el);const b={el,target:o.n,dy:3.3};bubs.push(b);
+ setTimeout(()=>{el.remove();const k=bubs.indexOf(b);if(k>=0)bubs.splice(k,1)},1100)}
+stage.addEventListener('click',e=>{if(moved)return;if(SI>=0){react(e);return}const i=pick(e);if(i>=0)openRoom(i)});
 
 /* ---------- popup + zoom ---------- */
 const info=$('hq-info');
@@ -256,7 +269,7 @@ function frame(ms){const t=ms/1000,dt=Math.min(.05,t-last);last=t;if(!vis){reque
  NPCS.forEach(o=>upd(o,t,dt));ticks.forEach(f=>f(t));placeCam();renderer.render(scene,camera);
  labs.forEach(l=>put(l.el,l.a,0));put(sign,signA,0);bubs.forEach(b=>put(b.el,b.target,b.dy));
  requestAnimationFrame(frame)}
-stage.addEventListener('pointermove',e=>{if(!pd)stage.classList.toggle('hot',pick(e)>=0)});
+stage.addEventListener('pointermove',e=>{if(!pd)stage.classList.toggle('hot',SI>=0?!!npcAt(e):pick(e)>=0)});
 resize();requestAnimationFrame(frame);
 
 })();

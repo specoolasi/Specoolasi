@@ -98,6 +98,9 @@
       }).join('') + '</div>' : '') +
       '</div>' + (T ? '<div class="ap-art" aria-hidden="true">' + T.art + '</div>' : '') + '</div>' + (T ? T.ticker : '');
 
+    // Pixel-art room for this account (the room is drawn in js/world.js). Accounts without a room here show no scene.
+    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
+    if (ROOM_IDS.indexOf(a.id) >= 0) html += '<div class="ap-block ap-room"><span class="eyebrow">Inside the room</span><h2>Step inside ' + esc(a.name) + '.</h2><p class="ap-roomhint">Tap the people and watch them react.</p><div id="hq" data-room="' + esc(a.id) + '"></div></div>';
     html += '<div id="ap-work"></div>';
 
     if (socials.length) {
@@ -107,6 +110,12 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
+    var hqBox = document.getElementById('hq');
+    if (hqBox) {
+      var hqFail = function () { hqBox.innerHTML = ''; };
+      var hqLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = hqFail; document.body.appendChild(t); };
+      hqLoad('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { hqLoad('js/world.js', function () {}); });
+    }
 
     function mediaOf(x) {
       return x.video ? '<video src="' + esc(x.video) + '" autoplay muted loop playsinline preload="metadata"' + (x.img ? ' poster="' + esc(x.img) + '"' : '') + '></video>'
