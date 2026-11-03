@@ -48,10 +48,10 @@
 /* room as a page background (account pages) */
 .hq-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .hq-bg #hq{position:absolute;inset:0}
-.hq-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0,transparent 25%,var(--bgc,#fff) 100%);opacity:.82}
+.hq-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,var(--bgc,#fff) 0,transparent 45%),linear-gradient(to bottom,transparent 0,transparent 40%,var(--bgc,#fff) 100%);opacity:.62}
 .hq-bgm,.hq-bgm *{pointer-events:none!important}
 .hq-bgm .hq-stage{position:absolute;inset:0;height:auto;min-height:0;border:0;box-shadow:none;background:transparent;cursor:auto}
-.hq-bgm canvas{opacity:.6}
+.hq-bgm canvas{opacity:.95}
 .hq-bgm .hq-tools,.hq-bgm .hq-hint,.hq-bgm .hq-info,.hq-bgm .hq-sign{display:none}
 body.has-room .ap-stage > *{display:none!important}
 @media (prefers-reduced-motion:reduce){.hq-bg{display:none}}
