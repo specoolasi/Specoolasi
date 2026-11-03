@@ -107,21 +107,18 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    // Pixel-art room of this account as the page background (drawn in js/world.js).
-    // Accounts without a room listed here keep their normal background.
+    // Terraria-style live pixel scene as the full-page background (drawn in js/terra.js).
     var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
     var calmRoom = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    var saveData = navigator.connection && navigator.connection.saveData;
-    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom && !saveData) {
+    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom) {
       var bg = document.createElement('div');
-      bg.className = 'hq-bg'; bg.setAttribute('aria-hidden', 'true');
+      bg.className = 'tr-bg'; bg.setAttribute('aria-hidden', 'true');
       bg.style.setProperty('--bgc', getComputedStyle(document.body).backgroundColor);
-      bg.innerHTML = '<div id="hq" data-room="' + esc(a.id) + '" data-bg="1"></div>';
+      bg.innerHTML = '<canvas id="tr-c" data-scene="' + esc(a.id) + '"></canvas>';
       document.body.appendChild(bg);
       document.body.classList.add('has-room');
-      var hqFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
-      var hqLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = hqFail; document.body.appendChild(t); };
-      hqLoad('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { hqLoad('js/world.js', function () {}); });
+      var tr = document.createElement('script'); tr.src = 'js/terra.js'; tr.onerror = function () { bg.remove(); document.body.classList.remove('has-room'); };
+      document.body.appendChild(tr);
     }
 
     function mediaOf(x) {

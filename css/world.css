@@ -56,3 +56,9 @@
 body.has-room .ap-stage > *{display:none!important}
 body.has-room .ap-stage{background:none!important}
 @media (prefers-reduced-motion:reduce){.hq-bg{display:none}}
+
+/* Terraria-style scene as the page background (account pages) */
+.tr-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#222}
+.tr-bg canvas{position:absolute;left:50%;bottom:0;transform:translateX(-50%);image-rendering:pixelated;display:block}
+.tr-bg::after{content:"";position:absolute;inset:0;background:var(--bgc,#fff);opacity:.12}
+@media (prefers-reduced-motion:reduce){.tr-bg{display:none}}
