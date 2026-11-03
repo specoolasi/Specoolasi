@@ -107,12 +107,20 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    // Full-screen live-action diorama, constructed from animated CSS/HTML (no image backgrounds).
-    var scene = document.querySelector('.ap-stage');
-    if (scene) {
-      scene.classList.add('live-scene-stage', 'scene-' + a.theme);
-      scene.innerHTML = '<div class="live-world"><div class="world-sky"></div><div class="world-horizon"><i></i><i></i><i></i><b></b></div><div class="world-architecture"><i class="arch-a"></i><i class="arch-b"></i><i class="arch-c"></i><b></b></div><div class="world-activity"><div class="scene-person person-a"><i class="head"></i><i class="torso"></i><i class="arm arm-a"></i><i class="arm arm-b"></i><i class="leg leg-a"></i><i class="leg leg-b"></i></div><div class="scene-person person-b"><i class="head"></i><i class="torso"></i><i class="arm arm-a"></i><i class="arm arm-b"></i><i class="leg leg-a"></i><i class="leg leg-b"></i></div><div class="scene-props"><i class="prop prop-a"></i><i class="prop prop-b"></i><i class="prop prop-c"></i><i class="prop prop-d"></i></div><div class="scene-workbench"><i class="screen"></i><i class="screen small"></i><i class="desk-edge"></i></div></div><div class="world-floor"></div><div class="world-atmosphere"></div></div>';
-      document.body.classList.add('has-live-scene');
+    // Realistic 3D scene of this account's room as the full-page background (drawn in js/world.js, background mode).
+    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
+    var calmRoom = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom) {
+      var bg = document.createElement('div');
+      bg.className = 'hq-bg'; bg.setAttribute('aria-hidden', 'true');
+      bg.style.setProperty('--bgc', getComputedStyle(document.body).backgroundColor);
+      bg.innerHTML = '<div id="hq" data-room="' + esc(a.id) + '" data-bg="1"></div>';
+      document.body.appendChild(bg);
+      document.body.classList.add('has-room');
+      var roomFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
+      var load3 = document.createElement('script'); load3.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; load3.onerror = roomFail;
+      load3.onload = function () { var w = document.createElement('script'); w.src = 'js/world.js'; w.onerror = roomFail; document.body.appendChild(w); };
+      document.body.appendChild(load3);
     }
 
     function mediaOf(x) {
