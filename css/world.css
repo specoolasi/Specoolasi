@@ -79,3 +79,20 @@ body.has-room .ap-hero{-webkit-backdrop-filter:none;backdrop-filter:none}
 body.has-room .ap[data-theme=cinema] .ap-hero{background:linear-gradient(160deg,#0F1850,#080A22)}
 body.has-room .ap[data-theme=podcast] .ap-hero{background:linear-gradient(#0A0A0E,#0A0A0E) padding-box,linear-gradient(110deg,#E02B2B,#2B6BFF) border-box}
 .tr-bg::after{opacity:.04}
+
+/* Glass: panels are see-through so the scene shows behind them */
+body.has-room .ap[data-theme=pop]{--hl:#FFE600}
+body.has-room .ap[data-theme=football]{--hl:#15145A}
+body.has-room .ap[data-theme=news]{--hl:#FFFFFF}
+body.has-room .ap[data-theme=magazine]{--hl:#0D0D0D}
+body.has-room .ap[data-theme=cinema]{--hl:#0F1850}
+body.has-room .ap[data-theme=club]{--hl:#0B0920}
+body.has-room .ap[data-theme=quotes]{--hl:#1A1A1A}
+body.has-room .ap[data-theme=podcast]{--hl:#0A0A0E}
+body.has-room .ap .back{background:rgba(255,255,255,.01);background:color-mix(in srgb,var(--pl) 50%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body.has-room .ap-block{background:color-mix(in srgb,var(--pl) 30%,transparent);-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3)}
+body.has-room .ap .ap-hero{background:color-mix(in srgb,var(--hl) 34%,transparent)!important;border-color:var(--pb)!important;-webkit-backdrop-filter:blur(12px) saturate(1.3)!important;backdrop-filter:blur(12px) saturate(1.3)!important}
+body.has-room .ap .ap-ticker{opacity:.88}
+@supports not (background:color-mix(in srgb,red 50%,transparent)){body.has-room .ap-block,body.has-room .ap .ap-hero,body.has-room .ap .back{background:var(--pl)!important}}
+body.has-room .ap-block h2,body.has-room .ap-hero h1,body.has-room .ap-desc{text-shadow-color:inherit}
+body.has-room .ap[data-theme=news] .ap-block,body.has-room .ap[data-theme=magazine] .ap-block,body.has-room .ap[data-theme=pop] .ap-block,body.has-room .ap[data-theme=news] .ap-hero{box-shadow:8px 8px 0 var(--ps),inset 0 0 0 100vmax rgba(255,255,255,.12)}
