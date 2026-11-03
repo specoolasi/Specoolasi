@@ -28,17 +28,17 @@ const BGM=SI>=0&&!!mount.dataset.bg; /* data-bg: use the room as a page backgrou
 if(SI>=0){mount.classList.add(BGM?'hq-bgm':'hq-solo');$('hq-hm').style.display='none'}
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'})}
-catch(err){mount.innerHTML='<p class="state">The HQ needs WebGL, which this browser could not start. You can still open each account from the <a href="index.html#social">home page</a>.</p>';return}
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+catch(err){if(BGM){const bp=mount.closest('.hq-bg');if(bp)bp.remove();document.body.classList.remove('has-room');return}mount.innerHTML='<p class="state">The HQ needs WebGL, which this browser could not start. You can still open each account from the <a href="index.html#social">home page</a>.</p>';return}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,BGM?1.5:2));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 /* soft daylight: sky/ground bounce + one warm sun that casts the shadows */
-scene.add(new THREE.HemisphereLight(0xffffff,0xb7a6e6,.72));
+const hemi=new THREE.HemisphereLight(0xffffff,0xb7a6e6,.72);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff1dc,1.25);
 sun.position.set(60,58,30);sun.target.position.set(24,0,12);scene.add(sun,sun.target);
-sun.castShadow=true;const SM=matchMedia('(pointer:coarse)').matches?2048:4096;sun.shadow.mapSize.set(SM,SM);
+sun.castShadow=true;const SM=(BGM||matchMedia('(pointer:coarse)').matches)?2048:4096;sun.shadow.mapSize.set(SM,SM);
 Object.assign(sun.shadow.camera,{left:-58,right:58,top:46,bottom:-46,near:1,far:220});
 sun.shadow.bias=-.0004;sun.shadow.normalBias=.05;sun.shadow.radius=3;
 const fill=new THREE.DirectionalLight(0xcfd8ff,.3);fill.position.set(-30,30,-20);scene.add(fill);
@@ -255,6 +255,64 @@ g=>{shell(g,'#333','#222','#c0392b');
 
 /* ---------- build the universe ---------- */
 const PX=13,PZ=16,roomG=[],labs=[];
+/* camera angle: corner view for the HQ, a low, almost front-on view when the room is a page background */
+const dir=(BGM?new THREE.Vector3(.5,.3,1):new THREE.Vector3(1,1.25,1)).normalize(),SIN=dir.y;
+const RV=new THREE.Vector3(dir.z,0,-dir.x).normalize(),FV=new THREE.Vector3(-dir.x,0,-dir.z).normalize();
+/* ---------- background mode (account pages): a realistic outdoor setting around the room ---------- */
+const ENV={
+ popthusiast:{t:'#ffc8e6',b:'#fff3a6',g:'#7be08a',h:['#f6b3e0','#ffd0ea'],tr:['#ff9ccb','#ffb3da'],petal:'#ffc0de'},
+ 'ketahui-id':{t:'#8fcdfc',b:'#f3e8d8',g:'#6fcf7a',h:['#9fc3dd','#b9d6e6'],tr:['#3fae5a','#52c06b']},
+ 'globall-id':{t:'#6ec1fa',b:'#d6f5ff',g:'#3fae5a',h:['#8ec9a0','#a9dbb8'],tr:['#2f9e4f','#46b862']},
+ popnewsiast:{t:'#2b1f45',b:'#ff7ab0',g:'#3a2a63',h:['#4a2a6a','#6a3a82'],tr:['#5b3a8c','#7448a6'],dusk:1,sy:40,glow:'255,233,176'},
+ dramories:{t:'#0b1240',b:'#3b6aa8',g:'#4a7a5a',h:['#1d2f6a','#2a4585'],tr:['#ffb3d1','#ff9ccb'],night:1,petal:'#ffd0e4'},
+ listenation:{t:'#0a0620',b:'#2a0f5c',g:'#2a1a55',h:['#1a0f3a','#2a1760'],tr:['#2b1b6a','#3b2590'],night:1,fly:'#b8ff3d'},
+ gloome:{t:'#0d1020',b:'#222a44',g:'#2f4a3a',h:['#1a2038','#27304e'],tr:['#1f3a33','#2a4a42'],night:1,fly:'#d8ff7a'},
+ 'clippods-id':{t:'#ffcf8f',b:'#fff3d6',g:'#8bd36b',h:['#f0b97a','#e89b6a'],tr:['#4cae5a','#5fc06c'],glow:'255,240,192'}
+};
+function buildEnv(g,i){
+ const e=ENV[ACC[i].id]||ENV.popthusiast,night=!!e.night,dusk=!!e.dusk;
+ let sd=11;const rr=()=>(sd=sd*16807%2147483647)/2147483647;
+ /* sky: gradient + sun/moon glow, with stars at night and drifting clouds by day (plain CSS, behind the canvas) */
+ const sky=document.createElement('div');sky.className='hq-sky';
+ const gc=e.glow||(night?'232,224,255':'255,246,192');
+ sky.style.background=`radial-gradient(circle at 80% ${e.sy||20}%,rgba(${gc},.95) 0,rgba(${gc},.95) 1.5%,rgba(${gc},.3) 2.6%,rgba(${gc},0) 16%),linear-gradient(to bottom,${e.t} 0%,${e.b} 62%,${e.b} 100%)`;
+ if(night){const c=document.createElement('canvas');c.width=1400;c.height=900;const x=c.getContext('2d');
+  for(let k=0;k<420;k++){x.fillStyle=`rgba(255,255,255,${.3+rr()*.7})`;x.beginPath();x.arc(rr()*1400,rr()*560,rr()<.1?1.6:.8,0,7);x.fill()}
+  const st=document.createElement('div');st.className='hq-stars';st.style.backgroundImage='url('+c.toDataURL()+')';sky.appendChild(st)}
+ else for(let k=0;k<5;k++){const cl=document.createElement('i');cl.className='hq-cl';const w=240+rr()*260;
+  cl.style.cssText=`top:${5+rr()*24}%;width:${w}px;height:${w*.24}px;animation-duration:${110+rr()*110}s;animation-delay:-${rr()*200}s;opacity:${.5+rr()*.4}${dusk?';filter:blur(7px) sepia(.6) hue-rotate(290deg)':''}`;sky.appendChild(cl)}
+ mount.parentNode.insertBefore(sky,mount);
+ /* light + haze that match the account's mood */
+ const hz=lin(e.b);scene.fog=new THREE.Fog(hz,122,152);
+ if(night){hemi.color.copy(lin('#8093ff'));hemi.groundColor.copy(lin('#1a1a3d'));hemi.intensity=.5;sun.color.copy(lin('#9fb4ff'));sun.intensity=.5;renderer.toneMappingExposure=1.05}
+ else if(dusk){hemi.color.copy(lin('#ffc9b8'));hemi.groundColor.copy(lin('#4a2a6a'));hemi.intensity=.55;sun.color.copy(lin('#ffa070'));sun.intensity=.95}
+ const lamp=new THREE.PointLight(0xffe2b0,night?1.7:dusk?1.1:.3,42,1);lamp.position.set(5,5,5);g.add(lamp);
+ /* the outdoors lives in its own group, turned to face the camera so its rows line up with the screen */
+ const E=new THREE.Group(),cx=g.position.x+5+FV.x*10,cz=g.position.z+5+FV.z*10;
+ E.position.set(cx,0,cz);E.rotation.y=Math.atan2(-RV.z,RV.x);scene.add(E);
+ const gm=TEX.ground(e.g);gm.repeat.set(36,10);P(E,-110,-7,220,52,0,new THREE.MeshStandardMaterial({map:gm,roughness:1}));
+ [[-3,2.2,e.h[1]],[-8,2.6,e.h[0]]].forEach(r=>{for(let u=-80;u<=80;u+=8.5){const h=mesh(SG,r[2]);h.castShadow=false;
+  h.scale.set(9+rr()*5,r[1]*(.85+rr()*.3),6);h.position.set(u+rr()*3,-.3,r[0]);E.add(h)}});
+ const tp=[[-11,12],[-15,8],[-20,14],[-26,6],[-33,11],[12,13],[16,9],[21,15],[27,7],[34,12],[-6,-1],[3,-2],[9,-1.5],[-13,-1],[15,-2],[-22,-2],[24,-1],[-30,-2],[31,-1.5]];
+ tp.forEach(p=>{const s=.9+rr()*.6,x=p[0],z=p[1];Cy(E,x,z,.3*s,1.9*s,'#7a4f2a',0);S(E,x,2.4*s,z,1.55*s,e.tr[0]);S(E,x+.55*s,3.2*s,z-.2*s,1.1*s,e.tr[1]);S(E,x-.5*s,2.1*s,z+.5*s,1*s,e.tr[0])});
+ [[-9,22],[10,23],[-18,26],[20,27],[-4,29],[5,31]].forEach(p=>S(E,p[0],.45,p[1],.9+rr()*.5,e.tr[1]));
+ const fl=['#ffffff','#ffd84d','#ff9ccb','#b8a7ff'];
+ for(let k=0;k<46;k++){const u=-26+rr()*52,z=1+rr()*24;if(Math.abs(u)<8&&z>4&&z<16)continue;S(E,u,.12,z,.13,'*'+fl[k%4])}
+ /* stone patio so the room sits on something, plus two front steps */
+ const rx=g.position.x,rz=g.position.z;
+ B(scene,rx-1,rz-1,12.2,12.2,.2,night?'#7d7aa0':'#d5cfe8',-.02);B(scene,rx+2,rz+11,6,1,.12,night?'#6f6c92':'#c6c0dc',0);
+ /* drifting petals or fireflies */
+ if(e.petal||e.fly){const n=e.fly?46:70,pos=new Float32Array(n*3),ph=[];
+  for(let k=0;k<n;k++){pos[k*3]=rx+5+(rr()-.5)*46;pos[k*3+1]=e.fly?.8+rr()*5:rr()*13;pos[k*3+2]=rz+5+(rr()-.5)*34;ph.push(rr()*6)}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const pm=new THREE.PointsMaterial({color:lin(e.petal||e.fly),size:(e.fly?4:5)*renderer.getPixelRatio(),sizeAttenuation:false,transparent:true,opacity:.9,depthWrite:false});
+  const pts=new THREE.Points(geo,pm);pts.frustumCulled=false;scene.add(pts);const y0=pos.slice();
+  ticks.push(t=>{for(let k=0;k<n;k++){const p=ph[k];
+   if(e.fly){pos[k*3]=y0[k*3]+Math.sin(t*.5+p)*1.6;pos[k*3+1]=y0[k*3+1]+Math.sin(t*.8+p*2)*.7;pos[k*3+2]=y0[k*3+2]+Math.cos(t*.4+p)*1.6}
+   else{pos[k*3]=y0[k*3]+Math.sin(t*.7+p)*1.2;pos[k*3+1]=13-((t*.9+p*2.2)%13);pos[k*3+2]=y0[k*3+2]+Math.cos(t*.5+p)*1}}
+   geo.attributes.position.needsUpdate=true;if(e.fly)pm.opacity=.55+.4*Math.sin(t*2.3)});}
+}
+
 function bannerTex(){const c=document.createElement('canvas');c.width=2048;c.height=440;const x=c.getContext('2d');
  const draw=()=>{const g=x.createLinearGradient(0,0,2048,440);g.addColorStop(0,'#7b5cff');g.addColorStop(1,'#4f31e0');x.fillStyle=g;x.fillRect(0,0,2048,440);
   x.strokeStyle='rgba(255,255,255,.35)';x.lineWidth=6;x.strokeRect(22,22,2004,396);
@@ -277,7 +335,7 @@ if(SI<0){
 }
 ACC.forEach((a,i)=>{
  if(SI>=0&&i!==SI)return;
- curRoom=i;const g=new THREE.Group();g.position.set((i%4)*PX,.2,((i/4)|0)*PZ);g.userData.room=i;scene.add(g);roomG.push(g);ROOMS[i](g);
+ curRoom=i;const g=new THREE.Group();g.position.set((i%4)*PX,.2,((i/4)|0)*PZ);g.userData.room=i;scene.add(g);roomG.push(g);ROOMS[i](g);if(BGM)buildEnv(g,i);
  if(SI<0){const el=document.createElement('button');el.className='hq-lab';el.innerHTML='<span class="em">'+a.e+'</span><span class="nm">'+a.n+'</span>';el.setAttribute('aria-label','Open '+a.n);el.onclick=()=>openRoom(i);stage.appendChild(el);
   labs.push({el,a:anc(g,5,3.5,0)})}
 });
@@ -285,10 +343,8 @@ curRoom=-1;
 if(SI<0)[[[11.5,-1],[11.5,27]],[[24.5,-1],[24.5,27]],[[37.5,27],[37.5,-1]],[[-1,13],[50,13]]].forEach((p,i)=>npc(scene,p[0][0],p[0][1],['#ff7ab8','#ffd84d','#4fa3ff','#4cc38a'][i],'walk',{path:p}));
 
 /* ---------- camera ---------- */
-const dir=new THREE.Vector3(1,1.25,1).normalize(),SIN=dir.y;
-const RV=new THREE.Vector3(1,0,-1).normalize(),FV=new THREE.Vector3(-1,0,-1).normalize();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),asp=()=>stage.clientWidth/stage.clientHeight;
-const homeCam=()=>{if(SI>=0){const wide=asp()>1,d=BGM?15:17,z=wide?HF/d:HF*asp()/d,vw=HF/z*asp(),k=BGM&&wide?.22:0,cx=(SI%4)*PX+5,cz=((SI/4)|0)*PZ+5;return{x:cx-RV.x*vw*k,z:cz-RV.z*vw*k,zoom:z}}return{x:24.5,z:12.5,zoom:Math.min(HF/47,HF*asp()/64)}};
+const homeCam=()=>{if(SI>=0){const wide=asp()>1,d=BGM?17:17,z=wide?HF/d:HF*asp()/d,vw=HF/z*asp(),k=BGM&&wide?.22:0,cx=(SI%4)*PX+5,cz=((SI/4)|0)*PZ+5,fs=BGM?10:0;return{x:cx-RV.x*vw*k+FV.x*fs,z:cz-RV.z*vw*k+FV.z*fs,zoom:z}}return{x:24.5,z:12.5,zoom:Math.min(HF/47,HF*asp()/64)}};
 let cam=homeCam(),raf,sel=-1;
 let ox=0,oz=0,tx=0,tz=0; /* gentle mouse parallax for the background */
 if(BGM)addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5)*1.8;tz=(e.clientY/innerHeight-.5)*1.4},{passive:true});
@@ -353,7 +409,7 @@ const V=new THREE.Vector3();let last=0;
 function put(el,o,dy,pre){o.getWorldPosition(V);V.y+=dy;V.project(camera);
  el.style.transform=`translate(${(V.x*.5+.5)*stage.clientWidth}px,${(-V.y*.5+.5)*stage.clientHeight}px) translate(-50%,-100%)${pre||''}`}
 let vis=true;if(window.IntersectionObserver)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(stage);
-function frame(ms){const t=ms/1000,dt=Math.min(.05,t-last);last=t;if(!vis||document.hidden){requestAnimationFrame(frame);return}
+function frame(ms){const t=ms/1000;if(BGM&&t-last<.02){requestAnimationFrame(frame);return}const dt=Math.min(.05,t-last);last=t;if(!vis||document.hidden){requestAnimationFrame(frame);return}
  NPCS.forEach(o=>upd(o,t,dt));ticks.forEach(f=>f(t));placeCam();renderer.render(scene,camera);
  labs.forEach(l=>put(l.el,l.a,0));bubs.forEach(b=>{if(b.el.style.display!=='none')put(b.el,b.target,b.dy)});
  requestAnimationFrame(frame)}
