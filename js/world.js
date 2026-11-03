@@ -3,14 +3,14 @@
 /* ===== EDIT YOUR ACCOUNTS HERE (texts are placeholders) =====
    posts: [{img:'https://...', link:'https://...'}]   link: the account URL */
 const ACC=[
-{id:'popthusiast',n:'Popthusiast',e:'🎤',vibe:'Fan energy, 24/7',tags:['K-pop','Idols','Fan culture'],link:'',posts:[],d:'Where K-pop lives loud. Idol moments, comeback hype and fan-favorite visuals, posted for people who never skip a stage.'},
-{id:'ketahui-id',n:'Ketahui.id',e:'📚',vibe:'Learn something new',tags:['Facts','Explainers','Knowledge'],link:'',posts:[],d:'Bite-sized facts and clear explainers. If you ever wondered "wait, why?", this room has the answer.'},
-{id:'globall-id',n:'Globall_id',e:'🌍',vibe:'The world, right now',tags:['World news','Updates','Global'],link:'',posts:[],d:'A control room for what is happening around the world, kept fast, clear and easy to follow.'},
-{id:'popnewsiast',n:'Popnewsiast',e:'📰',vibe:'Pop culture, on air',tags:['Pop news','Entertainment','Trending'],link:'',posts:[],d:'The newsroom for pop culture: celebrity updates, releases and trending talk, delivered like a live broadcast.'},
-{id:'dramories',n:'Dramories',e:'🎬',vibe:'Feel every scene',tags:['Drama','Film','Nostalgia'],link:'',posts:[],d:'A cozy cinema for drama lovers. Scenes, plot twists and the stories that made us cry and cheer.'},
-{id:'listenation',n:'Listenation',e:'🎧',vibe:'Turn it up',tags:['Music','Playlists','Releases'],link:'',posts:[],d:'Music news, fresh releases and playlist-worthy moments, all with the volume up.'},
-{id:'gloome',n:'Gloome',e:'🌙',vibe:'Quiet, moody, aesthetic',tags:['Aesthetic','Late night','Mood'],link:'',posts:[],d:'A late-night corner for moody visuals, soft glow and thoughts that hit different after midnight.'},
-{id:'clippods-id',n:'Clippods.id',e:'🎙️',vibe:'Press record',tags:['Podcast','Clips','Video'],link:'',posts:[],d:'The studio for podcasts and short clips. The best moments from the conversation, cut and ready to share.'}
+{id:'popthusiast',n:'Popthusiast',e:'🎤',vibe:'Fan energy, 24/7',tags:['K-pop','Idol edits','Girl groups'],link:'',posts:[],d:'Edits of your favorite K-pop girl idols.'},
+{id:'ketahui-id',n:'Ketahui.id',e:'🇮🇩',vibe:'Kabar terbaru, setiap hari',tags:['Indonesia','News','Updates'],link:'',posts:[],d:'Indonesian news updates.'},
+{id:'globall-id',n:'Globall_id',e:'⚽',vibe:'Full time, worldwide',tags:['Football','Match news','Transfers'],link:'',posts:[],d:'Football news from all around the world.'},
+{id:'popnewsiast',n:'Popnewsiast',e:'🎵',vibe:'Music news, on air',tags:['Music news','Releases','Worldwide'],link:'',posts:[],d:'Music news from all around the world.'},
+{id:'dramories',n:'Dramories',e:'🎬',vibe:'Feel every scene',tags:['K-drama','Movie edits','Clips'],link:'',posts:[],d:'Clips and edits from Korean movies and series.'},
+{id:'listenation',n:'Listenation',e:'🎧',vibe:'Turn it up',tags:['EDM','Recommendations','Playlists'],link:'',posts:[],d:'EDM and music recommendations.'},
+{id:'gloome',n:'Gloome',e:'🌙',vibe:'Quiet, moody, aesthetic',tags:['Quotes','Relatable','Late night'],link:'',posts:[],d:'Relatable quotes.'},
+{id:'clippods-id',n:'Clippods.id',e:'🎙️',vibe:'Press record',tags:['Podcast clips','Indonesian creators','Video'],link:'',posts:[],d:'Clips from Indonesian content creator podcasts.'}
 ];
 /* Real data from js/accounts.js (read again every time a room opens, so posts added later show up) */
 const sync=a=>{if(!window.ACCOUNTS)return;const m=ACCOUNTS.find(x=>x.id===a.id);if(!m)return;
@@ -109,41 +109,47 @@ g=>{shell(g,'#ff9ccb','#ffd0e8','#ff7ab8');
  B(g,.8,.4,1,1,2.2,'#222');B(g,1,1.4,.6,.06,.6,'*#ff4f9a',.5);B(g,8.2,.4,1,1,2.2,'#222');B(g,8.4,1.4,.6,.06,.6,'*#ff4f9a',.5);
  npc(g,3.5,3.2,'#b8ff3d','dance',{y:.5});const i2=npc(g,5,3.6,'#fff','dance',{y:.5,hair:'#e8863a'});npc(g,6.5,3.2,'#7c5cff','dance',{y:.5,hair:'#222'});
  const f1=npc(g,3,8,'#ffd1e8','cheer',{stick:1}),f2=npc(g,7,8.2,'#ffd1e8','cheer',{stick:1,hair:'#7a3b1f'});
- bb(i2.n,'💖',0);bb(f1.n,'⭐',1.2);bb(f2.n,'💖',2.4);fx(g,3.2,3.5,3,'💖',0);fx(g,6.8,3.5,3,'✨',1.6)},
-g=>{shell(g,'#bcd8ff','#dbe9ff','#8fb6f0');
- shelf(g,1.5,.1,5,1,2.4,'z');shelf(g,.1,2.5,6,1,2.4,'x');
- B(g,5,3.5,.15,.15,.8,'#555');B(g,7.4,3.5,.15,.15,.8,'#555');B(g,4.8,3.5,3,.12,1.8,'#fff',.8);
- [.5,.8,1.1,1.4].forEach((h,i)=>B(g,5.2+i*.6,3.62,.35,.06,h,['*#4fa3ff','*#4cc38a','*#ffd84d','*#e63946'][i],1));
- B(g,3,6.5,3,1.3,1,'#d9b27c');B(g,4,6.8,.8,.6,.1,'#e63946',1);B(g,5.3,6.8,.5,.5,.15,'#555',1);S(g,5.55,1.55,7.05,.4,'#4fa3ff');
- const st=npc(g,4.2,5.4,'#fff','read',{sit:1,hair:'#e8863a'}),pf=npc(g,3,4.2,'#3b6fd8','point',{hair:'#999'});
- B(g,7.2,7.8,2,1,.9,'#d9b27c');B(g,7.7,8.1,.9,.6,.05,'*#74b9ff',.9);
- npc(g,8.2,7,'#4cc38a','type',{sit:1,rot:Math.PI});
- bb(st.n,'❓',0);bb(pf.n,'💡',1.5)},
-g=>{shell(g,'#2d3270','#1a2160','#10164a');
- [1,4,7].forEach(x=>{B(g,x,0,2,.15,1.4,'*#0b1a44',1);[0,1,2].forEach(i=>B(g,x+.25+i*.55,.15,.35,.05,.4+i*.2,['*#4cc38a','*#ffd84d','*#4fa3ff'][i],1.1))});
- B(g,0,0,10,.15,.3,'*#e63946',2.45);
- [0,1,2,3].forEach(i=>{const m=B(g,0,.16,.8,.04,.18,'*#fff',2.5);ticks.push(t=>m.position.x=((t*2+i*2.5)%11)-.5)});
- B(g,4,4,2,2,.5,'#1e2a78');const gg=new THREE.Group();gg.position.set(5,2.1,5);g.add(gg);
- const sp=mesh(SG,'#2b8cff');sp.scale.setScalar(1.3);gg.add(sp);
- [[1,.4,.6],[-.8,-.3,.9],[.2,.9,-1]].forEach(p=>{const k=mesh(BG,'#4cc38a');k.scale.set(.5,.4,.5);k.position.set(...p);gg.add(k)});
- ticks.push(t=>gg.rotation.y=t*.6);
- const ring=new THREE.Mesh(new THREE.TorusGeometry(2,.05,4,24),mat('*#ffffff'));ring.position.set(5,2.1,5);ring.rotation.x=1.2;g.add(ring);
- B(g,.4,4,1.6,5,1,'#3b4396');B(g,.6,4.6,.2,.9,.6,'*#12306b',1);B(g,.6,6.6,.2,.9,.6,'*#12306b',1);
- const ty=npc(g,2.7,5,'#4fa3ff','type',{sit:1,rot:-Math.PI/2});npc(g,2.7,7,'#fff','type',{sit:1,rot:-Math.PI/2,hair:'#7a3b1f'});
- const pt=npc(g,7.2,7.4,'#ffd84d','point');
- npc(g,3.4,3,'#e63946','walk',{path:[[3.4,3],[3.4,8.6],[8.6,8.6],[8.6,3]]});
- bb(pt.n,'🌍',0);bb(ty.n,'📡',1.6)},
-g=>{shell(g,'#efe4d2','#fff6e8','#e63946');
- B(g,2,0,6,.2,2.4,'#e63946');B(g,2.5,.2,5,.05,1.5,'*#ffffff',.5);
- [0,1,2,3].forEach(i=>B(g,3+i*1,.25,.5,.05,.4+i*.25,['*#6c4cff','*#e63946','*#ffd84d','*#4cc38a'][i],.6));
- B(g,3.5,3.2,3,1,1.1,'#fff');B(g,3.5,4.2,3,.1,.8,'#e63946',.15);
- const an=npc(g,5,2.6,'#17131f','talk',{hair:'#7a3b1f'});
- B(g,1.3,6.8,1,1,.1,'#333');B(g,1.7,7.2,.2,.2,1.4,'#333',.1);B(g,1.2,6.9,1.2,.8,.7,'#444',1.5);B(g,1.6,6.5,.5,.4,.5,'#9ad0ff',1.6);
- npc(g,1.8,8.2,'#ffd84d','nod',{rot:Math.PI,hair:'#444'});
- B(g,0,6,.2,2,.6,'#17131f',1.9);blink(B(g,.2,6.2,.1,.4,.4,'*#ff3b30',2),'#ff3b30','#5a1410',.5);
- const pr=npc(g,7.5,6.6,'#6c4cff','wave');
- npc(g,6,8.6,'#4cc38a','walk',{path:[[6,8.6],[9.2,8.6],[9.2,5],[6,5]]});
- bb(an.n,'🎙️',0);bb(pr.n,'👏',1.5)},
+ B(g,.4,5.5,1.2,2.4,.8,'#3a3a52');B(g,.6,5.8,.15,1,.6,'*#74b9ff',.8);const ed=npc(g,2,6.7,'#fff','type',{sit:1,rot:-Math.PI/2,hair:'#444'});bb(ed.n,'✂️',.8);bb(i2.n,'💖',0);bb(f1.n,'⭐',1.2);bb(f2.n,'💖',2.4);fx(g,3.2,3.5,3,'💖',0);fx(g,6.8,3.5,3,'✨',1.6)},
+g=>{shell(g,'#e9e2f2','#dfe6f5','#e63946');
+ B(g,.55,.02,.1,.1,2.2,'#8a5a2b');B(g,.65,.02,3,.1,.7,'*#e63946',1.6);B(g,.65,.02,3,.1,.7,'*#ffffff',.9);
+ B(g,0,0,10,.15,.3,'*#e63946',2.45);[0,1,2,3].forEach(i=>{const m=B(g,0,.16,.8,.04,.18,'*#fff',2.5);ticks.push(t=>m.position.x=((t*2+i*2.5)%11)-.5)});
+ [2,5.8].forEach((z,i)=>{B(g,.1,z,.1,1.8,1,'*#12306b',1.2);blink(B(g,.2,z+.2,.05,1.4,.6,'*#4fa3ff',1.4),'#4fa3ff','#e63946',.8,i*.4)});
+ B(g,8.2,.9,1,1,.4,'#d9d0c0');B(g,8.5,1.2,.4,.4,1.8,'#efe9dc');blink(B(g,8.55,1.25,.3,.3,.4,'*#ffd84d',2.2),'#ffd84d','#ff9f43',.6);
+ B(g,3.5,3.6,3,1.1,1,'#e63946');B(g,3.9,3.65,2.2,.05,.4,'*#ffffff',.3);B(g,4.4,3.8,.9,.6,.05,'*#74b9ff',1);
+ const an=npc(g,5,3,'#17131f','talk',{hair:'#2b1d17'});
+ B(g,4.7,6.9,.7,.9,.6,'#444',1.3);B(g,4.9,7.8,.1,.1,1.2,'#333',.1);blink(B(g,4.8,6.85,.15,.05,.15,'*#ff3b30',1.8),'#ff3b30','#5a1410',.5);
+ const op=npc(g,5,8.5,'#ffd84d','nod',{rot:Math.PI,hair:'#444'});
+ const rp=npc(g,8,6,'#4cc38a','mic',{rot:-Math.PI/2,hp:0,hair:'#7a3b1f'});
+ npc(g,2,8,'#4fa3ff','walk',{path:[[2,8],[2,4.5],[7.5,8.8],[2,8]]});
+ bb(an.n,'📢',0);bb(rp.n,'🇮🇩',1.5);bb(op.n,'🎥',2.8);fx(g,5,3.5,5,'📰',1)},
+g=>{shell(g,'#3fae5a','#2f8f48','#1f7a3a');
+ const L='*#ffffff';
+ B(g,.8,.8,8.4,.1,.03,L,.04);B(g,.8,9.1,8.4,.1,.03,L,.04);B(g,.8,.8,.1,8.4,.03,L,.04);B(g,9.1,.8,.1,8.4,.03,L,.04);B(g,4.95,.8,.1,8.4,.03,L,.04);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(1.2,.05,4,20),mat(L));ring.position.set(5,.06,5);ring.rotation.x=Math.PI/2;g.add(ring);
+ [1.1,8.7].forEach(x=>{B(g,x,3.8,.12,.12,1.3,L);B(g,x,6.1,.12,.12,1.3,L);B(g,x,3.8,.12,2.4,.12,L,1.3)});
+ B(g,3.5,0,3,.12,1,'*#10161f',1.7);blink(B(g,3.8,.12,.5,.04,.5,'*#ffd84d',1.9),'#ffd84d','#ffffff',.9);blink(B(g,5.7,.12,.5,.04,.5,'*#ffd84d',1.9),'#ffd84d','#ffffff',1.3,.4);
+ B(g,6,.3,3.2,1.1,1,'#3a3a52');B(g,6.9,.5,.9,.6,.05,'*#74b9ff',.9);
+ const cm=npc(g,7.4,2.4,'#17131f','type',{sit:1,rot:Math.PI,hp:1});
+ B(g,1,8.9,8,.9,.6,'#555');
+ const f1=npc(g,2.5,9.5,'#ff9f43','cheer',{stick:1}),f2=npc(g,5,9.5,'#e63946','cheer',{hair:'#7a3b1f'}),f3=npc(g,7.5,9.5,'#2b6fe0','cheer');
+ npc(g,3,3,'#e63946','walk',{path:[[3,3],[6,4],[7.5,6.5],[4,7]]});npc(g,7,7,'#2b6fe0','walk',{path:[[7,7],[4,6],[3,4],[6,3]]});
+ const pl=npc(g,5.5,5.6,'#e63946','walk',{path:[[5.5,5.6],[3.5,6.5],[6.5,4.2]]});npc(g,2,5,'#ffd84d','nod',{rot:-Math.PI/2});npc(g,8.2,5,'#8a2be2','nod',{rot:Math.PI/2});
+ const ball=S(g,5,.4,5,.28,'#ffffff');ticks.push(t=>{ball.position.set(5+2.8*Math.sin(t*.9),.35+Math.abs(Math.sin(t*5))*.45,5+2*Math.sin(t*1.8))});
+ bb(f2.n,'📣',0);bb(pl.n,'⚽',1.5);bb(cm.n,'🎙️',2.6);fx(g,5,2,5,'⚽',.8);fx(g,5,3.5,9.5,'🎉',1.6)},
+g=>{shell(g,'#2b1f45','#3a2a63','#ff4f9a');
+ B(g,.1,3,.1,2,.7,'*#17131f',1.8);blink(B(g,.2,3.2,.1,1.6,.4,'*#ff3b30',1.95),'#ff3b30','#5a1410',.5);
+ [0,1,2].forEach(i=>{B(g,3+i*1.3,.02,1,.1,1,'#111',1.4);blink(B(g,3.35+i*1.3,.12,.3,.05,.3,'*#ffd84d',1.75),'#ffd84d','#ff4f9a',.7,i*.3)});
+ B(g,3,3,4,1.2,.9,'#4b3a7a');disc(g,3.9,3.6,.9);disc(g,6,3.6,.9);
+ [4.6,5.1,5.6].forEach((x,i)=>blink(B(g,x,3.3,.3,.3,.05,'*#b8ff3d',.95),'#b8ff3d','#ff4f9a',.4,i*.13));
+ const pr=npc(g,5,4.6,'#ff4f9a','mic',{sit:1,hp:1,rot:Math.PI});
+ B(g,7.2,6.5,2,1,.9,'#d9b27c');B(g,7.7,6.8,.9,.6,.05,'*#74b9ff',.9);
+ const wr=npc(g,8.2,8,'#4cc38a','type',{sit:1,rot:Math.PI,hp:1});
+ B(g,8.3,.5,1.2,1.2,2,'#111');const wf=B(g,8.55,.5,.7,.06,.7,'*#2b8cff',.8);ticks.push(t=>{const k=1+.12*Math.sin(t*10);wf.scale.x=.7*k;wf.scale.y=.7*k});
+ B(g,1.2,7.1,.8,.8,.8,'#4b3a7a');const gg=new THREE.Group();gg.position.set(1.6,1.7,7.5);g.add(gg);
+ const sp=mesh(SG,'#2b8cff');sp.scale.setScalar(.7);gg.add(sp);[[.5,.2,.3],[-.3,.3,.5]].forEach(q=>{const k=mesh(BG,'#4cc38a');k.scale.set(.3,.25,.3);k.position.set(...q);gg.add(k)});ticks.push(t=>gg.rotation.y=t*.7);
+ B(g,.7,5,.5,.5,.7,'#e8863a');B(g,.85,5.15,.15,.15,.9,'#6b3d17',.7);
+ npc(g,2.2,8.6,'#ffd84d','walk',{path:[[2.2,8.6],[5.8,8.6],[5.8,6],[2.2,6]]});
+ bb(pr.n,'🎙️',0);bb(wr.n,'🎵',1.4);fx(g,5,3.5,3,'♪',0);fx(g,7,3,5,'♫',1.6);fx(g,3,3,5,'🌍',2.6)},
 g=>{shell(g,'#5b2f8c','#2a1450','#3d1c6e');
  const sc=B(g,1.5,0,7,.15,2.4,'*#ff9f43',.3);ticks.push(t=>sc.material.color.set(Math.floor(t*6)%3?'#ff9f43':'#ffb870'));sc.material=sc.material.clone();
  B(g,1.5,.15,7,.05,.9,'*#5a2a82',.3);B(g,4.3,.15,1.2,.05,1.1,'*#fff3b0',1.1);
