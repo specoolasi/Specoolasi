@@ -107,20 +107,25 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    // Realistic 3D scene of this account's room as the full-page background (drawn in js/world.js, background mode).
-    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
-    var calmRoom = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom) {
+    // Full-screen, account-specific 3D-rendered scene backgrounds (static image assets).
+    // Each scene is immersive and panoramic; the page content remains layered above it.
+    var ACCOUNT_BACKGROUNDS = {
+      'popthusiast': 'assets/account-backgrounds/popthusiast.webp',
+      'ketahui-id': 'assets/account-backgrounds/ketahui-id.webp',
+      'globall-id': 'assets/account-backgrounds/globall-id.webp',
+      'popnewsiast': 'assets/account-backgrounds/popnewsiast.webp',
+      'dramories': 'assets/account-backgrounds/dramories.webp',
+      'listenation': 'assets/account-backgrounds/listenation.webp',
+      'gloome': 'assets/account-backgrounds/gloome.webp',
+      'clippods-id': 'assets/account-backgrounds/clippods-id.webp'
+    };
+    if (ACCOUNT_BACKGROUNDS[a.id]) {
       var bg = document.createElement('div');
-      bg.className = 'hq-bg'; bg.setAttribute('aria-hidden', 'true');
-      bg.style.setProperty('--bgc', getComputedStyle(document.body).backgroundColor);
-      bg.innerHTML = '<div id="hq" data-room="' + esc(a.id) + '" data-bg="1"></div>';
+      bg.className = 'account-scene-bg';
+      bg.setAttribute('aria-hidden', 'true');
+      bg.style.backgroundImage = 'url("' + ACCOUNT_BACKGROUNDS[a.id] + '")';
       document.body.appendChild(bg);
       document.body.classList.add('has-room');
-      var roomFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
-      var load3 = document.createElement('script'); load3.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; load3.onerror = roomFail;
-      load3.onload = function () { var w = document.createElement('script'); w.src = 'js/world.js'; w.onerror = roomFail; document.body.appendChild(w); };
-      document.body.appendChild(load3);
     }
 
     function mediaOf(x) {

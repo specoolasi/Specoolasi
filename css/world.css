@@ -123,3 +123,12 @@ body.has-room .ap .ap-ticker{opacity:.88}
 @supports not (background:color-mix(in srgb,red 50%,transparent)){body.has-room .ap-block,body.has-room .ap .ap-hero,body.has-room .ap .back{background:var(--pl)!important}}
 body.has-room .ap-block h2,body.has-room .ap-hero h1,body.has-room .ap-desc{text-shadow-color:inherit}
 body.has-room .ap[data-theme=news] .ap-block,body.has-room .ap[data-theme=magazine] .ap-block,body.has-room .ap[data-theme=pop] .ap-block,body.has-room .ap[data-theme=news] .ap-hero{box-shadow:8px 8px 0 var(--ps),inset 0 0 0 100vmax rgba(255,255,255,.12)}
+
+/* Static immersive account scenes: full-viewport 3D-rendered environments, not miniatures. */
+.account-scene-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background-color:#101018;background-position:center center;background-repeat:no-repeat;background-size:cover;transform:translateZ(0)}
+.account-scene-bg::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,9,18,.56) 0%,rgba(8,9,18,.20) 48%,rgba(8,9,18,.12) 100%),linear-gradient(0deg,rgba(8,9,18,.48) 0%,transparent 44%,rgba(8,9,18,.16) 100%)}
+body.has-room{background:transparent!important}
+body.has-room .ap{position:relative;z-index:0}
+body.has-room .ap-stage{display:none!important}
+body.has-room .ap-hero,body.has-room .ap-block,body.has-room .ap-contact{position:relative}
+@media(max-width:700px){.account-scene-bg{background-position:center center}.account-scene-bg::before{background:linear-gradient(90deg,rgba(8,9,18,.48),rgba(8,9,18,.22)),linear-gradient(0deg,rgba(8,9,18,.56),transparent 65%)}}
