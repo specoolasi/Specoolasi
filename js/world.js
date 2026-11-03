@@ -245,6 +245,8 @@ function react(e){const o=npcAt(e);if(!o)return;o.hop=1;const em=[ACC[SI].e,'✨
  const el=document.createElement('div');el.className='hq-pop';el.innerHTML='<span>'+em+'</span>';stage.appendChild(el);const b={el,target:o.n,dy:3.3};bubs.push(b);
  setTimeout(()=>{el.remove();const k=bubs.indexOf(b);if(k>=0)bubs.splice(k,1)},1100)}
 stage.addEventListener('click',e=>{if(moved)return;if(SI>=0){react(e);return}const i=pick(e);if(i>=0)openRoom(i)});
+/* background mode: click an empty part of the page and the pixel people react */
+if(BGM)addEventListener('click',e=>{if(e.target.closest&&e.target.closest('a,button,input,textarea,video,img,h1,h2,h3,p,.ap-sample'))return;react(e)});
 
 /* ---------- popup + zoom ---------- */
 const info=$('hq-info');

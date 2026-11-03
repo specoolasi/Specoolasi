@@ -54,4 +54,5 @@
 .hq-bgm canvas{opacity:.95}
 .hq-bgm .hq-tools,.hq-bgm .hq-hint,.hq-bgm .hq-info,.hq-bgm .hq-sign{display:none}
 body.has-room .ap-stage > *{display:none!important}
+body.has-room .ap-stage{background:none!important}
 @media (prefers-reduced-motion:reduce){.hq-bg{display:none}}
