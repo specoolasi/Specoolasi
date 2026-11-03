@@ -107,25 +107,12 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    // Full-screen, account-specific 3D-rendered scene backgrounds (static image assets).
-    // Each scene is immersive and panoramic; the page content remains layered above it.
-    var ACCOUNT_BACKGROUNDS = {
-      'popthusiast': 'assets/account-backgrounds/popthusiast.webp',
-      'ketahui-id': 'assets/account-backgrounds/ketahui-id.webp',
-      'globall-id': 'assets/account-backgrounds/globall-id.webp',
-      'popnewsiast': 'assets/account-backgrounds/popnewsiast.webp',
-      'dramories': 'assets/account-backgrounds/dramories.webp',
-      'listenation': 'assets/account-backgrounds/listenation.webp',
-      'gloome': 'assets/account-backgrounds/gloome.webp',
-      'clippods-id': 'assets/account-backgrounds/clippods-id.webp'
-    };
-    if (ACCOUNT_BACKGROUNDS[a.id]) {
-      var bg = document.createElement('div');
-      bg.className = 'account-scene-bg';
-      bg.setAttribute('aria-hidden', 'true');
-      bg.style.backgroundImage = 'url("' + ACCOUNT_BACKGROUNDS[a.id] + '")';
-      document.body.appendChild(bg);
-      document.body.classList.add('has-room');
+    // Full-screen live-action diorama, constructed from animated CSS/HTML (no image backgrounds).
+    var scene = document.querySelector('.ap-stage');
+    if (scene) {
+      scene.classList.add('live-scene-stage', 'scene-' + a.theme);
+      scene.innerHTML = '<div class="live-world"><div class="world-sky"></div><div class="world-horizon"><i></i><i></i><i></i><b></b></div><div class="world-architecture"><i class="arch-a"></i><i class="arch-b"></i><i class="arch-c"></i><b></b></div><div class="world-activity"><div class="scene-person person-a"><i class="head"></i><i class="torso"></i><i class="arm arm-a"></i><i class="arm arm-b"></i><i class="leg leg-a"></i><i class="leg leg-b"></i></div><div class="scene-person person-b"><i class="head"></i><i class="torso"></i><i class="arm arm-a"></i><i class="arm arm-b"></i><i class="leg leg-a"></i><i class="leg leg-b"></i></div><div class="scene-props"><i class="prop prop-a"></i><i class="prop prop-b"></i><i class="prop prop-c"></i><i class="prop prop-d"></i></div><div class="scene-workbench"><i class="screen"></i><i class="screen small"></i><i class="desk-edge"></i></div></div><div class="world-floor"></div><div class="world-atmosphere"></div></div>';
+      document.body.classList.add('has-live-scene');
     }
 
     function mediaOf(x) {
