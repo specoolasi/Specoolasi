@@ -44,7 +44,11 @@ Each account page has a full-screen cinematic scene behind it, drawn live on a c
 | Gloome | Rainy night window, someone writing in a journal |
 | Clippods.id | Podcast studio, two people deep in conversation |
 
-The code is in `js/scenes/` (`core.js` is the engine and people, `a.js` and `b.js` hold the scenes). The old 3D diorama (`js/world.js`) is now only used by `social-world-3d.html`. People who prefer reduced motion get one still frame.
+The code is in `js/scenes/` (`core.js` is the engine and people, `a.js` and `b.js` hold the scenes). The old 3D diorama (`js/world.js`) is no longer used. People who prefer reduced motion get one still frame.
+
+## The HQ house (Social media service page)
+
+The Social media page shows one big house, cut open, with eight rooms. Each room plays that account's scene from the list above. It is drawn in `js/house.js` (plain canvas, no three.js). Wide screens get a 4 x 2 house and phones get a tall 2 x 4 house. Tap or click a room to step inside and see the account's card. Drag to look around, pinch or use + / minus to zoom, and press Esc or "Back to HQ" to go back. The account texts and posts come from `js/accounts.js`.
 
 ## Part 3: Set up Sanity for the blog (one time)
 

@@ -49,7 +49,7 @@
 .hq-posts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .hq-post{aspect-ratio:4/5;border:2px solid #17131f;border-radius:10px;overflow:hidden;background:#f3efff center/cover;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-align:center;color:#6b6585;text-decoration:none;padding:4px}
 @media(max-width:800px){
- .hq-stage{height:72vh}
+ .hq-stage{height:72vh;height:min(76svh,760px)}
  .hq-info{top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:46%;transform:translateY(30px)}
  .hq-head{margin-top:12px}
 }
@@ -128,3 +128,15 @@ body.has-room .ap[data-theme=news] .ap-block,body.has-room .ap[data-theme=magazi
 .sc-bg{background:#07070d}
 .sc-bg canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .sc-bg::after{opacity:.1}
+
+/* The HQ house (js/house.js): a night scene, so the stage itself is dark */
+.hq-stage.house{background:#04061a}
+.hq-stage.house.portrait{min-height:520px}
+.hq-stage.house .hq-lab{will-change:transform}
+@media (max-width:800px){.hq-stage.house{min-height:480px}.hq-stage.house .hq-info{max-height:46%}}
+
+.hq-stage.house .hq-lab::after{display:none}
+.hq-stage.house .hq-lab{padding:5px 12px 5px 5px;font-size:12px}
+.hq-stage.house.compact .hq-lab{padding:2px;font-size:10px;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.hq-stage.house.compact .hq-lab .em{width:20px;height:20px;font-size:12px}
+.hq-stage.house.compact .hq-lab.sel{padding:3px 10px 3px 3px}

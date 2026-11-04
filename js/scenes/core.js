@@ -5,7 +5,7 @@
 'use strict';
 var DW = 1600, DH = 900;
 var REG = {};
-window.SCENES = { reg: function (id, fn) { REG[id] = fn; }, start: start };
+window.SCENES = { reg: function (id, fn) { REG[id] = fn; }, start: start, make: function (id) { return REG[id] ? REG[id](U) : null; } };
 
 /* ---------- small helpers ---------- */
 var seed = 1;
@@ -200,6 +200,7 @@ function sil(c, x, y, h, col, rim, arms, t, ph, lit) {
 
 /* ---------- engine ---------- */
 var U = { DW: DW, DH: DH, rs: rs, rnd: rnd, clamp: clamp, lerp: lerp, ss: ss, A: A, sh: sh, mc: mc, lg: lg, rg: rg, rect: rect, rr: rr, poly: poly, glow: glow, beam: beam, glowText: glowText, reflect: reflect, floorWood: floorWood, dots: dots, person: person, sil: sil, SKIN: SKIN, dir: dir };
+window.SCENES.U = U;
 function start(id) {
   var cv = document.getElementById('sc-c'); if (!cv || !REG[id]) return false;
   var X = cv.getContext('2d'), calm = window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;

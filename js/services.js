@@ -279,12 +279,15 @@
 
   // ---- your work from Sanity (Studio > "Work sample"): fills the results on this page
   var cfg = window.SPECOOLASI && window.SPECOOLASI.sanity;
-  // Social page only: load the pixel-art HQ (three.js + js/world.js).
+  // Social page only: load the HQ house (js/house.js, drawn with the scenes in js/scenes/).
   var hqBox = document.getElementById('hq');
   if (hqBox) {
     var hqFail = function () { hqBox.innerHTML = '<p class="state">The HQ could not load. You can still open each account from the <a href="index.html#social">home page</a>.</p>'; };
-    var hqLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = hqFail; document.body.appendChild(t); };
-    hqLoad('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { hqLoad('js/world.js', function () {}); });
+    var hqFiles = ['js/scenes/core.js', 'js/scenes/a.js', 'js/scenes/b.js', 'js/house.js'], hqNext = function (i) {
+      if (i >= hqFiles.length) return;
+      var t = document.createElement('script'); t.src = hqFiles[i]; t.onload = function () { hqNext(i + 1); }; t.onerror = hqFail; document.body.appendChild(t);
+    };
+    hqNext(0);
   }
 
   if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
