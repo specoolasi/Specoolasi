@@ -82,7 +82,7 @@
 .hq-bgm .hq-tools,.hq-bgm .hq-hint,.hq-bgm .hq-info,.hq-bgm .hq-sign{display:none}
 body.has-room .ap-stage > *{display:none!important}
 body.has-room .ap-stage{background:none!important}
-@media (prefers-reduced-motion:reduce){.hq-bg{display:none}}
+@media (prefers-reduced-motion:reduce){.hq-bg:not(.sc-bg){display:none}}
 
 /* Terraria-style scene as the page background (account pages) */
 .tr-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#222}
@@ -123,3 +123,8 @@ body.has-room .ap .ap-ticker{opacity:.88}
 @supports not (background:color-mix(in srgb,red 50%,transparent)){body.has-room .ap-block,body.has-room .ap .ap-hero,body.has-room .ap .back{background:var(--pl)!important}}
 body.has-room .ap-block h2,body.has-room .ap-hero h1,body.has-room .ap-desc{text-shadow-color:inherit}
 body.has-room .ap[data-theme=news] .ap-block,body.has-room .ap[data-theme=magazine] .ap-block,body.has-room .ap[data-theme=pop] .ap-block,body.has-room .ap[data-theme=news] .ap-hero{box-shadow:8px 8px 0 var(--ps),inset 0 0 0 100vmax rgba(255,255,255,.12)}
+
+/* Full-screen cinematic scenes (account pages): js/scenes/*.js draws into this canvas */
+.sc-bg{background:#07070d}
+.sc-bg canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sc-bg::after{opacity:.1}

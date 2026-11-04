@@ -107,20 +107,20 @@
         }).join('') + '</div></div>';
     }
     detail.innerHTML = html;
-    // Realistic 3D scene of this account's room as the full-page background (drawn in js/world.js, background mode).
-    var ROOM_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
-    var calmRoom = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    if (ROOM_IDS.indexOf(a.id) >= 0 && !calmRoom) {
+    // Full-screen cinematic scene behind the page, one per account (drawn in js/scenes/*.js, plain canvas, no libraries).
+    var SCENE_IDS = ['popthusiast', 'ketahui-id', 'globall-id', 'popnewsiast', 'dramories', 'listenation', 'gloome', 'clippods-id'];
+    if (SCENE_IDS.indexOf(a.id) >= 0) {
       var bg = document.createElement('div');
-      bg.className = 'hq-bg'; bg.setAttribute('aria-hidden', 'true');
-      bg.style.setProperty('--bgc', getComputedStyle(document.body).backgroundColor);
-      bg.innerHTML = '<div id="hq" data-room="' + esc(a.id) + '" data-bg="1"></div>';
+      bg.className = 'hq-bg sc-bg'; bg.setAttribute('aria-hidden', 'true');
+      bg.innerHTML = '<canvas id="sc-c" data-scene="' + esc(a.id) + '"></canvas>';
       document.body.appendChild(bg);
       document.body.classList.add('has-room');
-      var roomFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
-      var load3 = document.createElement('script'); load3.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; load3.onerror = roomFail;
-      load3.onload = function () { var w = document.createElement('script'); w.src = 'js/world.js'; w.onerror = roomFail; document.body.appendChild(w); };
-      document.body.appendChild(load3);
+      var sceneFail = function () { bg.remove(); document.body.classList.remove('has-room'); };
+      var files = ['js/scenes/core.js', 'js/scenes/a.js', 'js/scenes/b.js'], loadNext = function (i) {
+        if (i >= files.length) { try { if (!window.SCENES.start(a.id)) sceneFail(); } catch (e) { sceneFail(); } return; }
+        var sc = document.createElement('script'); sc.src = files[i]; sc.onload = function () { loadNext(i + 1); }; sc.onerror = sceneFail; document.body.appendChild(sc);
+      };
+      loadNext(0);
     }
 
     function mediaOf(x) {

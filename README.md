@@ -29,6 +29,23 @@ To look at the site on your own computer, open a terminal in this folder and run
 2. Open `js/accounts.js` on GitHub, click the pencil icon, copy one account block, and change the text and logo path.
 3. Save ("Commit changes"). The site updates by itself.
 
+## Account page backgrounds
+
+Each account page has a full-screen cinematic scene behind it, drawn live on a canvas (no libraries, no image files):
+
+| Account | Scene |
+| --- | --- |
+| Popthusiast | K-pop dance studio, three girls rehearsing in front of a mirror wall |
+| Ketahui.id | Live news studio, two anchors taking turns on air |
+| Globall_id | Floodlit stadium, a striker dribbles, scores and celebrates |
+| Popnewsiast | Radio booth at dusk, host on air with a guest |
+| Dramories | Dark cinema, a couple sharing popcorn at a rainy K-drama scene |
+| Listenation | EDM festival stage, DJ, lasers and crowd |
+| Gloome | Rainy night window, someone writing in a journal |
+| Clippods.id | Podcast studio, two people deep in conversation |
+
+The code is in `js/scenes/` (`core.js` is the engine and people, `a.js` and `b.js` hold the scenes). The old 3D diorama (`js/world.js`) is now only used by `social-world-3d.html`. People who prefer reduced motion get one still frame.
+
 ## Part 3: Set up Sanity for the blog (one time)
 
 You need Node.js installed on one computer for this part (nodejs.org).
