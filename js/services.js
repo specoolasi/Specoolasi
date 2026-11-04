@@ -146,6 +146,19 @@
     '<div class="svp-cta" data-r="up"><p class="mono">Ready?</p><h2 data-split>Let’s talk about your ' + s.title.toLowerCase() + '.</h2><p style="max-width:30rem;margin:0">Send us a short note about your brand and what you need. We reply within two working days.</p><div class="acts"><a class="bt" href="' + mail + '">specoolasi@gmail.com ↗</a><a class="bt" style="background:transparent;color:#fff;border-color:#fff;box-shadow:none" href="index.html#services">All services</a></div></div>' +
     '<a class="next" href="service.html?id=' + nx.id + '"><span><small>Next service</small>' + nx.title + '</span><span>→</span></a></div>';
 
+  // ---- Content creation is not open yet: show a "coming soon" popup with a button back to the homepage
+  if (s.th === 'content') {
+    var cs = document.createElement('div');
+    cs.className = 'cs-pop'; cs.setAttribute('role', 'dialog'); cs.setAttribute('aria-modal', 'true'); cs.setAttribute('aria-labelledby', 'cs-t');
+    cs.innerHTML = '<div class="cs-box"><p class="mono"><b>(02 / 05)</b> Content creation</p><h2 id="cs-t">Coming soon.</h2>' +
+      '<p>This page is not ready yet. We are still working on it, so please check back a little later.</p>' +
+      '<a class="bt" href="index.html" id="cs-home">Back to homepage →</a></div>';
+    document.body.appendChild(cs);
+    document.body.style.overflow = 'hidden';
+    var csHome = document.getElementById('cs-home'); if (csHome) csHome.focus();
+    cs.addEventListener('keydown', function (e) { if (e.key === 'Tab') { e.preventDefault(); csHome.focus(); } });
+  }
+
   // ---- concept animations
   var bars = document.getElementById('bars');
   if (bars) { var h = ''; for (var i = 0; i < 44; i++) h += '<i style="--h:' + (0.25 + Math.abs(Math.sin(i * 0.7) * 0.6) + Math.random() * 0.15).toFixed(2) + ';--t:' + (0.4 + Math.random() * 0.7).toFixed(2) + 's"></i>'; bars.innerHTML = h; }

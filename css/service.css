@@ -249,3 +249,12 @@ html.sheet-lock{overflow:hidden}
 
 .rs-lead{max-width:40rem;margin:.8rem 0 0;color:var(--muted)}
 .rs-social .rs-hint{margin:1.2rem 0 .6rem}
+
+/* "Coming soon" popup (Content creation page) */
+.cs-pop{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:1.2rem;background:rgba(23,19,33,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:csIn .4s var(--ease) both}
+.cs-box{width:min(32rem,100%);background:var(--panel,#fff);color:var(--ink,#171321);border:2px solid var(--ink,#171321);box-shadow:8px 8px 0 var(--purple,#6C4DFF);padding:clamp(1.6rem,5vw,2.6rem);animation:csUp .5s var(--ease) both}
+.cs-box h2{font-size:clamp(2.4rem,9vw,4rem);margin:.8rem 0 1rem}
+.cs-box p:not(.mono){margin:0 0 1.8rem;color:var(--muted,#51496e);line-height:1.6}
+@keyframes csIn{from{opacity:0}to{opacity:1}}
+@keyframes csUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cs-pop,.cs-box{animation:none}}
