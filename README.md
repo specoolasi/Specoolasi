@@ -50,6 +50,19 @@ The code is in `js/scenes/` (`core.js` is the engine and people, `a.js` and `b.j
 
 The Social media page shows one big house, cut open, with eight rooms. Each room plays that account's scene from the list above. It is drawn in `js/house.js` (plain canvas, no three.js). Wide screens get a 4 x 2 house and phones get a tall 2 x 4 house. Tap or click a room to step inside and see the account's card. Drag to look around, pinch or use + / minus to zoom, and press Esc or "Back to HQ" to go back. The account texts and posts come from `js/accounts.js`.
 
+## Music production: the vinyl store
+
+The Music production service page is a vinyl shop (neon sign, awning, turntable). Your music sits in a wooden record cabinet.
+
+- **Click a record:** it flies off the shelf to the middle of the screen and a card opens with the details (title, artist, year, tracklist, Listen button).
+- **Drag the record** (or use the arrow keys) to rotate it. The back of the sleeve shows the printed tracklist. The vinyl slides out of the sleeve, with your cover on its label, and spins.
+- **The cabinet grows by itself.** It always has 8 slots. Every time you pass a multiple of 4 records, one more shelf unit is added.
+
+**Add music** in Sanity Studio (document "Work sample", Service = Music production), or edit the `music: [ ... ]` list in `js/services.js`. Each record can have: `title`, `client` (artist), `img` (cover), `link` (SoundCloud/Spotify/YouTube), `tag`, `length`, `year`, `desc`, `tracks` (list for an EP or album) and `audio` (mp3 for a play preview).
+To use the extra fields (year, tag, length, description, tracklist, audio) in Sanity, paste the fields from `sanity-schema/work-music-fields.js` into your "work" schema.
+
+Files: `js/vinylstore.js` (cabinet and viewer), `css/vinyl-store.css` (all styling), and the music parts of `js/services.js`.
+
 ## Part 3: Set up Sanity for the blog (one time)
 
 You need Node.js installed on one computer for this part (nodejs.org).

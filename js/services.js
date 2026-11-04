@@ -27,6 +27,7 @@
   var calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
   var id = new URLSearchParams(location.search).get('id');
   var s = SERVICES.filter(function (x) { return x.id === id; })[0];
+  if (s && s.th === 'music') document.body.classList.add('vs-page');
   if (!s) { root.innerHTML = '<div class="wrap" style="padding:5rem 1.5rem"><a class="back" href="index.html#services">← All services</a><h2>Service not found</h2></div>'; return; }
   var nx = SERVICES.filter(function (x) { return x.id === s.next; })[0];
   document.title = s.title + ' – Specoolasi';
@@ -51,10 +52,9 @@
         '<div class="sws"><i style="--k:0;background:#6C4DFF"></i><i style="--k:1;background:#B8A7FF"></i><i style="--k:2;background:#171321"></i><i style="--k:3;background:#fff"></i></div><i class="gx"></i><i class="gy"></i></div>';
     },
     music: function () {
-      var lanes = [[5, 30], [40, 45], [10, 22], [48, 40]].map(function (a, i) {
-        return '<div class="lane"><i style="left:' + a[0] + '%;width:' + a[1] + '%"></i><i style="left:' + (a[0] + a[1] + 3) + '%;width:' + (14 + i * 3) + '%;opacity:.6"></i></div>';
-      }).join('');
-      return '<div class="mu"><div class="mu-bars" id="bars"></div><div class="lanes">' + lanes + '<i class="head"></i></div></div><div class="vinyl"></div>';
+      // the shop front: neon sign, OPEN sign and a spinning turntable
+      return '<div class="vs-front"><div class="vs-neon"><b>Specoolasi</b><small>RECORDS</small></div><div class="vs-open">OPEN</div>' +
+        '<div class="vs-deck"><div class="vs-plat"><i></i></div><div class="vs-arm"></div><div class="vs-knob"></div></div></div>';
     },
     copy: function () {
       return '<div class="cp"><div class="cp-q">“</div><div class="cp-paper"><small>Before</small><p class="cp-old" id="old"></p><small style="margin-top:1.2rem">After</small><p class="cp-new"><span id="tw"></span><i class="caret"></i></p></div></div>';
@@ -73,22 +73,28 @@
     social: ph('Project name', 'Client name'),
     content: ph('Project name', 'Client name'),
     design: ph('Project name', 'Client name').slice(0, 5),
-    // MUSIC looks like a SoundCloud track list. The round play button opens the link you add.
+    // MUSIC is the vinyl cabinet. Each item below is one record on the shelf (4 per shelf unit, the cabinet grows by itself).
     // Per track:  title   track name
     //             client  artist or client
-    //             link    paste the track's SoundCloud / Spotify / YouTube address between the quotes (leave '' for none yet)
+    //             link    paste the track's SoundCloud / Spotify / YouTube address (shows a Listen button)
     //             img     cover art, e.g. 'assets/results/music/cover1.jpg' (leave '' for a placeholder)
+    //             year    e.g. '2026'  (optional)
+    //             desc    a short note about the music  (optional)
+    //             tracks  optional list for an EP/album: [{ title: 'Song', length: '3:10' }, ...]
+    //             audio   optional mp3 path for a play preview, e.g. 'assets/results/music/demo1.mp3'
     //             tag     small label, e.g. 'Original', 'Jingle'  (optional)
     //             length  e.g. '3:24'  (optional)
     music: [
-      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '3:24' },
-      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Jingle', length: '0:30' },
-      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Sound design', length: '1:12' },
-      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '2:48' }
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '3:24', year: '2026',
+        desc: 'A short note about this track: the mood, the project, what you made.',
+        tracks: [{ title: 'Track name', length: '3:24' }, { title: 'Instrumental mix', length: '3:24' }] },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Jingle', length: '0:30', year: '2026' },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Sound design', length: '1:12', year: '2026' },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '2:48', year: '2026' }
     ]
     // Copywriting shows only a button to the blog, so it needs no list here.
   };
-  var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Spin it.', copy: 'Lines that landed.' };
+  var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Pick a record.', copy: 'Lines that landed.' };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function pic(r) {
     var m = r.video ? '<video src="' + esc(r.video) + '" autoplay muted loop playsinline preload="metadata"' + (r.img ? ' poster="' + esc(r.img) + '"' : '') + '></video>'
@@ -134,17 +140,8 @@
         return cell(pic(r) + '<div class="sw"><i style="background:#6C4DFF"></i><i style="background:#B8A7FF"></i><i style="background:#171321"></i></div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>' + lc, {}, 'rs-pin', i, lc ? ' tabindex="0"' : '');
       }).join('') + '</div></div>';
     } else if (th === 'music') {
-      var scPlay = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
-      body = '<div class="sc-list">' + R.map(function (r, i) {
-        var seedv = i * 7 + 3, h = '', k, v;
-        for (k = 0; k < 72; k++) { seedv = (seedv * 9301 + 49297) % 233280; v = 0.18 + 0.82 * Math.abs(Math.sin(k * 0.23 + i) * 0.55 + (seedv / 233280) * 0.45); h += '<i style="--h:' + v.toFixed(2) + '"></i>'; }
-        var art = r.img ? '<img src="' + esc(r.img) + '" alt="" loading="lazy">' : '<span>✦</span>';
-        var btn = r.link ? '<a class="sc-play" href="' + esc(r.link) + '" target="_blank" rel="noopener" aria-label="Play ' + esc(r.title) + '">' + scPlay + '</a>'
-          : '<span class="sc-play off" role="img" aria-label="Link coming soon" title="Link coming soon">' + scPlay + '</span>';
-        return '<article class="sc-row" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><div class="sc-art">' + art + '</div><div class="sc-main"><div class="sc-top">' + btn +
-          '<div class="sc-meta"><span class="sc-by">' + esc(r.client) + '</span><b class="sc-ti">' + esc(r.title) + '</b></div>' + (r.tag ? '<span class="sc-tag"># ' + esc(r.tag) + '</span>' : '') + '</div>' +
-          '<div class="sc-wave" aria-hidden="true"><div class="sc-bars">' + h + '</div><div class="sc-bars on">' + h + '</div>' + (r.length ? '<span class="sc-time">' + esc(r.length) + '</span>' : '') + '</div></div></article>';
-      }).join('') + '</div>';
+      body = '<p class="rs-lead">Welcome to the shop. Every record on this shelf is something we made.</p>' +
+        '<p class="rs-hint"><em>Tap a record to pull it out, spin it and see the details</em></p><div id="vs"></div>';
     } else {
       body = '<div class="rs-more"><a class="bt big" href="blog.html?category=Copywriting">See copywriting results on the blog →</a></div>';
     }
@@ -165,6 +162,17 @@
     '<div class="mq" aria-hidden="true"><div>' + tape + tape + '</div></div>' +
     '<div class="svp-cta" data-r="up"><p class="mono">Ready?</p><h2 data-split>Let’s talk about your ' + s.title.toLowerCase() + '.</h2><p style="max-width:30rem;margin:0">Send us a short note about your brand and what you need. We reply within two working days.</p><div class="acts"><a class="bt" href="' + mail + '">specoolasi@gmail.com ↗</a><a class="bt" style="background:transparent;color:#fff;border-color:#fff;box-shadow:none" href="index.html#services">All services</a></div></div>' +
     '<a class="next" href="service.html?id=' + nx.id + '"><span><small>Next service</small>' + nx.title + '</span><span>→</span></a></div>';
+
+  // ---- Music production: the vinyl cabinet (js/vinylstore.js + css/vinyl-store.css)
+  function vsRender() {
+    var el = document.getElementById('vs');
+    if (el && window.VinylStore) window.VinylStore.mount(el, RESULTS.music);
+  }
+  if (s.th === 'music') {
+    var vsTag = document.createElement('script'); vsTag.src = 'js/vinylstore.js'; vsTag.onload = vsRender;
+    vsTag.onerror = function () { var el = document.getElementById('vs'); if (el) el.innerHTML = '<p class="state">The record shop could not load. Please refresh the page.</p>'; };
+    document.body.appendChild(vsTag);
+  }
 
   // ---- Content creation is not open yet: show a "coming soon" popup with a button back to the homepage
   if (s.th === 'content') {
@@ -291,12 +299,13 @@
   }
 
   if (cfg && cfg.projectId && cfg.projectId.indexOf('YOUR_') !== 0) {
-    var Q = '*[_type=="work" && defined(service)] | order(coalesce(order,9999) asc, _createdAt desc){title, service, account, client, link, "img": image.asset->url, "video": video.asset->url}';
+    var Q = '*[_type=="work" && defined(service)] | order(coalesce(order,9999) asc, _createdAt desc){title, service, account, client, link, description, tag, length, year, "audio": audio.asset->url, "tracks": tracks[]{title, length}, "img": image.asset->url, "video": video.asset->url}';
     fetch('https://' + cfg.projectId + '.apicdn.sanity.io/v' + cfg.apiVersion + '/data/query/' + cfg.dataset + '?query=' + encodeURIComponent(Q))
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (j) {
         var W = (j.result || []).map(function (w) {
           return { service: w.service, account: w.account || '', title: w.title || '', client: w.client || '', link: /^https?:\/\//.test(w.link || '') ? w.link : '',
+            desc: w.description || '', tag: w.tag || '', length: w.length || '', year: w.year || '', audio: /^https?:\/\//.test(w.audio || '') ? w.audio : '', tracks: w.tracks || [],
             img: w.img ? w.img + '?w=900&auto=format' : '', big: w.img ? w.img + '?w=2000&auto=format' : '', video: w.video || '' };
         }).filter(function (w) { return w.img || w.video; });
         if (!W.length) return;
@@ -313,7 +322,7 @@
         if (!sec) return;
         var fresh = document.createElement('div'); fresh.innerHTML = resultsHtml(s.th);
         sec.replaceWith(fresh.firstChild);
-        bindSocial(); wireVideos();
+        bindSocial(); wireVideos(); if (s.th === 'music') vsRender();
       })
       .catch(function () {});
   }
