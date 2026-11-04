@@ -205,5 +205,5 @@
     }, calm ? 80 : 1280);
   }
 
-  window.VinylStore = { mount: mount };
+  window.VinylStore = { mount: mount, load: function (list) { recs = (list || []).map(norm); }, open: function (i, btn) { openRec(i, btn); } };
 })();

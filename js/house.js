@@ -40,6 +40,7 @@ var labs = ACC.map(function (a, i) {
 
 /* ---------- the house: sizes in world units ---------- */
 var RW = 336, RH = 189, PT = 18, FS = 26, WT = 40, TOPB = 24, FOUND = 44, OV = 70;
+var LITE = false, lastW = 0, lastH = 0, lastScroll = 0;
 var L, rooms = [], HOUSE, FRONT, Q = 1, sw = 0, sh_ = 0, dpr = 1, fit = 1, cam = { x: 0, y: 0, z: 1 }, sel = -1, hover = -1, anim = null, needDraw = true;
 function layout(portrait) {
   var cols = portrait ? 2 : 4, rows = portrait ? 4 : 2, gh = portrait ? 170 : 200, mx = portrait ? 170 : 160, sk = 140, gd = portrait ? 250 : 200;
@@ -171,11 +172,12 @@ function paintFront(c) {
 var stars = [], clouds = [], flies = [];
 function build() {
   var w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
-  dpr = Math.min(window.devicePixelRatio || 1, w < 800 ? 2 : 2); sw = w; sh_ = h;
+  LITE = w <= 800 || (window.matchMedia && matchMedia('(pointer:coarse)').matches); lastW = w; lastH = h;
+  dpr = Math.min(window.devicePixelRatio || 1, LITE ? 1.5 : 2); sw = w; sh_ = h;
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   var portrait = w / h < .95; L = layout(portrait);
   var fr = { x: L.HX - 110, y: L.sk - 70, w: L.HW + 220 }; fr.h = L.GY + 120 - fr.y;
-  fit = Math.min(w / fr.w, h / fr.h); L.home = { x: fr.x + fr.w / 2, y: fr.y + fr.h / 2, z: fit }; Q = clamp(fit * dpr * 1.9, .7, 1.6);
+  fit = Math.min(w / fr.w, h / fr.h); L.home = { x: fr.x + fr.w / 2, y: fr.y + fr.h / 2, z: fit }; Q = clamp(fit * dpr * 1.9, .7, LITE ? 1 : 1.6);
   function layer(fn) { var c2 = document.createElement('canvas'); c2.width = Math.ceil(L.W * Q); c2.height = Math.ceil(L.H * Q); var x = c2.getContext('2d'); x.setTransform(Q, 0, 0, Q, 0, 0); fn(x); return c2; }
   HOUSE = layer(paintHouse); FRONT = layer(paintFront);
   rs(5); stars = []; for (var i = 0; i < 130; i++) stars.push([rnd() * L.W, rnd() * (L.GY - 140), .5 + rnd() * 1.3, rnd() * 6]);
@@ -203,13 +205,13 @@ function clampCam() {
   vw = sw / cam.z; vh = sh_ / cam.z;
   cam.x = vw >= L.W ? L.W / 2 : clamp(cam.x, -vw * .2, L.W + vw * .2 - 0); cam.y = vh >= L.H ? L.H / 2 : clamp(cam.y, -vh * .2, L.H + vh * .2);
   if (sel < 0 && cam.z <= fit * 1.02 && !anim) { cam.x = L.home.x; cam.y = L.home.y; }
-  stage.style.touchAction = (sel >= 0 || cam.z > fit * 1.06) ? 'none' : 'pan-y';
+  stage.style.touchAction = (LITE ? (sel < 0 && cam.z > fit * 1.06) : (sel >= 0 || cam.z > fit * 1.06)) ? 'none' : 'pan-y';
 }
 
 /* ---------- room backgrounds are cached at a few sharpness levels ---------- */
 var LV = [.28, .6, 1, 1.6], bgc = ACC.map(function () { return {}; }), madeThisFrame = 0;
 function bgFor(i, need, force) {
-  var k = 0; while (k < LV.length - 1 && LV[k] < need * .85) k++;
+  var k = 0; while (k < LV.length - (LITE ? 2 : 1) && LV[k] < need * .85) k++;
   var m = bgc[i];
   if (!m[k]) {
     if (!force && madeThisFrame >= 1 && m[0]) { for (var j = k; j >= 0; j--) if (m[j]) return m[j]; for (j = k + 1; j < LV.length; j++) if (m[j]) return m[j]; }
@@ -345,12 +347,16 @@ if (window.IntersectionObserver) new IntersectionObserver(function (en) { vis = 
 function loop(now) {
   requestAnimationFrame(loop); if (!vis || document.hidden || !L) return;
   if (calm && !needDraw && !anim) return;
-  if (now - last < minDt) return; last = now;
+  if (now - last < (LITE && now - lastScroll < 160 ? 1000 / 12 : minDt)) return; last = now;
   stepAnim(now); if (anim) clampCam();
   var s0 = performance.now(); frame(calm ? 2.2 : (now - t0) / 1000); needDraw = false;
-  cost = cost * .9 + (performance.now() - s0) * .1; minDt = cost > 45 ? 1000 / 12 : cost > 26 ? 1000 / 20 : 1000 / 30;
+  cost = cost * .9 + (performance.now() - s0) * .1; minDt = cost > 45 ? 1000 / 12 : cost > 26 ? 1000 / 20 : LITE ? 1000 / 24 : 1000 / 30;
 }
-var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { var was = sel; build(); if (was >= 0) openRoom(was); }, 150); });
+var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () {
+  var w = stage.clientWidth, h = stage.clientHeight;
+  if (lastW && Math.abs(w - lastW) < 8 && (LITE || Math.abs(h - lastH) < 8)) return; /* only the bar moved, nothing to redraw */
+  var was = sel; build(); if (was >= 0) openRoom(was); }, 150); });
+addEventListener('scroll', function () { lastScroll = performance.now(); }, { passive: true });
 build(); requestAnimationFrame(loop);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { build(); });
 window.__hq = { pt: function (i) { var R = rooms[i]; return { x: (R.x + R.w / 2 - cam.x) * cam.z + sw / 2, y: (R.y + R.h / 2 - cam.y) * cam.z + sh_ / 2 }; }, open: openRoom, close: closeRoom, frame: function (t) { frame(t); }, get layout() { return L; } };

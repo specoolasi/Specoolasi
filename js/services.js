@@ -27,7 +27,7 @@
   var calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
   var id = new URLSearchParams(location.search).get('id');
   var s = SERVICES.filter(function (x) { return x.id === id; })[0];
-  if (s && s.th === 'music') document.body.classList.add('vs-page');
+  if (s && s.th === 'music') document.body.classList.add('ms-page');
   if (!s) { root.innerHTML = '<div class="wrap" style="padding:5rem 1.5rem"><a class="back" href="index.html#services">← All services</a><h2>Service not found</h2></div>'; return; }
   var nx = SERVICES.filter(function (x) { return x.id === s.next; })[0];
   document.title = s.title + ' – Specoolasi';
@@ -163,15 +163,16 @@
     '<div class="svp-cta" data-r="up"><p class="mono">Ready?</p><h2 data-split>Let’s talk about your ' + s.title.toLowerCase() + '.</h2><p style="max-width:30rem;margin:0">Send us a short note about your brand and what you need. We reply within two working days.</p><div class="acts"><a class="bt" href="' + mail + '">specoolasi@gmail.com ↗</a><a class="bt" style="background:transparent;color:#fff;border-color:#fff;box-shadow:none" href="index.html#services">All services</a></div></div>' +
     '<a class="next" href="service.html?id=' + nx.id + '"><span><small>Next service</small>' + nx.title + '</span><span>→</span></a></div>';
 
-  // ---- Music production: the vinyl cabinet (js/vinylstore.js + css/vinyl-store.css)
-  function vsRender() {
-    var el = document.getElementById('vs');
-    if (el && window.VinylStore) window.VinylStore.mount(el, RESULTS.music);
-  }
+  // ---- Music production: the whole page is a realistic record shop, roof to floor (css/music-shop.css, js/musicshop.js)
   if (s.th === 'music') {
-    var vsTag = document.createElement('script'); vsTag.src = 'js/vinylstore.js'; vsTag.onload = vsRender;
-    vsTag.onerror = function () { var el = document.getElementById('vs'); if (el) el.innerHTML = '<p class="state">The record shop could not load. Please refresh the page.</p>'; };
-    document.body.appendChild(vsTag);
+    root.innerHTML = '<p class="state" style="padding:6rem 1.5rem;text-align:center">Opening the shop…</p>';
+    var msFail = function () { root.innerHTML = '<p class="state" style="padding:6rem 1.5rem;text-align:center">The record shop could not load. Please refresh the page.</p>'; };
+    var msLoad = function (src, ok) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = msFail; document.body.appendChild(t); };
+    msLoad('js/vinylstore.js', function () {
+      msLoad('js/musicshop.js', function () {
+        window.MusicShop.render(root, { title: s.title, n: s.n, intro: s.intro, items: s.items, steps: steps, mail: mail, next: nx, records: RESULTS.music });
+      });
+    });
   }
 
   // ---- Content creation is not open yet: show a "coming soon" popup with a button back to the homepage
@@ -318,11 +319,12 @@
           return; // the HQ reads ACCOUNTS again whenever a room opens
         } else if (mine.length) RESULTS[s.th] = mine;
         else return;
+        if (s.th === 'music') { if (window.MusicShop) window.MusicShop.update(RESULTS.music); return; }
         var sec = document.querySelector('section.rs');
         if (!sec) return;
         var fresh = document.createElement('div'); fresh.innerHTML = resultsHtml(s.th);
         sec.replaceWith(fresh.firstChild);
-        bindSocial(); wireVideos(); if (s.th === 'music') vsRender();
+        bindSocial(); wireVideos();
       })
       .catch(function () {});
   }
