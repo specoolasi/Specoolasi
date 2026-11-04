@@ -73,7 +73,19 @@
     social: ph('Project name', 'Client name'),
     content: ph('Project name', 'Client name'),
     design: ph('Project name', 'Client name').slice(0, 5),
-    music: ph('Track name', 'Artist or client').slice(0, 4)
+    // MUSIC looks like a SoundCloud track list. The round play button opens the link you add.
+    // Per track:  title   track name
+    //             client  artist or client
+    //             link    paste the track's SoundCloud / Spotify / YouTube address between the quotes (leave '' for none yet)
+    //             img     cover art, e.g. 'assets/results/music/cover1.jpg' (leave '' for a placeholder)
+    //             tag     small label, e.g. 'Original', 'Jingle'  (optional)
+    //             length  e.g. '3:24'  (optional)
+    music: [
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '3:24' },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Jingle', length: '0:30' },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Sound design', length: '1:12' },
+      { title: 'Track name', client: 'Artist or client', link: '', img: '', tag: 'Original', length: '2:48' }
+    ]
     // Copywriting shows only a button to the blog, so it needs no list here.
   };
   var RTITLE = { social: 'Posts that did the talking.', content: 'Rolling. Cut. Delivered.', design: 'Pinned to the wall.', music: 'Spin it.', copy: 'Lines that landed.' };
@@ -122,8 +134,16 @@
         return cell(pic(r) + '<div class="sw"><i style="background:#6C4DFF"></i><i style="background:#B8A7FF"></i><i style="background:#171321"></i></div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>' + lc, {}, 'rs-pin', i, lc ? ' tabindex="0"' : '');
       }).join('') + '</div></div>';
     } else if (th === 'music') {
-      body = '<div class="rs-grid">' + R.map(function (r, i) {
-        return cell('<i class="vn"></i>' + pic(r) + '<div class="bars">' + tapeBars + '</div><p><b>' + esc(r.title) + '</b><br><small>' + esc(r.client) + '</small></p>', r, 'rs-sl', i);
+      var scPlay = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+      body = '<div class="sc-list">' + R.map(function (r, i) {
+        var seedv = i * 7 + 3, h = '', k, v;
+        for (k = 0; k < 72; k++) { seedv = (seedv * 9301 + 49297) % 233280; v = 0.18 + 0.82 * Math.abs(Math.sin(k * 0.23 + i) * 0.55 + (seedv / 233280) * 0.45); h += '<i style="--h:' + v.toFixed(2) + '"></i>'; }
+        var art = r.img ? '<img src="' + esc(r.img) + '" alt="" loading="lazy">' : '<span>✦</span>';
+        var btn = r.link ? '<a class="sc-play" href="' + esc(r.link) + '" target="_blank" rel="noopener" aria-label="Play ' + esc(r.title) + '">' + scPlay + '</a>'
+          : '<span class="sc-play off" role="img" aria-label="Link coming soon" title="Link coming soon">' + scPlay + '</span>';
+        return '<article class="sc-row" data-r="up" data-d="' + (i * 0.08).toFixed(2) + '"><div class="sc-art">' + art + '</div><div class="sc-main"><div class="sc-top">' + btn +
+          '<div class="sc-meta"><span class="sc-by">' + esc(r.client) + '</span><b class="sc-ti">' + esc(r.title) + '</b></div>' + (r.tag ? '<span class="sc-tag"># ' + esc(r.tag) + '</span>' : '') + '</div>' +
+          '<div class="sc-wave" aria-hidden="true"><div class="sc-bars">' + h + '</div><div class="sc-bars on">' + h + '</div>' + (r.length ? '<span class="sc-time">' + esc(r.length) + '</span>' : '') + '</div></div></article>';
       }).join('') + '</div>';
     } else {
       body = '<div class="rs-more"><a class="bt big" href="blog.html?category=Copywriting">See copywriting results on the blog →</a></div>';
