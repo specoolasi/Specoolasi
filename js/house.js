@@ -237,10 +237,13 @@ function bgFor(i, need, force) {
   }
   return m[k];
 }
-var BL = [.12, .18, .26, .34], frameN = 0;
+var BL = [.12, .18, .26, .34], frameN = 0, ctxDirty = false;
 function paintRoom(c, i, t, need) {
   var S = scenes[i]; c.drawImage(bgFor(i, need), 0, 0, 1600, 900);
-  var tt = t + i * 2.3; if (S.live) S.live(c, tt); if (S.front) S.front(c, tt);
+  c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+  var tt = t + i * 2.3;
+  try { if (S.live) S.live(c, tt); if (S.front) S.front(c, tt); }
+  catch (err) { ctxDirty = true; if (window.console) console.error('HQ room ' + i + ' failed to draw', err); }
   if (S.grade) { c.fillStyle = S.grade; c.fillRect(0, 0, 1600, 900); }
 }
 function drawRoom(i, t) {
@@ -285,7 +288,9 @@ function overlay(t) {
   if (h) { c.save(); c.strokeStyle = 'rgba(184,167,255,.95)'; c.lineWidth = 3 / cam.z * 1.6; c.shadowColor = '#b8a7ff'; c.shadowBlur = 24; c.strokeRect(h.x - 2, h.y - 2, h.w + 4, h.h + 4); c.restore(); }
 }
 function frame(t) {
+  t = Math.max(0, +t || 0); /* the very first frame can arrive a hair before t0: a negative time broke the scene colour lookups */
   var c = ctx; madeThisFrame = 0; frameN++;
+  if (ctxDirty) { ctxDirty = false; cv.width = cv.width; for (var q = 0; q < rooms.length; q++) rooms[q].buf = null; } /* an earlier frame failed halfway: wipe the leftover clip/blend state */
   if (L.strip && sel < 0 && !anim && !pinch) { var nr = nearest(); if (nr !== cur) setCur(nr); }
   c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.fillStyle = '#04061a'; c.fillRect(0, 0, cv.width, cv.height);
   c.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * (sw / 2 - cam.x * cam.z), dpr * (sh_ / 2 - cam.y * cam.z));
