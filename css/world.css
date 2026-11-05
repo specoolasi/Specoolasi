@@ -140,3 +140,12 @@ body.has-room .ap[data-theme=news] .ap-block,body.has-room .ap[data-theme=magazi
 .hq-stage.house.compact .hq-lab{padding:2px;font-size:10px;box-shadow:0 2px 6px rgba(0,0,0,.45)}
 .hq-stage.house.compact .hq-lab .em{width:20px;height:20px;font-size:12px}
 .hq-stage.house.compact .hq-lab.sel{padding:3px 10px 3px 3px}
+
+/* ---- phone diorama (house.js, 800px and narrower): one room at a time, swipe sideways ---- */
+.hq-pg,.hq-dots{display:none}
+.hq-stage.house.strip{height:clamp(500px,86svh,680px)}
+.hq-stage.strip:not(.focus) .hq-pg{display:grid;place-items:center;position:absolute;top:46%;width:42px;height:42px;padding:0 0 3px;border-radius:50%;border:2px solid #17131f;background:rgba(255,255,255,.93);color:#17131f;font:800 26px/1 'Plus Jakarta Sans',system-ui,sans-serif;z-index:6;cursor:pointer;box-shadow:3px 3px 0 #17131f}
+.hq-pg.prev{left:8px}.hq-pg.next{right:8px}
+.hq-stage.strip:not(.focus) .hq-dots{display:flex;gap:7px;position:absolute;left:50%;bottom:12px;translate:-50% 0;z-index:6;padding:6px 10px;border-radius:999px;background:rgba(10,8,22,.55)}
+.hq-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);transition:width .2s,background .2s}
+.hq-dots i.on{width:22px;border-radius:5px;background:#b8a7ff}

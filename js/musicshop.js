@@ -2,8 +2,6 @@
 // services.js calls  MusicShop.render(element, data)  and, when your Sanity works arrive, MusicShop.update(records).
 // Records come from the "music" list in js/services.js (or from Sanity). The crates grow by themselves.
 (function () {
-  var mq = window.matchMedia('(max-width:640px)'), mq2 = window.matchMedia('(max-width:1000px)');
-  function perRow() { return mq.matches ? 5 : mq2.matches ? 8 : 10; } // records per wide shelf
   var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor']];
   var current = [];
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -13,18 +11,23 @@
     if (r.img) return '<span class="ms-art"><img src="' + esc(r.img) + '" alt="" draggable="false" loading="lazy"></span>';
     return '<span class="ms-art"><span class="ms-gen" style="--h:' + ((250 + i * 47) % 360) + '"><b>' + esc(title) + '</b><i>' + esc(r.client || r.tag || 'Specoolasi') + '</i></span></span>';
   }
+  var BOX = ['#2a67b5', '#14141a', '#14141a', '#1d1d24'];
+  function rec(r, k) {
+    var tilt = [-.8, .6, -.4, .9, -.7, .5, -.9, .7], drop = [0, 3, 1, 4, 2, 3, 0, 2];
+    return '<li><button type="button" class="ms-rec" data-i="' + k + '" style="--r:' + tilt[k % 8] + 'deg;--d:' + drop[k % 8] + 'px" aria-label="Pull out ' + esc(r.title || 'record') + (r.client ? ' by ' + esc(r.client) : '') + '">' + art(r, k) + '</button></li>';
+  }
+  function bay(items, from, label) {
+    var h = items.length ? items.map(function (r, j) { return rec(r, from + j); }).join('') : '<li class="ms-none">Records coming soon</li>';
+    return '<div class="ms-bayw"><button type="button" class="ms-arr l" aria-label="Scroll the shelf left">&lsaquo;</button><ul class="ms-bay" tabindex="0" aria-label="' + label + ' - swipe sideways">' + h + '</ul><button type="button" class="ms-arr r" aria-label="Scroll the shelf right">&rsaquo;</button></div>';
+  }
+  function boxes() { // the lower shelf holds box sets while there are only a few records
+    var h = ''; for (var i = 0; i < 12; i++) h += '<li class="ms-box" style="--c:' + BOX[i % 4] + '"><span>SPECOOLASI</span></li>';
+    return '<div class="ms-bayw"><ul class="ms-bay ms-boxes" aria-hidden="true">' + h + '</ul></div>';
+  }
   function bins(list) {
-    var per = perRow(), tilt = [-1.4, .8, -.5, 1.2, -.9, .6, -1.2, 1], lift = [0, 4, 1, 5, 2, 4, 0, 3], n = list.length, crates = Math.max(1, Math.ceil(n / per)), h = '', c, j, k, cnt;
-    for (c = 0; c < crates; c++) {
-      h += '<div class="ms-crate" style="--per:' + per + '"><ul class="ms-sleeves">';
-      cnt = 0;
-      for (j = 0; j < per; j++) {
-        k = c * per + j; if (!list[k]) continue; cnt++;
-        h += '<li><button type="button" class="ms-sl" data-i="' + k + '" style="--r:' + tilt[k % 8] + 'deg;--y:' + lift[k % 8] + 'px" aria-label="Pull out ' + esc(list[k].title || 'record') + (list[k].client ? ' by ' + esc(list[k].client) : '') + '">' + art(list[k], k) + '</button></li>';
-      }
-      h += '</ul><div class="ms-face"><b>Crate ' + String.fromCharCode(65 + c) + '</b><small>' + cnt + (cnt === 1 ? ' record' : ' records') + '</small></div></div>';
-    }
-    return h;
+    var n = list.length, split = n > 6 ? Math.ceil(n / 2) : n, top = list.slice(0, split), bot = list.slice(split);
+    return '<div class="ms-cab"><div class="ms-board top"></div>' + bay(top, 0, 'Top shelf') + '<div class="ms-board mid"></div>' +
+      (bot.length ? bay(bot, split, 'Bottom shelf') : boxes()) + '<div class="ms-board bot"></div><i class="ms-leg l"></i><i class="ms-leg r"></i></div><div class="ms-fshadow"></div>';
   }
   function zone(cls, label, inner) { return '<section class="ms-z ' + cls + '" id="' + cls + '" data-z="' + label + '">' + inner + '</section>'; }
 
@@ -54,7 +57,7 @@
       zone('ms-inside', 'Shelves',
         '<div class="ms-beam"></div><div class="ms-wrap"><p class="mono"><b>(A)</b> Results</p><h2>Pick a record.</h2>' +
         '<p class="ms-lead">Welcome inside. Every record in these crates is something we made.</p>' +
-        '<p class="ms-hint">Tap a record to pull it out, spin it and see the details</p><div class="ms-bins" id="ms-bins">' + bins(current) + '</div></div>') +
+        '<p class="ms-hint">Swipe the shelf sideways to see every record &middot; tap one to pull it out</p><div class="ms-bins" id="ms-bins">' + bins(current) + '</div></div>') +
       zone('ms-counter', 'Counter',
         '<div class="ms-wrap"><p class="mono"><b>(B)</b> How it works</p><h2>Four steps. No mystery.</h2>' +
         '<div class="ms-top"><div class="ms-row"><div class="ms-deck" aria-hidden="true"><div class="ms-plat"></div><div class="ms-pivot"></div><div class="ms-arm"></div></div>' +
@@ -67,12 +70,28 @@
 
     if (!root._ms) {
       root._ms = true;
+      var drag = null, quiet = false;
       root.addEventListener('click', function (e) {
-        var b = e.target.closest && e.target.closest('.ms-sl');
+        if (quiet) { e.stopPropagation(); e.preventDefault(); return; }
+        var t = e.target, arr = t.closest && t.closest('.ms-arr');
+        if (arr) { var ul = arr.parentNode.querySelector('.ms-bay'); ul.scrollBy({ left: (arr.classList.contains('l') ? -1 : 1) * ul.clientWidth * .8, behavior: 'smooth' }); return; }
+        var b = t.closest && t.closest('.ms-rec');
         if (b && window.VinylStore) VinylStore.open(+b.dataset.i, b);
+      }, true);
+      root.addEventListener('pointerdown', function (e) { // a mouse can drag the shelf like a finger swipes it
+        var ul = e.pointerType === 'mouse' && e.target.closest && e.target.closest('.ms-bay');
+        if (!ul || ul.classList.contains('ms-boxes')) return;
+        drag = { ul: ul, x: e.clientX, s: ul.scrollLeft, moved: false };
       });
-      var rebin = function () { var el = document.getElementById('ms-bins'); if (el) el.innerHTML = bins(current); };
-      [mq, mq2].forEach(function (m) { if (m.addEventListener) m.addEventListener('change', rebin); else if (m.addListener) m.addListener(rebin); });
+      window.addEventListener('pointermove', function (e) {
+        if (!drag) return; var dx = e.clientX - drag.x;
+        if (!drag.moved && Math.abs(dx) > 6) { drag.moved = true; drag.ul.classList.add('grab'); }
+        if (drag.moved) drag.ul.scrollLeft = drag.s - dx;
+      });
+      window.addEventListener('pointerup', function () {
+        if (!drag) return; var moved = drag.moved; drag.ul.classList.remove('grab'); drag = null;
+        if (moved) { quiet = true; setTimeout(function () { quiet = false; }, 0); }
+      });
     }
     watch(root);
   }

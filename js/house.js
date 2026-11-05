@@ -1,6 +1,8 @@
 /* Specoolasi HQ: one big house at night, cut open so you can see inside. Each room is one account and plays that account's scene.
    Plain Canvas 2D. Needs js/accounts.js and js/scenes/core.js, a.js, b.js loaded first, and a <div id="hq"> to draw into.
-   Wide screens get a 4 x 2 house, phones get a tall 2 x 4 house. */
+   Desktop: one big 4 x 2 house you look at from outside.
+   Phones (800px wide or less): their own diorama, a long single-storey row of all the rooms.
+   You swipe sideways and one room fills the screen at a time. */
 (function () {
 'use strict';
 var mount = document.getElementById('hq'), SC = window.SCENES;
@@ -38,15 +40,21 @@ var labs = ACC.map(function (a, i) {
   el.addEventListener('click', function (e) { e.stopPropagation(); openRoom(i); }); stage.appendChild(el); return el;
 });
 
+/* ---------- phone diorama: arrows, dots and a hint of its own ---------- */
+stage.insertAdjacentHTML('beforeend', '<button type="button" class="hq-pg prev" aria-label="Previous room">&lsaquo;</button><button type="button" class="hq-pg next" aria-label="Next room">&rsaquo;</button><div class="hq-dots" aria-hidden="true">' + ACC.map(function () { return '<i></i>'; }).join('') + '</div>');
+var dots = [].slice.call(stage.querySelectorAll('.hq-dots i')), hintEl = mount.querySelector('.hq-hint'), HINT0 = hintEl ? hintEl.innerHTML : '';
+stage.querySelector('.hq-pg.prev').addEventListener('click', function (e) { e.stopPropagation(); stepRoom(-1); });
+stage.querySelector('.hq-pg.next').addEventListener('click', function (e) { e.stopPropagation(); stepRoom(1); });
+
 /* ---------- the house: sizes in world units ---------- */
 var RW = 336, RH = 189, PT = 18, FS = 26, WT = 40, TOPB = 24, FOUND = 44, OV = 70;
-var LITE = false, lastW = 0, lastH = 0, lastScroll = 0;
+var LITE = false, lastW = 0, lastH = 0, lastScroll = 0, cur = 0;
 var L, rooms = [], HOUSE, FRONT, Q = 1, sw = 0, sh_ = 0, dpr = 1, fit = 1, cam = { x: 0, y: 0, z: 1 }, sel = -1, hover = -1, anim = null, needDraw = true;
-function layout(portrait) {
-  var cols = portrait ? 2 : 4, rows = portrait ? 4 : 2, gh = portrait ? 170 : 200, mx = portrait ? 170 : 160, sk = 140, gd = portrait ? 250 : 200;
+function layout(portrait, strip) {
+  var cols = strip ? 8 : portrait ? 2 : 4, rows = strip ? 1 : portrait ? 4 : 2, gh = strip ? 130 : portrait ? 170 : 200, mx = strip ? 130 : portrait ? 170 : 160, sk = 140, gd = portrait ? 250 : 200;
   var HW = cols * RW + (cols - 1) * PT + 2 * WT, W = HW + 2 * mx, HX = mx, roofBase = sk + gh, RY0 = roofBase + TOPB;
   var rb = RY0 + rows * RH + (rows - 1) * FS, slab = rb + FS, GY = slab + FOUND, H = GY + gd;
-  var o = { portrait: portrait, cols: cols, rows: rows, gh: gh, sk: sk, HW: HW, W: W, H: H, HX: HX, roofBase: roofBase, RY0: RY0, rb: rb, slab: slab, GY: GY, ax: HX + HW / 2 };
+  var o = { portrait: portrait, strip: !!strip, cols: cols, rows: rows, gh: gh, sk: sk, HW: HW, W: W, H: H, HX: HX, roofBase: roofBase, RY0: RY0, rb: rb, slab: slab, GY: GY, ax: HX + HW / 2 };
   rooms = ACC.map(function (a, i) { var c = i % cols, r = (i / cols) | 0; return { i: i, x: HX + WT + c * (RW + PT), y: RY0 + r * (RH + FS), w: RW, h: RH, r: r, c: c, vis: true }; });
   return o;
 }
@@ -171,21 +179,29 @@ function paintFront(c) {
 /* ---------- caches, sizes and camera ---------- */
 var stars = [], clouds = [], flies = [];
 function build() {
-  var w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
+  var w = stage.clientWidth; if (!w) return; var strip = w <= 800; stage.classList.toggle('strip', strip); var h = stage.clientHeight; if (!h) return;
   LITE = w <= 800 || (window.matchMedia && matchMedia('(pointer:coarse)').matches); lastW = w; lastH = h;
   dpr = Math.min(window.devicePixelRatio || 1, LITE ? 1.5 : 2); sw = w; sh_ = h;
   cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-  var portrait = w / h < .95; L = layout(portrait);
+  var portrait = !strip && w / h < .95; L = layout(portrait, strip);
   var fr = { x: L.HX - 110, y: L.sk - 70, w: L.HW + 220 }; fr.h = L.GY + 120 - fr.y;
-  fit = Math.min(w / fr.w, h / fr.h); L.home = { x: fr.x + fr.w / 2, y: fr.y + fr.h / 2, z: fit }; Q = clamp(fit * dpr * 1.9, .7, LITE ? 1 : 1.6);
+  if (strip) { fit = Math.min(w / (RW * 1.1), h / fr.h); L.home = { x: rooms[0].x + RW / 2, y: fr.y + fr.h / 2, z: fit }; }
+  else { fit = Math.min(w / fr.w, h / fr.h); L.home = { x: fr.x + fr.w / 2, y: fr.y + fr.h / 2, z: fit }; }
+  Q = clamp(fit * dpr * 1.9, .7, LITE ? 1 : 1.6);
   function layer(fn) { var c2 = document.createElement('canvas'); c2.width = Math.ceil(L.W * Q); c2.height = Math.ceil(L.H * Q); var x = c2.getContext('2d'); x.setTransform(Q, 0, 0, Q, 0, 0); fn(x); return c2; }
   HOUSE = layer(paintHouse); FRONT = layer(paintFront);
   rs(5); stars = []; for (var i = 0; i < 130; i++) stars.push([rnd() * L.W, rnd() * (L.GY - 140), .5 + rnd() * 1.3, rnd() * 6]);
   clouds = []; for (i = 0; i < 6; i++) clouds.push({ x: rnd() * L.W, y: 30 + rnd() * (L.GY * .45), s: .7 + rnd() * .9, v: 5 + rnd() * 9 });
   flies = []; for (i = 0; i < 16; i++) flies.push([rnd() * L.W, L.GY + 20 + rnd() * (L.H - L.GY - 30), rnd() * 6, .5 + rnd()]);
-  if (sel < 0) cam = { x: L.home.x, y: L.home.y, z: fit }; else focusCam(sel, true);
-  stage.classList.toggle('portrait', portrait); needDraw = true;
+  if (sel < 0) cam = homeCam(); else focusCam(sel, true);
+  stage.classList.toggle('portrait', portrait); setHint(strip); setCur(cur); needDraw = true;
 }
+function homeCam() { return L.strip ? { x: rooms[cur].x + rooms[cur].w / 2, y: L.home.y, z: fit } : { x: L.home.x, y: L.home.y, z: fit }; }
+function setCur(i) { cur = clamp(i, 0, ACC.length - 1); dots.forEach(function (d, k) { d.classList.toggle('on', k === cur); }); }
+function setHint(strip) { if (hintEl) hintEl.innerHTML = strip ? 'Swipe sideways to walk through the rooms &middot; tap a room to step inside' : HINT0; }
+function nearest() { var best = 0, bd = 1e9; rooms.forEach(function (R, i) { var d = Math.abs(R.x + R.w / 2 - cam.x); if (d < bd) { bd = d; best = i; } }); return best; }
+function snapTo(i) { setCur(i); go({ x: rooms[cur].x + rooms[cur].w / 2, y: L.home.y, z: fit }, 380); }
+function stepRoom(d) { var n = clamp(cur + d, 0, ACC.length - 1); if (sel >= 0) openRoom(n); else snapTo(n); }
 function focusCam(i, now) {
   var R = rooms[i], mobile = sw <= 800, cardW = mobile ? 0 : Math.min(370, sw * .38) + 32;
   var rw = mobile ? sw : sw - cardW, rh = mobile ? sh_ * .5 : sh_, z = Math.max(fit, Math.min(rw * .94 / R.w, rh * .92 / R.h));
@@ -204,7 +220,8 @@ function clampCam() {
   var vw = sw / cam.z, vh = sh_ / cam.z; cam.z = clamp(cam.z, fit * .98, fit * 7);
   vw = sw / cam.z; vh = sh_ / cam.z;
   cam.x = vw >= L.W ? L.W / 2 : clamp(cam.x, -vw * .2, L.W + vw * .2 - 0); cam.y = vh >= L.H ? L.H / 2 : clamp(cam.y, -vh * .2, L.H + vh * .2);
-  if (sel < 0 && cam.z <= fit * 1.02 && !anim) { cam.x = L.home.x; cam.y = L.home.y; }
+  if (L.strip && sel < 0 && cam.z <= fit * 1.06) cam.x = clamp(cam.x, rooms[0].x + rooms[0].w / 2, rooms[rooms.length - 1].x + rooms[rooms.length - 1].w / 2);
+  if (sel < 0 && cam.z <= fit * 1.02 && !anim) { if (!L.strip) cam.x = L.home.x; cam.y = L.home.y; }
   stage.style.touchAction = (LITE ? (sel < 0 && cam.z > fit * 1.06) : (sel >= 0 || cam.z > fit * 1.06)) ? 'none' : 'pan-y';
 }
 
@@ -246,7 +263,7 @@ function sky(t) {
   var c = ctx, g = lg(c, 0, 0, 0, L.GY, [[0, '#04061a'], [.45, '#101648'], [.8, '#2c2468'], [1, '#6a3b78']]);
   c.fillStyle = g; c.fillRect(-4000, -4000, L.W + 8000, L.GY + 4000);
   c.fillStyle = lg(c, 0, L.GY - 4, 0, L.H, [[0, '#123a28'], [.5, '#0d2a1f'], [1, '#07160f']]); c.fillRect(-4000, L.GY - 4, L.W + 8000, L.H - L.GY + 4400);
-  var mx = L.W - (L.portrait ? 150 : 190), my = L.portrait ? 120 : 110;
+  var mx = L.strip ? L.HX + 430 : L.W - (L.portrait ? 150 : 190), my = L.portrait ? 120 : 110;
   glow(c, mx, my, 260, '#9fb4ff', .38); c.fillStyle = '#f4f1ff'; c.beginPath(); c.arc(mx, my, 34, 0, 7); c.fill(); c.fillStyle = '#d6d2ee'; [[-10, -6, 8], [8, 10, 6], [12, -12, 5]].forEach(function (k) { c.beginPath(); c.arc(mx + k[0], my + k[1], k[2], 0, 7); c.fill(); });
   c.fillStyle = '#fff'; for (var i = 0; i < stars.length; i++) { var s = stars[i]; c.globalAlpha = (.35 + .65 * Math.abs(Math.sin(t * .9 + s[3]))) * (s[1] < L.GY - 220 ? 1 : .5); c.fillRect(s[0], s[1], s[2], s[2]); } c.globalAlpha = 1;
   clouds.forEach(function (k) {
@@ -269,6 +286,7 @@ function overlay(t) {
 }
 function frame(t) {
   var c = ctx; madeThisFrame = 0; frameN++;
+  if (L.strip && sel < 0 && !anim && !pinch) { var nr = nearest(); if (nr !== cur) setCur(nr); }
   c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.fillStyle = '#04061a'; c.fillRect(0, 0, cv.width, cv.height);
   c.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * (sw / 2 - cam.x * cam.z), dpr * (sh_ / 2 - cam.y * cam.z));
   var vx0 = cam.x - sw / 2 / cam.z, vx1 = cam.x + sw / 2 / cam.z, vy0 = cam.y - sh_ / 2 / cam.z, vy1 = cam.y + sh_ / 2 / cam.z;
@@ -283,7 +301,7 @@ function frame(t) {
 
 /* ---------- opening a room ---------- */
 function openRoom(i) {
-  var a = ACC[i]; sel = i; sync(a); stage.classList.add('focus'); labs.forEach(function (l, k) { l.classList.toggle('sel', k === i); });
+  var a = ACC[i]; sel = i; setCur(i); sync(a); stage.classList.add('focus'); labs.forEach(function (l, k) { l.classList.toggle('sel', k === i); });
   var t = focusCam(i, false); bgFor(i, t.z * rooms[i].w / 1600 * dpr, true); go(t);
   var list = a.posts.length ? a.posts : [{}, {}, {}];
   var tile = function (p) {
@@ -299,7 +317,7 @@ function openRoom(i) {
 }
 function closeRoom() {
   sel = -1; stage.classList.remove('focus'); info.classList.remove('on'); labs.forEach(function (l) { l.classList.remove('sel'); });
-  go({ x: L.home.x, y: L.home.y, z: fit }, 800); stage.style.touchAction = 'pan-y';
+  go(homeCam(), 800); stage.style.touchAction = 'pan-y';
 }
 
 /* ---------- mouse, touch and keys ---------- */
@@ -316,7 +334,7 @@ function zoomAt(f, sx, sy) {
 stage.addEventListener('pointerdown', function (e) {
   if (e.target.closest('button,.hq-info,a')) return;
   ptrs[e.pointerId] = { x: e.clientX, y: e.clientY }; try { stage.setPointerCapture(e.pointerId); } catch (_) {}
-  if (nPtr() === 1) drag = { moved: 0 }; else if (nPtr() === 2) { var k = Object.keys(ptrs).map(function (q) { return ptrs[q]; }); pinch = { d: Math.hypot(k[0].x - k[1].x, k[0].y - k[1].y), z: cam.z }; if (drag) drag.moved = 99; }
+  if (nPtr() === 1) drag = { moved: 0, tx: 0, i0: L.strip ? nearest() : 0 }; else if (nPtr() === 2) { var k = Object.keys(ptrs).map(function (q) { return ptrs[q]; }); pinch = { d: Math.hypot(k[0].x - k[1].x, k[0].y - k[1].y), z: cam.z }; if (drag) drag.moved = 99; }
   anim = null; stage.classList.add('drag');
 });
 stage.addEventListener('pointermove', function (e) {
@@ -327,11 +345,23 @@ stage.addEventListener('pointermove', function (e) {
     var k = Object.keys(ptrs).map(function (q) { return ptrs[q]; }), d = Math.hypot(k[0].x - k[1].x, k[0].y - k[1].y), b = cv.getBoundingClientRect();
     zoomAt(pinch.z * d / pinch.d / cam.z, (k[0].x + k[1].x) / 2 - b.left, (k[0].y + k[1].y) / 2 - b.top); return;
   }
-  if (drag) { drag.moved += Math.abs(dx) + Math.abs(dy); if (drag.moved > 8 && (sel >= 0 || cam.z > fit * 1.06)) { cam.x -= dx / cam.z; cam.y -= dy / cam.z; clampCam(); needDraw = true; } }
+  if (drag) {
+    drag.moved += Math.abs(dx) + Math.abs(dy); drag.tx += dx;
+    if (drag.moved > 8) {
+      var zoomed = cam.z > fit * 1.06;
+      if (L.strip) { if (sel < 0) { cam.x -= dx / cam.z; if (zoomed) cam.y -= dy / cam.z; clampCam(); needDraw = true; } } /* phones: sideways only, a swipe changes room */
+      else if (sel >= 0 || zoomed) { cam.x -= dx / cam.z; cam.y -= dy / cam.z; clampCam(); needDraw = true; }
+    }
+  }
 });
 function endPtr(e, cancel) {
   var p = ptrs[e.pointerId]; if (!p) return; delete ptrs[e.pointerId];
   if (!cancel && drag && nPtr() === 0 && drag.moved < 9) { var i = pickAt(e); if (i >= 0 && i !== sel) openRoom(i); }
+  else if (!cancel && drag && nPtr() === 0 && L.strip && drag.moved < 99) {
+    var tx = drag.tx || 0;
+    if (sel >= 0) { if (Math.abs(tx) > 60) openRoom(clamp(sel + (tx < 0 ? 1 : -1), 0, ACC.length - 1)); }
+    else if (cam.z <= fit * 1.06) snapTo(clamp(tx < -40 ? drag.i0 + 1 : tx > 40 ? drag.i0 - 1 : nearest(), 0, ACC.length - 1));
+  }
   if (nPtr() < 2) pinch = null; if (nPtr() === 0) { drag = null; stage.classList.remove('drag'); }
 }
 stage.addEventListener('pointerup', function (e) { endPtr(e, false); });
