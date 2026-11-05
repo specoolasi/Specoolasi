@@ -182,6 +182,7 @@ body.ms-page{background:#0b0910}
   .ms-open{position:relative;right:auto;bottom:auto;display:table;margin:1.6rem 0 0 auto}
   .ms-rug::before,.ms-rug::after{display:none}
   .ms-lift{right:6px;gap:10px}
+  .ms-lift span{display:none}
 }
 
 /* ---------- 3b. the record cabinet: stained pine, rows of records you swipe sideways ---------- */
