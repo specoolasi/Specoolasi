@@ -164,3 +164,19 @@ body.ms-page{background:#0b0910}
   .ms-rug::before,.ms-rug::after{display:none}
   .ms-lift{right:6px;gap:10px}
 }
+
+/* ---------- wide, shallow shelves: many records at a smaller size ---------- */
+.ms-inside .ms-wrap{max-width:1280px}
+.ms-bins{grid-template-columns:1fr;gap:2.4rem}
+.ms-sleeves{--gap:clamp(4px,.9vw,12px);gap:var(--gap);padding:0 3%;justify-content:flex-start;margin-bottom:calc(-1 * clamp(16px,2.4vw,28px))}
+.ms-sleeves li{flex:0 0 calc((100% - (var(--per) - 1) * var(--gap)) / var(--per));min-width:0}
+.ms-sl:hover,.ms-sl:focus-visible{translate:0 calc(var(--y,0px) - 10px)}
+.ms-art{box-shadow:0 0 0 1px rgba(0,0,0,.5),2px 0 0 -1px rgba(0,0,0,.35),0 8px 10px rgba(0,0,0,.5)}
+.ms-gen{padding:10% 9%}
+.ms-gen b{font-size:clamp(.5rem,.95vw,.8rem)}
+.ms-gen i{font-size:.45rem;letter-spacing:.1em}
+.ms-face{height:clamp(52px,6.5vw,72px);padding:0 4%}
+.ms-face b{font-size:clamp(.95rem,1.8vw,1.3rem)}
+.ms-face small{font-size:.62rem}
+.ms-face::before,.ms-face::after{width:8px;height:8px}
+@media (max-width:640px){.ms-face small{display:none}.ms-gen i{display:none}}

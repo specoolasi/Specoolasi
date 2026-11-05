@@ -2,7 +2,8 @@
 // services.js calls  MusicShop.render(element, data)  and, when your Sanity works arrive, MusicShop.update(records).
 // Records come from the "music" list in js/services.js (or from Sanity). The crates grow by themselves.
 (function () {
-  var mq = window.matchMedia('(max-width:640px)');
+  var mq = window.matchMedia('(max-width:640px)'), mq2 = window.matchMedia('(max-width:1000px)');
+  function perRow() { return mq.matches ? 5 : mq2.matches ? 8 : 10; } // records per wide shelf
   var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor']];
   var current = [];
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -13,9 +14,9 @@
     return '<span class="ms-art"><span class="ms-gen" style="--h:' + ((250 + i * 47) % 360) + '"><b>' + esc(title) + '</b><i>' + esc(r.client || r.tag || 'Specoolasi') + '</i></span></span>';
   }
   function bins(list) {
-    var per = mq.matches ? 3 : 4, tilt = [-2.2, 1.2, -.8, 2, -1.4, .9, -2, 1.6], lift = [0, 8, 3, 10, 2, 9, 1, 7], n = list.length, crates = Math.max(1, Math.ceil(n / per)), h = '', c, j, k, cnt;
+    var per = perRow(), tilt = [-1.4, .8, -.5, 1.2, -.9, .6, -1.2, 1], lift = [0, 4, 1, 5, 2, 4, 0, 3], n = list.length, crates = Math.max(1, Math.ceil(n / per)), h = '', c, j, k, cnt;
     for (c = 0; c < crates; c++) {
-      h += '<div class="ms-crate"><ul class="ms-sleeves">';
+      h += '<div class="ms-crate" style="--per:' + per + '"><ul class="ms-sleeves">';
       cnt = 0;
       for (j = 0; j < per; j++) {
         k = c * per + j; if (!list[k]) continue; cnt++;
@@ -71,7 +72,7 @@
         if (b && window.VinylStore) VinylStore.open(+b.dataset.i, b);
       });
       var rebin = function () { var el = document.getElementById('ms-bins'); if (el) el.innerHTML = bins(current); };
-      if (mq.addEventListener) mq.addEventListener('change', rebin); else if (mq.addListener) mq.addListener(rebin);
+      [mq, mq2].forEach(function (m) { if (m.addEventListener) m.addEventListener('change', rebin); else if (m.addListener) m.addListener(rebin); });
     }
     watch(root);
   }
