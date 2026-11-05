@@ -43,12 +43,12 @@
       zone('ms-roof', 'Roof',
         '<div class="ms-sky"></div><div class="ms-tiles"></div>' +
         '<div class="ms-facade"><div class="ms-wrap">' +
-        '<a class="back" href="index.html#services">← All services</a>' +
-        '<p class="mono" style="margin-top:1.4rem"><b>(' + esc(d.n) + ' / 05)</b> Service</p>' +
+        '<div class="ms-meta"><a class="back" href="index.html#services">← All services</a>' +
+        '<p class="mono"><b>(' + esc(d.n) + ' / 05)</b> Service</p></div>' +
         '<div class="ms-neon"><span class="ms-script">Specoolasi</span><span class="ms-tube">RECORDS</span></div>' +
-        '<div class="ms-board"><h1>' + esc(d.title) + '</h1></div>' +
-        '<p class="ms-intro">' + esc(d.intro) + '</p>' +
-        '<div class="ms-cta"><a class="ms-brass" href="' + esc(d.mail) + '">Start a project →</a></div>' +
+        '<div class="ms-sign"><h1>' + esc(d.title) + '</h1></div>' +
+        '<div class="ms-pitch"><p class="ms-intro">' + esc(d.intro) + '</p>' +
+        '<div class="ms-cta"><a class="ms-brass" href="' + esc(d.mail) + '">Start a project →</a></div></div>' +
         '</div></div>') +
       zone('ms-window', 'Window',
         '<div class="ms-awning"></div><div class="ms-wrap"><div class="ms-glass">' +
