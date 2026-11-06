@@ -15,7 +15,27 @@
   var WALL = 3.9;                            // height of the fallboard (the black panel behind the keys)
   var YAW = .15, PITCH = .93, DIST = 46;     // camera: turned a little, looking down ~53 degrees, far away
   var LX = .5, LZ = -.35;                    // light from upper back-right: a shadow falls to the left and toward the viewer
-  var SCALE = [0, 3, 5, 8, 10], BASE = 46;   // A# minor pentatonic, so every key sounds good with every other
+  // ---- the song: a slow lo-fi loop in A minor (Am7 - Fmaj7 - Cmaj7 - G6), 8 bars, only white keys.
+  //      Notes are white-key steps counted from middle C (C4 = 0, D4 = 1 ... C5 = 7, A3 = -2).
+  var BPM = 72, LOOP = 32, SWING = .1, MAJ = [0, 2, 4, 5, 7, 9, 11];
+  var CH = [{ b: -9, v: [-2, 0, 2, 4] }, { b: -11, v: [-2, 0, 2, 3] }, { b: -7, v: [0, 2, 4, 6] }, { b: -10, v: [-1, 1, 2, 4] }];
+  var MEL = [[[0, 9, 1.5], [2, 7, .5], [2.5, 9, .5], [3, 11, 1]], [[0, 10, 1.5], [2, 9, 1], [3, 7, 1]], [[0, 9, 1], [1.5, 11, .5], [2, 11, 1], [3, 9, 1]], [[0, 8, 1.5], [2, 9, .5], [2.5, 8, .5], [3, 7, 1]],
+    [[.5, 7, .5], [1, 9, 1], [2.5, 12, .5], [3, 11, 1]], [[0, 12, 1], [1, 10, 1], [2, 9, 2]], [[0, 11, 1.5], [2, 9, .5], [2.5, 7, .5], [3, 9, 1]], [[0, 9, 1], [1, 8, 1], [2, 7, 2]]];
+  var ARP = [[.5, 0], [1, 1], [1.5, 2], [2.5, 3], [3, 2], [3.5, 1]];
+  function midiOf(d) { return 60 + 12 * Math.floor(d / 7) + MAJ[((d % 7) + 7) % 7]; }
+  function buildSong() {
+    var ev = [];
+    function add(b, k, d, dur, v) { if (b % 1 === .5) b += SWING; ev.push({ b: b, k: k, d: d, dur: dur, v: v }); }
+    for (var bar = 0; bar < 8; bar++) {
+      var c = CH[bar % 4], t = bar * 4;
+      add(t, 'p', c.b, 2, .85); add(t + 2, 'p', c.b + 4, 1.5, .6);
+      ARP.forEach(function (a) { add(t + a[0], 'p', c.v[a[1]], .6, .42 + Math.random() * .08); });
+      MEL[bar].forEach(function (m) { add(t + m[0], 'p', m[1], m[2], .8); });
+      add(t, 'kick', 0, 0, .9); add(t + 2.5, 'kick', 0, 0, .7); add(t + 1, 'snare', 0, 0, .8); add(t + 3, 'snare', 0, 0, .8);
+      for (var h = 0; h < 8; h++) add(t + h * .5, 'hat', 0, 0, h % 2 ? .45 : .8);
+    }
+    return ev.sort(function (a, b) { return a.b - b.b; });
+  }
   var SKIN = ['#8d5a3c', '#c68642', '#f1c27d', '#5a3825', '#ffdbac', '#a8693f'];
   var SHIRT = ['#f2c230', '#2bb39b', '#3aa66b', '#5b7fe0', '#f08a3c', '#6c4dff', '#e85d75', '#4aa3df'];
   var PANTS = ['#2f3d73', '#3b4a7a', '#27345f', '#4a3f6b', '#3a3a42', '#5b4a3a'];
@@ -37,12 +57,11 @@
     if (!host || host._ks) return; host._ks = true;
     var calm = window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
     host.innerHTML = '<canvas aria-label="A giant piano seen from above with tiny people walking on it. Tap a key to call someone over." role="img"></canvas>' +
-      '<div class="ms-hud"><span class="tl">specoolasi sessions</span><span class="tr">98 BPM &middot; A#m</span>' +
-      '<span class="bl"><b class="n">0</b> on the keys</span><button type="button" class="snd" aria-pressed="false">Sound off</button></div>';
-    var cv = host.querySelector('canvas'), ctx = cv.getContext('2d'), nEl = host.querySelector('.n'), snd = host.querySelector('.snd');
+      '<div class="ms-hud"><button type="button" class="snd" aria-pressed="false">\u266a Sound off</button></div>';
+    var cv = host.querySelector('canvas'), ctx = cv.getContext('2d'), snd = host.querySelector('.snd');
     var cache = document.createElement('canvas'), sctx = cache.getContext('2d');   // floor + piano, drawn once
     var fxc = document.createElement('canvas'), fctx = fxc.getContext('2d');       // lighting + vignette, drawn once
-    var W = 0, H = 0, dpr = 1, F = 1, CX = 0, CY = 0, N = 0, ctr = 0, sc0 = 1, phone = false, offset = 0;
+    var W = 0, H = 0, dpr = 1, F = 1, CX = 0, CY = 0, N = 0, ctr = 0, sc0 = 1, phone = false, keyC = 0;
     var TX = 0, TY = -.25, TZ = 1.4;
     var cp = Math.cos(PITCH), sp = Math.sin(PITCH), cyw = Math.cos(YAW), syw = Math.sin(YAW);
     var people = [], hl = [], flash = [], ripples = [], keyCount = [], onCount = 0, shown = -1;
@@ -73,13 +92,14 @@
       sc0 = W / (phone ? 11.5 : 26);                       // pixels per world unit at the middle of the scene
       F = DIST * sc0; CX = W / 2; CY = H * (phone ? .6 : .57);
       N = Math.ceil(2 * W / sc0 * .8) + 18; if (N % 2) N++; ctr = N / 2;
-      offset = ctr - (phone ? 3 : 6);
+      keyC = 7 * Math.round(ctr / 7);                      // a C key near the middle, so black keys fall in the right places
       drawStatic(); drawFx();
       var want = phone ? 8 : 15;
       while (people.length < want) people.push(newPerson());
       people.length = want;
     }
-    function noteOf(i) { var j = Math.max(0, i - offset); return BASE + 12 * Math.floor(j / 5) + SCALE[j % 5]; }
+    function noteOf(i) { return midiOf(i - keyC); }
+    function foldKey(d) { var i = keyC + d, vis = Math.max(3, Math.floor(W / sc0 * .5) - 1); while (i - ctr > vis) i -= 7; while (i - ctr < -vis) i += 7; return i; } // keep every note on a visible key
 
     // ---------- the stage, the piano (drawn once) ----------
     function floor(c) {
@@ -213,7 +233,6 @@
       else { q = wanderPoint(); p.st = 'walk'; }
       p.tx = q.x; p.tz = q.z; p.run = false;
     }
-    function press(i) { keyCount[i] = (keyCount[i] || 0) + 1; flash[i] = Math.max(flash[i] || 0, .25); noteOn(i); ripples.push({ x: i - ctr + .5, t: 0 }); }
     function release(p) { if (p.key >= 0) keyCount[p.key] = Math.max(0, (keyCount[p.key] || 1) - 1); p.key = -1; }
     function turn(p, to, dt) { var d = to - p.psi; while (d > Math.PI) d -= 6.2832; while (d < -Math.PI) d += 6.2832; p.psi += d * Math.min(1, dt * 9); }
     function step(p, dt) {
@@ -222,13 +241,12 @@
         var dx = p.tx - p.x, dz = p.tz - p.z, d = Math.hypot(dx, dz), v = 1.25 * p.sp * (p.run ? 2.1 : 1) * dt * p.k / .68;
         if (d <= v + .02) {
           p.x = p.tx; p.z = p.tz;
-          if (p.st === 'toKey') { p.st = 'on'; p.t = rand(1.6, 3.4); p.rep = 1.22; onCount++; press(p.key); }
+          if (p.st === 'toKey') { p.st = 'on'; p.t = rand(2.5, 5.5); onCount++; }
           else { p.st = 'idle'; p.wait = rand(.3, 1.8); }
           p.run = false;
         } else { p.x += dx / d * v; p.z += dz / d * v; p.ph += dt * 9 * (p.run ? 1.5 : 1); turn(p, Math.atan2(dx, dz), dt); }
       } else if (p.st === 'on') {
-        p.t -= dt; p.rep -= dt; turn(p, 0, dt);
-        if (p.rep <= 0) { p.rep = 1.22; ripples.push({ x: p.key - ctr + .5, t: 0 }); noteOn(p.key, .5); }
+        p.t -= dt; turn(p, 0, dt);
         if (p.t <= 0) { onCount--; release(p); p.st = 'idle'; p.wait = rand(.4, 1.4); }
       }
     }
@@ -302,10 +320,23 @@
       order.forEach(function (p) { personShadow(ctx, p); });
       order.forEach(function (p) { drawPerson(ctx, p); });
       ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(fxc, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (shown !== onCount) { shown = onCount; nEl.textContent = onCount; }
+    }
+    var song = buildSong(), ev = 0, sb = 0;
+    function fire(e) {
+      if (e.k !== 'p') { drum(e.k, e.v); return; }
+      var i = foldKey(e.d), sec = e.dur * 60 / BPM;
+      flash[i] = Math.max(flash[i] || 0, sec * .9); if (e.dur >= 1 || e.v > .7) ripples.push({ x: i - ctr + .5, t: 0 });
+      noteOn(midiOf(e.d), e.v, sec);
+      if (e.v > .7 && Math.random() < .5 && onCount < 5) {        // someone runs over to dance on the key that just played
+        var best = null, bd = 1e9, tg = keyPoint(i);
+        people.forEach(function (p) { if (p.st === 'on' || p.st === 'toKey') return; var d = Math.hypot(p.x - tg.x, p.z - tg.z); if (d < bd) { bd = d; best = p; } });
+        if (best) { best.key = i; best.tx = tg.x; best.tz = tg.z; best.st = 'toKey'; best.run = true; }
+      }
     }
     function update(dt) {
-      beat += dt * Math.PI * 2 * (98 / 60);
+      sb += dt * BPM / 60; beat = sb * Math.PI * 2;
+      if (sb >= LOOP) { sb -= LOOP; ev = 0; }
+      while (ev < song.length && song[ev].b <= sb) fire(song[ev++]);
       for (var i = 0; i < people.length; i++) step(people[i], dt);
       for (var k = 0; k < N; k++) {
         var want = (keyCount[k] > 0 || flash[k] > 0) ? 1 : 0; hl[k] = (hl[k] || 0) + (want - (hl[k] || 0)) * Math.min(1, dt * 14);
@@ -315,19 +346,41 @@
     }
 
     // ---------- sound (only after the visitor switches it on) ----------
-    function noteOn(i, vel) {
-      if (!soundOn || !AC || voices > 10) return;
-      var f = 440 * Math.pow(2, (noteOf(i) - 69) / 12), t = AC.currentTime, v = (vel || 1) * .5;
-      var o1 = AC.createOscillator(), o2 = AC.createOscillator(), g = AC.createGain(), lp = AC.createBiquadFilter();
-      o1.type = 'triangle'; o1.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2; lp.type = 'lowpass'; lp.frequency.value = 2600;
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v * .55, t + .012); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
-      o1.connect(lp); var g2 = AC.createGain(); g2.gain.value = .25; o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(master);
-      o1.start(t); o2.start(t); o1.stop(t + 1.6); o2.stop(t + 1.6); voices++; o1.onended = function () { voices--; };
+    var rev = null, noiseBuf = null;
+    function initAudio() {
+      var AX = window.AudioContext || window.webkitAudioContext; if (!AX) return false;
+      AC = new AX(); var comp = AC.createDynamicsCompressor(); master = AC.createGain(); master.gain.value = .7; master.connect(comp); comp.connect(AC.destination);
+      var len = AC.sampleRate * 2.4, ib = AC.createBuffer(2, len, AC.sampleRate);
+      for (var c = 0; c < 2; c++) { var d = ib.getChannelData(c); for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+      var cv2 = AC.createConvolver(); cv2.buffer = ib; rev = AC.createGain(); rev.gain.value = .9; var wet = AC.createGain(); wet.gain.value = .32; rev.connect(cv2); cv2.connect(wet); wet.connect(master);
+      noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate); var nd = noiseBuf.getChannelData(0); for (var j = 0; j < nd.length; j++) nd[j] = Math.random() * 2 - 1;
+      return true;
+    }
+    function noteOn(midi, vel, dur) { // a soft, slightly detuned electric-piano tone with a long tail
+      if (!soundOn || !AC || voices > 18) return;
+      var f = 440 * Math.pow(2, (midi - 69) / 12), t = AC.currentTime + .01, v = (vel || 1) * .4, d = dur || 1;
+      var o1 = AC.createOscillator(), o2 = AC.createOscillator(), o3 = AC.createOscillator(), g = AC.createGain(), lp = AC.createBiquadFilter(), g2 = AC.createGain(), g3 = AC.createGain(), send = AC.createGain();
+      o1.type = 'triangle'; o1.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2; o3.type = 'triangle'; o3.frequency.value = f; o3.detune.value = 7;
+      g2.gain.value = .2; g3.gain.value = .55; lp.type = 'lowpass'; lp.frequency.setValueAtTime(2800, t); lp.frequency.exponentialRampToValueAtTime(900, t + 1.2);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(v * .38, t + .45); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.7);
+      o1.connect(lp); o2.connect(g2); g2.connect(lp); o3.connect(g3); g3.connect(lp); lp.connect(g); g.connect(master); send.gain.value = .55; g.connect(send); send.connect(rev);
+      var end = t + d + 1.8; o1.start(t); o2.start(t); o3.start(t); o1.stop(end); o2.stop(end); o3.stop(end); voices++; o1.onended = function () { voices--; };
+    }
+    function drum(kind, vel) { // quiet lo-fi kit: soft kick, brushed snare, tiny hats
+      if (!soundOn || !AC) return; var t = AC.currentTime + .01, g = AC.createGain(), v = vel || 1;
+      if (kind === 'kick') {
+        var o = AC.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(42, t + .14);
+        g.gain.setValueAtTime(.5 * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + .32); o.connect(g); g.connect(master); o.start(t); o.stop(t + .35);
+      } else {
+        var n = AC.createBufferSource(), f = AC.createBiquadFilter(); n.buffer = noiseBuf; f.type = kind === 'snare' ? 'bandpass' : 'highpass'; f.frequency.value = kind === 'snare' ? 1800 : 7500;
+        var top = kind === 'snare' ? .16 * v : .045 * v, len = kind === 'snare' ? .2 : .05;
+        g.gain.setValueAtTime(top, t); g.gain.exponentialRampToValueAtTime(0.0001, t + len); n.connect(f); f.connect(g); g.connect(master); n.start(t, Math.random() * .5); n.stop(t + len + .02);
+      }
     }
     snd.addEventListener('click', function () {
       soundOn = !soundOn;
-      if (soundOn) { if (!AC) { var AX = window.AudioContext || window.webkitAudioContext; if (!AX) { soundOn = false; return; } AC = new AX(); master = AC.createGain(); master.gain.value = .35; master.connect(AC.destination); } if (AC.resume) AC.resume(); }
-      snd.textContent = soundOn ? 'Sound on' : 'Sound off'; snd.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); kick();
+      if (soundOn) { if (!AC && !initAudio()) { soundOn = false; return; } if (AC.resume) AC.resume(); }
+      snd.textContent = soundOn ? '\u266a Sound on' : '\u266a Sound off'; snd.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); kick();
     });
 
     // ---------- tapping a key ----------
@@ -335,7 +388,7 @@
       var b = cv.getBoundingClientRect(), q = U(e.clientX - b.left, e.clientY - b.top, 0);
       if (q.z < -KL / 2 || q.z > KL / 2) return;
       var i = Math.floor(q.x + ctr); if (i < 0 || i >= N) return;
-      flash[i] = .4; noteOn(i, .9); ripples.push({ x: i - ctr + .5, t: 0 });
+      flash[i] = .4; noteOn(noteOf(i), .9, .8); ripples.push({ x: i - ctr + .5, t: 0 });
       var best = null, bd = 1e9, tgt = keyPoint(i);
       people.forEach(function (p) { if (p.st === 'on') return; var d = Math.hypot(p.x - tgt.x, p.z - tgt.z); if (d < bd) { bd = d; best = p; } });
       if (best) { best.key = i; best.tx = tgt.x; best.tz = tgt.z; best.st = 'toKey'; best.run = true; }
@@ -361,7 +414,7 @@
 
     function respawn() { people.forEach(function (p) { if (p.st === 'on') { onCount--; release(p); } var q = wanderPoint(); p.x = q.x; p.z = q.z; p.st = 'idle'; p.wait = rand(.1, 1.2); }); }
     layout(); respawn();
-    for (var i = 0; i < 4; i++) { var p = people[i]; p.key = visibleKey(); var q = keyPoint(p.key); p.x = p.tx = q.x; p.z = p.tz = q.z; p.st = 'on'; p.t = rand(1, 3); p.rep = rand(.3, 1.2); onCount++; keyCount[p.key] = (keyCount[p.key] || 0) + 1; hl[p.key] = 1; }
+    for (var i = 0; i < 4; i++) { var p = people[i]; p.key = visibleKey(); var q = keyPoint(p.key); p.x = p.tx = q.x; p.z = p.tz = q.z; p.st = 'on'; p.t = rand(2, 5); onCount++; }
     update(0); draw();
     if (calm) { burst = 0; }
   }
