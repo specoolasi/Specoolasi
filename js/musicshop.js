@@ -2,7 +2,7 @@
 // services.js calls  MusicShop.render(element, data)  and, when your Sanity works arrive, MusicShop.update(records).
 // Records come from the "music" list in js/services.js (or from Sanity). The crates grow by themselves.
 (function () {
-  var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor']];
+  var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor'], ['Studio', 'ms-studio']];
   var current = [];
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -26,8 +26,8 @@
   }
   function bins(list) {
     var n = list.length, split = n > 6 ? Math.ceil(n / 2) : n, top = list.slice(0, split), bot = list.slice(split);
-    return '<div class="ms-cab"><div class="ms-board top"></div>' + bay(top, 0, 'Top shelf') + '<div class="ms-board mid"></div>' +
-      (bot.length ? bay(bot, split, 'Bottom shelf') : boxes()) + '<div class="ms-board bot"></div><i class="ms-leg l"></i><i class="ms-leg r"></i></div><div class="ms-fshadow"></div>';
+    return '<div class="ms-cab"><div class="ms-plank top"></div>' + bay(top, 0, 'Top shelf') + '<div class="ms-plank mid"></div>' +
+      (bot.length ? bay(bot, split, 'Bottom shelf') : boxes()) + '<div class="ms-plank bot"></div><i class="ms-leg l"></i><i class="ms-leg r"></i></div><div class="ms-fshadow"></div>';
   }
   function zone(cls, label, inner) { return '<section class="ms-z ' + cls + '" id="' + cls + '" data-z="' + label + '">' + inner + '</section>'; }
 
@@ -66,8 +66,14 @@
         '<div class="ms-wrap"><div class="ms-rug"><p class="mono">Ready?</p><h2>Let’s talk about your ' + esc(d.title.toLowerCase()) + '.</h2>' +
         '<p>Send us a short note about your brand and what you need. We will reply as soon as we can.</p><a class="ms-brass" href="' + esc(d.mail) + '">Start a project →</a></div>' +
         (d.next ? '<a class="ms-mat" href="service.html?id=' + esc(d.next.id) + '"><span><small>Next service</small>' + esc(d.next.title) + '</span><span>→</span></a>' : '') + '</div>') +
+      zone('ms-studio', 'Studio',
+        '<div class="ms-wrap"><p class="mono"><b>(C)</b> Studio</p><h2>Step on the keys.</h2>' +
+        '<p class="ms-lead">Downstairs, everybody plays. Tap a key and someone will run over to press it.</p></div>' +
+        '<div class="ms-keys" id="ms-keys"></div>') +
       '<nav class="ms-lift" aria-label="Where you are in the shop">' + lift + '</nav></div>';
 
+    var keysHost = root.querySelector('#ms-keys');
+    if (keysHost) loadKeys(keysHost);
     if (!root._ms) {
       root._ms = true;
       var drag = null, quiet = false;
@@ -104,6 +110,14 @@
     if (!window.IntersectionObserver) return;
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) mark(e.target.id); }); }, { rootMargin: '-50% 0px -50% 0px' });
     zs.forEach(function (z) { io.observe(z); });
+  }
+
+  // the piano animation at the bottom of the page is loaded on its own, so the shop never waits for it
+  function loadKeys(host) {
+    if (window.KeysStage) { window.KeysStage.mount(host); return; }
+    var t = document.createElement('script'); t.src = 'js/keysstage.js';
+    t.onload = function () { if (window.KeysStage) window.KeysStage.mount(host); };
+    document.body.appendChild(t);
   }
 
   function update(list) {
