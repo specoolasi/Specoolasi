@@ -2,7 +2,7 @@
 // services.js calls  MusicShop.render(element, data)  and, when your Sanity works arrive, MusicShop.update(records).
 // Records come from the "music" list in js/services.js (or from Sanity). The crates grow by themselves.
 (function () {
-  var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor']];
+  var ZONES = [['Roof', 'ms-roof'], ['Window', 'ms-window'], ['Shelves', 'ms-inside'], ['Counter', 'ms-counter'], ['Floor', 'ms-floor'], ['Studio', 'ms-studio']];
   var current = [];
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -66,7 +66,10 @@
         '<div class="ms-wrap"><div class="ms-rug"><p class="mono">Ready?</p><h2>Let’s talk about your ' + esc(d.title.toLowerCase()) + '.</h2>' +
         '<p>Send us a short note about your brand and what you need. We will reply as soon as we can.</p><a class="ms-brass" href="' + esc(d.mail) + '">Start a project →</a></div>' +
         (d.next ? '<a class="ms-mat" href="service.html?id=' + esc(d.next.id) + '"><span><small>Next service</small>' + esc(d.next.title) + '</span><span>→</span></a>' : '') + '</div>') +
-      '<section class="ms-z ms-studio" aria-hidden="false"><div class="ms-keys" id="ms-keys"></div></section>' +
+      zone('ms-studio', 'Studio',
+        '<div class="ms-wrap"><p class="mono"><b>(C)</b> Studio</p><h2>Meet the band.</h2>' +
+        '<p class="ms-lead">Downstairs, the band is warming up. Press start and they play along to the track. Tap a player to make them show off.</p></div>' +
+        '<div class="ms-keys" id="ms-keys"></div>') +
       '<nav class="ms-lift" aria-label="Where you are in the shop">' + lift + '</nav></div>';
 
     var keysHost = root.querySelector('#ms-keys');
@@ -109,11 +112,11 @@
     zs.forEach(function (z) { io.observe(z); });
   }
 
-  // the piano animation at the bottom of the page is loaded on its own, so the shop never waits for it
+  // the band animation at the bottom of the page is loaded on its own, so the shop never waits for it
   function loadKeys(host) {
-    if (window.KeysStage) { window.KeysStage.mount(host); return; }
-    var t = document.createElement('script'); t.src = 'js/keysstage.js';
-    t.onload = function () { if (window.KeysStage) window.KeysStage.mount(host); };
+    if (window.BandStage) { window.BandStage.mount(host); return; }
+    var t = document.createElement('script'); t.src = 'js/bandstage.js';
+    t.onload = function () { if (window.BandStage) window.BandStage.mount(host); };
     document.body.appendChild(t);
   }
 
