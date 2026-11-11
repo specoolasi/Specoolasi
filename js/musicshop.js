@@ -68,7 +68,7 @@
         (d.next ? '<a class="ms-mat" href="service.html?id=' + esc(d.next.id) + '"><span><small>Next service</small>' + esc(d.next.title) + '</span><span>→</span></a>' : '') + '</div>') +
       zone('ms-studio', 'Studio',
         '<div class="ms-wrap"><p class="mono"><b>(C)</b> Studio</p><h2>Meet the band.</h2>' +
-        '<p class="ms-lead">Downstairs, the band is warming up. Press start and they play along to the track. Tap a player to make them show off.</p></div>' +
+        '<p class="ms-lead">Downstairs, the band is warming up. Press start and they play an 8-bit tune, every player on their own notes. Tap a player to make them show off.</p></div>' +
         '<div class="ms-keys" id="ms-keys"></div>') +
       '<nav class="ms-lift" aria-label="Where you are in the shop">' + lift + '</nav></div>';
 
