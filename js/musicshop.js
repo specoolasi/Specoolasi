@@ -31,7 +31,7 @@
   }
   function zone(cls, label, inner) { return '<section class="ms-z ' + cls + '" id="' + cls + '" data-z="' + label + '">' + inner + '</section>'; }
 
-  function render(root, d) {
+  function renderCss(root, d) {
     current = d.records || [];
     if (window.VinylStore && VinylStore.load) VinylStore.load(current);
     var rot = [-2, 1.5, -1, 2.2];
@@ -67,8 +67,8 @@
         '<p>Send us a short note about your brand and what you need. We will reply as soon as we can.</p><a class="ms-brass" href="' + esc(d.mail) + '">Start a project →</a></div>' +
         (d.next ? '<a class="ms-mat" href="service.html?id=' + esc(d.next.id) + '"><span><small>Next service</small>' + esc(d.next.title) + '</span><span>→</span></a>' : '') + '</div>') +
       zone('ms-studio', 'Studio',
-        '<div class="ms-wrap"><p class="mono"><b>(C)</b> Studio</p><h2>Meet the band.</h2>' +
-        '<p class="ms-lead">Downstairs, the band is warming up. Press start and they play a chill 8-bit tune, every player on their own notes. Tap a player to make them show off.</p></div>' +
+        '<div class="ms-wrap"><p class="mono"><b>(C)</b> Studio</p><h2>Make a beat.</h2>' +
+        '<p class="ms-lead">The studio at the back. Press play, click the pads, draw notes in the piano roll and move the faders.</p></div>' +
         '<div class="ms-keys" id="ms-keys"></div>') +
       '<nav class="ms-lift" aria-label="Where you are in the shop">' + lift + '</nav></div>';
 
@@ -112,18 +112,31 @@
     zs.forEach(function (z) { io.observe(z); });
   }
 
-  // the band animation at the bottom of the page is loaded on its own, so the shop never waits for it
+  // the music studio at the bottom of the page is loaded on its own, so the shop never waits for it
   function loadKeys(host) {
-    if (window.BandStage) { window.BandStage.mount(host); return; }
-    var t = document.createElement('script'); t.src = 'js/bandstage.js';
-    t.onload = function () { if (window.BandStage) window.BandStage.mount(host); };
+    if (window.DAW) { window.DAW.mount(host); return; }
+    var t = document.createElement('script'); t.src = 'js/daw.js';
+    t.onload = function () { if (window.DAW) window.DAW.mount(host); };
     document.body.appendChild(t);
   }
 
+  var is3d = false;
   function update(list) {
     current = list || [];
     if (window.VinylStore && VinylStore.load) VinylStore.load(current);
+    if (is3d && window.MusicShop3D) { window.MusicShop3D.update(current); return; }
     var el = document.getElementById('ms-bins'); if (el) el.innerHTML = bins(current);
+  }
+  function webglOK() { try { var c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; } }
+  function load(src, ok, bad) { var t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = bad; document.body.appendChild(t); }
+  // the page is a real 3D shop when the browser can draw 3D; otherwise the flat shop above is used
+  function render(root, d) {
+    current = d.records || []; if (window.VinylStore && VinylStore.load) VinylStore.load(current);
+    var plain = function () { is3d = false; root.innerHTML = ''; renderCss(root, d); };
+    if (!webglOK()) { plain(); return; }
+    root.innerHTML = '<p class="state" style="padding:6rem 1.5rem;text-align:center">Opening the shop\u2026</p>';
+    var go = function () { load('js/musicshop3d.js', function () { try { if (window.MusicShop3D && window.MusicShop3D.render(root, d)) { is3d = true; return; } } catch (e) { if (window.console) console.warn(e); } plain(); }, plain); };
+    if (window.THREE) go(); else load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', go, plain);
   }
 
   window.MusicShop = { render: render, update: update };

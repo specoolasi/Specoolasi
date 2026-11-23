@@ -1,0 +1,98 @@
+/* ==========================================================
+   MUSIC PRODUCTION PAGE, 3D version: text panels over a fixed 3D picture, and the music studio at the bottom.
+   js/musicshop3d.js draws the picture; js/daw.js builds the studio.
+   ========================================================== */
+.m3{position:relative;color:#f3ead8;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+.m3-gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;touch-action:pan-y;cursor:grab}
+.m3-vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,10,.55) 100%)}
+.m3-sec{position:relative;z-index:2;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:6.5rem 0 3rem;pointer-events:none}
+.m3-panel{pointer-events:auto;max-width:540px;padding:1.7rem 1.9rem 1.9rem;border-radius:18px;background:rgba(12,9,20,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.13);box-shadow:0 26px 60px rgba(0,0,0,.5)}
+.m3-panel.hero{margin-left:max(1.5rem,6vw)}
+.m3-panel.side{margin-left:auto;margin-right:max(1.5rem,6vw)}
+.m3-panel.top{align-self:flex-start;margin:0 auto;text-align:center;max-width:700px}
+.m3-panel.low{margin:0 auto;text-align:center;max-width:680px}
+.m3 .mono{font:400 .72rem/1.4 'Space Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#cdbfa3;margin:0 0 .5rem}
+.m3 .mono b{color:#f3ead8}
+.m3 .back{color:#f3ead8;text-decoration:none;font-weight:700;display:inline-block;margin-bottom:.6rem}
+.m3 h1{font:900 clamp(2.2rem,5vw,3.8rem)/1 'Playfair Display',Georgia,serif;text-transform:uppercase;letter-spacing:.01em;margin:.2rem 0 .9rem;color:#f6eedd}
+.m3 h2{font:900 clamp(1.7rem,3.8vw,2.7rem)/1.05 'Playfair Display',Georgia,serif;margin:.1rem 0 .8rem;color:#f6eedd}
+.m3 .lead{margin:0 0 1.2rem;font-size:1.02rem;line-height:1.65;color:#e2d8c2}
+.m3-hint{display:block;margin-top:.5rem;font:700 1.35rem/1.15 'Caveat',cursive;color:#f0c969}
+.m3-btn{display:inline-block;text-decoration:none;font:700 .85rem 'Space Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#1c1408;padding:.95rem 1.5rem;border-radius:4px;background:linear-gradient(#e9cf8b,#c9a24a 55%,#9c7a2c);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 5px 0 #6e5418,0 12px 20px rgba(0,0,0,.5)}
+.m3-btn:active{translate:0 3px}
+.m3-btn.ghost{background:transparent;color:#f3ead8;box-shadow:inset 0 0 0 2px rgba(243,234,216,.55);margin-left:.5rem}
+.m3-items,.m3-slips{display:grid;gap:.8rem}
+.m3-item,.m3-slip{padding:.9rem 1rem;border-radius:10px;background:rgba(243,234,216,.08);border:1px solid rgba(255,255,255,.1)}
+.m3-item b,.m3-slip small{font:400 .66rem 'Space Mono',monospace;letter-spacing:.16em;color:#e6b86a;text-transform:uppercase}
+.m3-item h3,.m3-slip h3{margin:.25rem 0 .2rem;font:800 1.15rem/1.1 'Plus Jakarta Sans',sans-serif;color:#f6eedd}
+.m3-item p,.m3-slip p{margin:0;font-size:.9rem;line-height:1.5;color:#d8ceb8}
+@media (max-width:760px){
+  .m3-sec{align-items:flex-end;padding:5.5rem 0 1.4rem}
+  .m3-panel{margin:0 .8rem!important;max-width:none;padding:1.2rem 1.2rem 1.4rem}
+  .m3-panel.top{align-self:flex-start;margin-top:.5rem!important}
+  .m3-btn.ghost{margin:.6rem 0 0}
+  .m3-items,.m3-slips{gap:.6rem}
+}
+
+/* ---- the studio: sits on a solid dark floor and covers the picture ---- */
+.m3-studio{display:block;min-height:0;padding:4.5rem 0 3rem;background:#15181c;pointer-events:auto}
+.m3-studio .wrap{max-width:1400px;margin:0 auto;padding:0 1.5rem 1.6rem}
+.m3-daw{max-width:1400px;margin:0 auto;padding:0 1rem}
+
+/* ---- the DAW screen, styled after FL Studio ---- */
+.daw{background:#23272c;border:1px solid #0b0d10;border-radius:6px;color:#c9cfd6;font:12px/1.3 'Segoe UI',system-ui,sans-serif;box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden;text-align:left}
+.daw button{font:inherit;cursor:pointer}
+.daw h4{margin:0;padding:4px 10px;background:linear-gradient(#3b4248,#30363c);border-bottom:1px solid #111;font-size:11px;font-weight:600;color:#d7dce2}
+.daw h4 small{float:right;color:#8f98a2;font-weight:400}
+.daw-menu{display:flex;flex-wrap:wrap;gap:14px;padding:5px 12px;background:#1b1f23;font-size:11px;color:#9aa3ad;border-bottom:1px solid #0b0d10}
+.daw-menu em{margin-left:auto;font-style:normal;color:#c9cfd6}
+.daw-bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:8px 12px;background:linear-gradient(#444b52,#31373d);border-bottom:1px solid #0b0d10}
+.daw-tr{display:flex;gap:4px}
+.daw-tr button{width:34px;height:30px;border:1px solid #111;border-radius:3px;background:linear-gradient(#59616a,#3f464d);color:#e4e8ec;font-size:13px}
+.daw-tr .b-play.on{background:linear-gradient(#7ae26a,#3fa534);color:#0c2a08}
+.daw-tr .b-rec{color:#e0524a}
+.daw-tr button:disabled{opacity:.7;cursor:default}
+.lcd{display:flex;align-items:baseline;gap:7px;padding:3px 10px;background:#14171a;border:1px solid #000;border-radius:3px;box-shadow:inset 0 1px 6px rgba(0,0,0,.8)}
+.lcd b{font:600 18px 'Space Mono',monospace;color:#f9a03f;letter-spacing:.04em}
+.lcd small{color:#8a7a62;font-size:9px;letter-spacing:.1em}
+.lcd button{width:20px;height:20px;border:1px solid #000;border-radius:2px;background:#2d3338;color:#f9a03f;line-height:1;padding:0}
+.lcd.wide b{min-width:84px}.lcd.pt b{font-size:13px;color:#e8c27a}
+.mv{display:flex;align-items:center;gap:8px;color:#9aa3ad;font-size:10px}
+.mv input{width:90px;accent-color:#f9a03f}
+.cpu{display:flex;gap:2px;margin-left:auto}.cpu i{width:6px;height:22px;background:linear-gradient(#f9a03f 40%,#2a2f34 40%);border-radius:1px}.cpu i:nth-child(2){background:linear-gradient(#f9a03f 60%,#2a2f34 60%)}.cpu i:nth-child(3){background:linear-gradient(#f9a03f 25%,#2a2f34 25%)}
+.daw-body{display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,1fr);grid-template-areas:"br rk rk" "br pl pl" "br rl mx"}
+.daw-browser{grid-area:br;background:#272c31;border-right:1px solid #0b0d10}
+.daw-browser ul{list-style:none;margin:0;padding:6px 0}.daw-browser li{padding:4px 12px;color:#9aa3ad}.daw-browser li.o{color:#f9a03f}
+.daw-rack{grid-area:rk;background:#2b3035;border-bottom:1px solid #0b0d10}
+.daw-pl{grid-area:pl;background:#2a2f34;border-bottom:1px solid #0b0d10}
+.daw-roll{grid-area:rl;background:#2e3338;border-right:1px solid #0b0d10;min-width:0}
+.daw-mix{grid-area:mx;background:#1f2327;min-width:0}
+.rack{padding:4px 0}
+.ch{display:flex;align-items:center;gap:7px;padding:3px 10px;border-bottom:1px solid #1d2126}
+.ch.sel{background:rgba(249,160,63,.07)}
+.led{width:11px;height:11px;border-radius:50%;border:1px solid #000;background:#233023;padding:0;flex:none}
+.led.on{background:#82e872;box-shadow:0 0 6px #82e872}
+.knob{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8a939b,#3a4046);border:1px solid #111;flex:none}
+.nm{width:96px;flex:none;text-align:left;background:linear-gradient(#4b535b,#3a4148);border:1px solid #111;border-left:4px solid var(--c);color:#e4e8ec;padding:4px 7px;border-radius:2px}
+.pads{display:flex;gap:3px;flex:1;min-width:0}
+.pad{flex:1;min-width:14px;height:28px;border-radius:2px;border:1px solid #111;background:linear-gradient(#5b636b,#474e55);cursor:pointer;display:block}
+.pad.g1{background:linear-gradient(#6a737c,#566069)}
+.pad.on{background:linear-gradient(#ffa24f,#e0601f);box-shadow:0 0 7px rgba(255,140,60,.55)}
+.pad.cur{box-shadow:inset 0 0 0 2px rgba(255,255,255,.7)}
+.scroll{overflow:auto;max-width:100%;background:#2a2f34}
+.roll{display:flex;max-height:300px;overflow:auto}.roll .keys{flex:none;position:sticky;left:0;z-index:2}.roll .scroll{flex:1;overflow:visible}
+.daw-pl .scroll{max-height:220px}
+.daw canvas{display:block}
+.mix{display:flex;gap:4px;overflow-x:auto;padding:8px}
+.strip{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:56px;padding:6px 4px 8px;background:linear-gradient(#3b4147,#2c3238);border:1px solid #111;border-radius:3px;color:#aab}
+.strip.m{width:64px;background:linear-gradient(#474e55,#343b42)}
+.fader{writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:auto;width:22px;height:100px;accent-color:#f9a03f}
+.pan{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8a939b,#3a4046);border:1px solid #111}
+.strip b{color:#e4e8ec}.strip small{font-size:9px;text-align:center;line-height:1.1}
+.daw-hint{margin:0;padding:8px 12px;color:#8f98a2;background:#1b1f23;font-size:11px;border-top:1px solid #0b0d10}
+@media (max-width:900px){
+  .daw-body{grid-template-columns:minmax(0,1fr);grid-template-areas:"rk" "pl" "rl" "mx" "br"}
+  .daw-browser ul{display:flex;flex-wrap:wrap}.daw-browser li{padding:4px 10px}
+  .nm{width:72px}.pad{min-width:12px}
+  .daw-bar{gap:8px}.cpu{display:none}
+}
